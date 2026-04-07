@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static PlayersControlls;
 
-public class InputReade : IInputReade, IGameplayActions
+[CreateAssetMenu(fileName = "InputReade", menuName = "ScriptableObjects/InputReade", order = 1)]
+public class InputReade : ScriptableObject, IInputReade, IGameplayActions
 {
     public event Action<Vector2> Move = delegate { };
     public event Action<Vector2> Look = delegate { };
