@@ -3,13 +3,22 @@
     "name": "PlayersControlls",
     "maps": [
         {
-            "name": "Gameplay",
+            "name": "Gamepad",
             "id": "73a8a28c-e91f-4002-927b-eee5758b268b",
             "actions": [
                 {
-                    "name": "Move",
+                    "name": "MoveGamepad",
                     "type": "Value",
                     "id": "2f9848a8-e0f5-4bfe-bdb3-5b3f67d2716d",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookGamepad",
+                    "type": "Value",
+                    "id": "2b5e6630-2c46-400a-8f08-b45c9f124489",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -24,90 +33,115 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Move",
+                    "action": "MoveGamepad",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "756fec5c-8780-45b7-ad3d-94594aadfe37",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "LookGamepad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Keyboard",
+            "id": "339fef50-332b-459d-ad6f-04364632f3ca",
+            "actions": [
+                {
+                    "name": "MoveKeyboard",
+                    "type": "Value",
+                    "id": "9bd91978-770c-4047-936b-178bdc2f073f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LookKeyboard",
+                    "type": "Value",
+                    "id": "dfd4ba2b-c3e1-41df-9943-0da6708c9534",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
                     "name": "WASD",
-                    "id": "c4eba105-94fe-4840-a4ff-e40cb0ec82a2",
+                    "id": "fc0c542f-c659-42a0-b69b-b5e7818dbc0e",
                     "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "MoveKeyboard",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "up",
-                    "id": "6bd9b85e-6131-455a-ba6a-fef35d62a345",
+                    "id": "e76e628d-830f-49ff-a7c3-6c7001f7c685",
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyborad",
-                    "action": "Move",
+                    "action": "MoveKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "down",
-                    "id": "fa898e49-0a0b-4292-900e-32f2c98fe2cb",
+                    "id": "6d3b5069-dde5-4a66-8787-c508e3214164",
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyborad",
-                    "action": "Move",
+                    "action": "MoveKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "left",
-                    "id": "76b891bb-39e5-44b4-8da6-1b1df8a5a804",
+                    "id": "77f40c56-59b9-439e-bea8-fa6445dd9066",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyborad",
-                    "action": "Move",
+                    "action": "MoveKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "right",
-                    "id": "81a27225-a141-43ed-a621-88588683fc30",
+                    "id": "c6a32e1b-a1c0-46dd-bd03-e3dd0a97e086",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyborad",
-                    "action": "Move",
+                    "action": "MoveKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "45304476-006c-41dd-92a1-a3e7edc207fb",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyborad",
+                    "action": "LookKeyboard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
     ],
-    "controlSchemes": [
-        {
-            "name": "Keyborad",
-            "bindingGroup": "Keyborad",
-            "devices": [
-                {
-                    "devicePath": "<Keyboard>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        },
-        {
-            "name": "Gamepad",
-            "bindingGroup": "Gamepad",
-            "devices": [
-                {
-                    "devicePath": "<Gamepad>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
-        }
-    ]
+    "controlSchemes": []
 }
