@@ -307,7 +307,6 @@ GameObject:
   m_Component:
   - component: {fileID: 54822840}
   - component: {fileID: 54822839}
-  - component: {fileID: 54822838}
   - component: {fileID: 54822841}
   m_Layer: 0
   m_Name: CameraPlayer
@@ -316,14 +315,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &54822838
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 54822837}
-  m_Enabled: 1
 --- !u!20 &54822839
 Camera:
   m_ObjectHideFlags: 0
@@ -432,7 +423,6 @@ GameObject:
   m_Component:
   - component: {fileID: 274176121}
   - component: {fileID: 274176124}
-  - component: {fileID: 274176123}
   - component: {fileID: 274176122}
   m_Layer: 0
   m_Name: CameraPlayer
@@ -488,14 +478,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
---- !u!81 &274176123
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 274176120}
-  m_Enabled: 1
 --- !u!20 &274176124
 Camera:
   m_ObjectHideFlags: 0
@@ -1858,8 +1840,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1195457522}
+  - component: {fileID: 1195457524}
+  - component: {fileID: 1195457523}
   m_Layer: 0
-  m_Name: PlayerControllerKeyBoard
+  m_Name: PlayerControllerKeyBoard (Quirino)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1883,6 +1867,50 @@ Transform:
   - {fileID: 875707032}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1195457523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195457521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16e7236b3489672418f0a406a92f5cef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
+  currentInput: 0
+  inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  characterController: {fileID: 1195457524}
+  playerCamera: {fileID: 54822840}
+  maxSpeed: 5
+  acceleration: 8
+  deceleration: 15
+--- !u!143 &1195457524
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195457521}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!43 &1255552725
 Mesh:
   m_ObjectHideFlags: 0
@@ -2071,7 +2099,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1286832922}
   m_Layer: 0
-  m_Name: PlayerControllerGamepad
+  m_Name: PlayerControllerGamepad (Draco)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3772,7 +3800,7 @@ PrefabInstance:
       objectReference: {fileID: 1255552725}
     - target: {fileID: 1976909274555836150, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2770
+      value: 2773
       objectReference: {fileID: 0}
     - target: {fileID: 1977641872028963113, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3788,7 +3816,7 @@ PrefabInstance:
       objectReference: {fileID: 2127253000}
     - target: {fileID: 2239218520496451681, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2805
+      value: 2808
       objectReference: {fileID: 0}
     - target: {fileID: 2434721966509605523, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3804,7 +3832,7 @@ PrefabInstance:
       objectReference: {fileID: 1923544343}
     - target: {fileID: 2602355160997865841, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2805
+      value: 2808
       objectReference: {fileID: 0}
     - target: {fileID: 2737720732044820087, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3812,7 +3840,7 @@ PrefabInstance:
       objectReference: {fileID: 1164383487}
     - target: {fileID: 2737720732044820087, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 4775
+      value: 4778
       objectReference: {fileID: 0}
     - target: {fileID: 3222098128611857153, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3820,7 +3848,7 @@ PrefabInstance:
       objectReference: {fileID: 929268607}
     - target: {fileID: 3222098128611857153, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 4885
+      value: 4888
       objectReference: {fileID: 0}
     - target: {fileID: 3442606897741701212, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3828,7 +3856,7 @@ PrefabInstance:
       objectReference: {fileID: 558114585}
     - target: {fileID: 3442606897741701212, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 4775
+      value: 4778
       objectReference: {fileID: 0}
     - target: {fileID: 3457581504956549726, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3836,7 +3864,7 @@ PrefabInstance:
       objectReference: {fileID: 1614413917}
     - target: {fileID: 3457581504956549726, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2487
+      value: 2490
       objectReference: {fileID: 0}
     - target: {fileID: 3743437728958373680, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3868,7 +3896,7 @@ PrefabInstance:
       objectReference: {fileID: 1731605004}
     - target: {fileID: 5102788377839311933, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 4885
+      value: 4888
       objectReference: {fileID: 0}
     - target: {fileID: 5656998645039126743, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3884,7 +3912,7 @@ PrefabInstance:
       objectReference: {fileID: 1999953313}
     - target: {fileID: 6353177769589464859, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 4775
+      value: 4778
       objectReference: {fileID: 0}
     - target: {fileID: 6400702795469633801, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3892,7 +3920,7 @@ PrefabInstance:
       objectReference: {fileID: 1420607503}
     - target: {fileID: 6400702795469633801, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2487
+      value: 2490
       objectReference: {fileID: 0}
     - target: {fileID: 6791169891951262500, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3964,7 +3992,7 @@ PrefabInstance:
       objectReference: {fileID: 1563088766}
     - target: {fileID: 7718761169026128003, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 1834
+      value: 1837
       objectReference: {fileID: 0}
     - target: {fileID: 7936223928278069195, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -3996,7 +4024,7 @@ PrefabInstance:
       objectReference: {fileID: 2103340080}
     - target: {fileID: 9130828684097153975, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 2634
+      value: 2637
       objectReference: {fileID: 0}
     - target: {fileID: 9222260654681550171, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_Mesh
@@ -4004,7 +4032,7 @@ PrefabInstance:
       objectReference: {fileID: 17013866}
     - target: {fileID: 9222260654681550171, guid: c5670d218031ec74e90763d44cac810f, type: 3}
       propertyPath: m_VersionIndex
-      value: 6174
+      value: 6177
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
