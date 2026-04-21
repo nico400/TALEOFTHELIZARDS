@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using static PlayersControlls;
 
 [CreateAssetMenu(fileName = "InputReade", menuName = "ScriptableObjects/InputReade", order = 1)]
-public class InputReade : ScriptableObject, IInputReade, IKeyboardActions, IGamepadActions
+public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGamepadActions
 {
     public event Action<Vector2> MoveBoard = delegate { };
     public event Action<Vector2> LookBoard = delegate { };
