@@ -4,33 +4,50 @@ using UnityEngine.InputSystem;
 using static PlayersControlls;
 
 [CreateAssetMenu(fileName = "InputReade", menuName = "ScriptableObjects/InputReade", order = 1)]
-public class InputReade : ScriptableObject, IInputReade, IGameplayActions
+public class InputReade : ScriptableObject, IInputReade, IKeyboardActions, IGamepadActions
 {
-    public event Action<Vector2> Move = delegate { };
-    public event Action<Vector2> Look = delegate { };
+    public event Action<Vector2> MoveBoard = delegate { };
+    public event Action<Vector2> LookBoard = delegate { };
+    public event Action<Vector2> MovePad = delegate { };
+    public event Action<Vector2> LookPad = delegate { };
 
     public PlayersControlls InputAction { get; private set; }
 
-    public Vector2 Direction => InputAction.Gameplay.Move.ReadValue<Vector2>();
-    public Vector2 LookDirection => InputAction.Gameplay.Look.ReadValue<Vector2>();
+    // keyboard input
+    public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
+    public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
+
+    // gamepad input
+    public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
+    public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
 
     public void EnablePlayerInput()
     {
         if (InputAction == null)
         {
             InputAction = new PlayersControlls();
-            InputAction.Gameplay.SetCallbacks(this);
+            InputAction.Keyboard.SetCallbacks(this);
         }
         InputAction.Enable();
     }
 
-    public void OnMove(InputAction.CallbackContext context)
+    public void OnMoveKeyboard(InputAction.CallbackContext context)
     {
-        Move.Invoke(context.ReadValue<Vector2>());
+        MoveBoard.Invoke(context.ReadValue<Vector2>());
     }
 
-    public void OnLook(InputAction.CallbackContext context)
+    public void OnLookKeyboard(InputAction.CallbackContext context)
     {
-        Look.Invoke(context.ReadValue<Vector2>());
+        LookBoard.Invoke(context.ReadValue<Vector2>());
+    }
+
+    public void OnMoveGamepad(InputAction.CallbackContext context)
+    {
+        MovePad.Invoke(context.ReadValue<Vector2>());
+    }
+
+    public void OnLookGamepad(InputAction.CallbackContext context)
+    {
+        LookPad.Invoke(context.ReadValue<Vector2>());
     }
 }
