@@ -15,12 +15,20 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] Transform playerCamera;
 
     [Header("Player Movement Config")]
+    [SerializeField] bool canMove = true;
     [SerializeField] float maxSpeed = 5f;
     [SerializeField] float acceleration = 10f;
     [SerializeField] float deceleration = 10f;
 
+    [Header("Player Gravity Config")]
+    [SerializeField] float gravityForce = -9.81f;
+    [SerializeField] float gravityMultiplier = 2f;
+
     IMovimentation movementComponent;
+    IGravity gravityComponent;
+
     Vector3 DirectionMove;
+    [SerializeField] Vector3 Velocity;
 
     private void Awake()
     {
@@ -31,6 +39,7 @@ public class HandlerPlayer : MonoBehaviour
 
         inputReader.EnablePlayerInput();
         movementComponent = new Movimentation(maxSpeed, acceleration, deceleration);
+        gravityComponent = new Gravity(gravityForce, gravityMultiplier);
         characterController = GetComponent<CharacterController>();
     }
 
@@ -50,7 +59,11 @@ public class HandlerPlayer : MonoBehaviour
     private void FixedUpdate()
     {
         Vector2 inputDirection = new Vector2(DirectionMove.x, DirectionMove.z);
-        movementComponent.Move(inputDirection, characterController);
+
+        Velocity = movementComponent.Move(canMove, Velocity, inputDirection);
+        Velocity = gravityComponent.ApplyGravity(characterController.isGrounded, Velocity);
+
+        characterController.Move(Velocity * Time.deltaTime);
     }
 
     private void HandleKeyboardInput()
