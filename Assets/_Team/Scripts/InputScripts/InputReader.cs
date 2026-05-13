@@ -10,17 +10,20 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public event Action<Vector2> LookBoard = delegate { };
     public event Action<Vector2> MovePad = delegate { };
     public event Action<Vector2> LookPad = delegate { };
+    public event Action<bool> JumpBoard = delegate { };
+    public event Action<bool> JumpPad = delegate { };
 
     public PlayersControlls InputAction { get; private set; }
 
     // keyboard input
     public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
     public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
+    public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPerformedThisFrame();
 
     // gamepad input
     public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
     public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
-
+    public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPerformedThisFrame();
     public void EnablePlayerInput()
     {
         if (InputAction == null)
@@ -49,5 +52,15 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public void OnLookGamepad(InputAction.CallbackContext context)
     {
         LookPad.Invoke(context.ReadValue<Vector2>());
+    }
+
+    public void OnInteractionKeyboard(InputAction.CallbackContext context)
+    {
+        JumpBoard.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnInteractionGamepad(InputAction.CallbackContext context)
+    {
+        JumpPad.Invoke(context.ReadValueAsButton());
     }
 }

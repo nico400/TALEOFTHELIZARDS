@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -35,7 +34,10 @@ public class HandlerPlayer : MonoBehaviour
 
     Vector3 DirectionMove;
     Vector3 Velocity;
-    Vector3 lastInputDirection;
+    Vector3 LastInputDirection;
+    Vector3 ObstacleEdgePosition;
+    bool interactInput;
+    bool canJump;
 
     private void Awake()
     {
@@ -62,8 +64,8 @@ public class HandlerPlayer : MonoBehaviour
         // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad)
         switch (currentInput)
         {
-            // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad)
-            // Handle player input based on the current input method (keyboard or gamepad)
+            // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad) // 
+            // Handle player input based on the current input method (keyboard or gamepad) // 
             case StateInput.Keyboard:
                 HandleKeyboardInput();
                 break;
@@ -72,20 +74,9 @@ public class HandlerPlayer : MonoBehaviour
                 break;
         }
 
-        // Scan obstacles in the direction of movement
-        // Scanear obstáculos na direção do movimento
-        if (DirectionMove != Vector3.zero)
-            lastInputDirection = DirectionMove;
-
-        scannerComponent.ScanObstacleInDirection(transform.position, lastInputDirection,
-            obstacleLayer, out RaycastHit hit);
-
-        // Scan the height of the obstacle in front of the player
-        // Scanear a altura do obstáculo à frente do jogador
-        Vector3 obstacleRayPos = transform.position + (lastInputDirection * checkDistanceObstacle) + (Vector3.up * checkHeightObstacle);
-        scannerComponent.ScanObstacleHeight(obstacleRayPos, Vector3.down, 
-            obstacleLayer, out RaycastHit hitHeight);
+        HandleScanner();
     }
+
 
     private void FixedUpdate()
     {
@@ -103,23 +94,75 @@ public class HandlerPlayer : MonoBehaviour
         characterController.Move(Velocity * Time.deltaTime);
     }
 
+    // Handle scanning for obstacles in the direction
+    // of movement and the height of obstacles in front of the player
+    // Lidar com a varredura de obstáculos na direção
+    // do movimento e a altura dos obstáculos à frente do jogador
+    private void HandleScanner()
+    {
+        // Scan obstacles in the direction of movement
+        // Scanear obstáculos na direção do movimento
+        Vector3 camLookDir = playerCamera.forward;
+        camLookDir.y = 0f;
+        camLookDir = camLookDir.normalized;
+
+        // Scan for obstacles in the direction of movement
+        // Scanear obstáculos na direção do movimento
+        bool obstacleInDirection = scannerComponent.ScanObstacleInDirection(transform.position, camLookDir,
+            obstacleLayer, out RaycastHit hit);
+
+        // Scan the height of the obstacle in front of the player
+        // Scanear a altura do obstáculo à frente do jogador
+        //Vector3 obstacleRayPos = transform.position + (camLookDir * checkDistanceObstacle) + (Vector3.up * checkHeightObstacle);
+        Vector3 obstacleRayPos = hit.point + (Vector3.up * checkHeightObstacle);
+        bool obstacleHeight = scannerComponent.ScanObstacleHeight(obstacleRayPos, Vector3.down,
+            obstacleLayer, out RaycastHit hitHeight);
+
+        // If there is an obstacle in the direction of movement and its height is compatible, i can interact with it to jump
+        // Se houver um obstáculo na direção do movimento e sua altura for compatível, posso interagir com ele para pular
+        if (obstacleInDirection && obstacleHeight)
+        {
+            ObstacleEdgePosition = new Vector3(hit.point.x, hitHeight.point.y, hit.point.z);
+            canJump = true;
+        }
+        else
+            canJump = false;
+    }
+
     // Handle keyboard input for player movement
     // Lidar com a entrada do teclado para o movimento do jogador
     private void HandleKeyboardInput()
     {
+        // Calculate the movement direction based on the camera's forward and right vectors
+        // Calcular a direção do movimento com base nos vetores forward e right da câmera
         DirectionMove = playerCamera.forward * inputReader.DirectionBoard.y +
             playerCamera.right * inputReader.DirectionBoard.x;
         DirectionMove.y = 0f;
         DirectionMove = DirectionMove.normalized;
+
+        // Check for interaction input from the keyboard
+        // Verificar a entrada de interação do teclado
+        interactInput = inputReader.InteractBoardInput;
     }
 
     // Handle gamepad input for player movement
     // Lidar com a entrada do gamepad para o movimento do jogador
     private void HandleGamepadInput()
     {
+        // Calculate the movement direction based on the camera's forward and right vectors
+        // Calcular a direção do movimento com base nos vetores forward e right da câmera
         DirectionMove = playerCamera.forward * inputReader.DirectionPad.y +
             playerCamera.right * inputReader.DirectionPad.x;
         DirectionMove.y = 0f;
         DirectionMove = DirectionMove.normalized;
+
+        // Check for interaction input from the gamepad
+        // Verificar a entrada de interação do gamepad
+        interactInput = inputReader.InteractPadInput;
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(ObstacleEdgePosition, 0.1f);
     }
 }
