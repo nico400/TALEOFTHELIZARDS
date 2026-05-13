@@ -100,7 +100,7 @@ public class HandlerPlayer : MonoBehaviour
         // Se o jogador puder pular e a entrada de interação for detectada, realizar a ação de pulo
         if (interactInput && canJump)
         {
-            jumpComponent.JumpInitialize(ObstacleEdgePosition + (PosInFrontToEdge * -1.25f), PosInFrontToEdge, isJumping);
+            jumpComponent.JumpInitialize(ObstacleEdgePosition, PosInFrontToEdge, isJumping);
             isJumping = true;            
         }
         bool jumpingInProgress = jumpComponent.Jump(characterController, isJumping);

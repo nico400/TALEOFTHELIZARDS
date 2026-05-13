@@ -4873,7 +4873,7 @@ MonoBehaviour:
   currentInput: 1
   inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
   characterController: {fileID: 1195457524}
-  playerCamera: {fileID: 54822840}
+  playerCamera: {fileID: 274176121}
   canMove: 1
   maxSpeed: 5
   acceleration: 8
@@ -4886,8 +4886,8 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1
-  jumpHeight: 2
-  jumpDuration: 1.25
+  jumpHeight: 4
+  jumpDuration: 0.75
 --- !u!43 &1420607503
 Mesh:
   m_ObjectHideFlags: 0
