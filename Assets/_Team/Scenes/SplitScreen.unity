@@ -3052,6 +3052,7 @@ MonoBehaviour:
   maxSpeed: 5
   acceleration: 8
   deceleration: 15
+  useGravity: 1
   gravityForce: -9.8
   gravityMultiplier: 2
   checkDistanceObstacle: 2.5
@@ -3059,6 +3060,8 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1
+  jumpHeight: 2
+  jumpDuration: 0.75
 --- !u!143 &1195457524
 CharacterController:
   m_ObjectHideFlags: 0
@@ -3343,6 +3346,7 @@ MonoBehaviour:
   maxSpeed: 5
   acceleration: 8
   deceleration: 15
+  useGravity: 1
   gravityForce: -9.8
   gravityMultiplier: 2
   checkDistanceObstacle: 2.5
@@ -3350,6 +3354,8 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1
+  jumpHeight: 2
+  jumpDuration: 1.25
 --- !u!43 &1420607503
 Mesh:
   m_ObjectHideFlags: 0

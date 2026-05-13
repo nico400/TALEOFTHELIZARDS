@@ -20,6 +20,7 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] float deceleration = 10f;
 
     [Header("Player Gravity Config")]
+    [SerializeField] bool useGravity = true;
     [SerializeField] float gravityForce = -9.81f;
     [SerializeField] float gravityMultiplier = 2f;
 
@@ -28,16 +29,23 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] float checkHeightObstacle = 1f;
     [SerializeField] LayerMask obstacleLayer;
 
+    [Header("Player Jump Config")]
+    [SerializeField] float jumpHeight = 2.5f;
+    [SerializeField] float jumpDuration = 1.25f;
+
     IMovimentation movementComponent;
     IGravity gravityComponent;
     IScannerEnvironment scannerComponent;
+    IJump jumpComponent;
 
     Vector3 DirectionMove;
     Vector3 Velocity;
     Vector3 LastInputDirection;
     Vector3 ObstacleEdgePosition;
+    Vector3 PosInFrontToEdge;
     bool interactInput;
     bool canJump;
+    bool isJumping;
 
     private void Awake()
     {
@@ -55,6 +63,7 @@ public class HandlerPlayer : MonoBehaviour
         movementComponent = new Movimentation(maxSpeed, acceleration, deceleration);
         gravityComponent = new Gravity(gravityForce, gravityMultiplier);
         scannerComponent = new ScannerEnvieronment(checkDistanceObstacle, checkHeightObstacle);
+        jumpComponent = new JumpPlayer(jumpDuration, jumpHeight);
         characterController = GetComponent<CharacterController>();
     }
 
@@ -75,10 +84,30 @@ public class HandlerPlayer : MonoBehaviour
         }
 
         HandleScanner();
+        HandleJump();
     }
 
 
     private void FixedUpdate()
+    {
+        if (isJumping) return; // Skip movement and gravity handling during the jump // Pular o tratamento de movimento e gravidade durante o pulo
+        HandleMoviment();
+    }
+
+    void HandleJump()
+    {
+        // If the player can jump and the interaction input is detected, perform the jump action
+        // Se o jogador puder pular e a entrada de interação for detectada, realizar a ação de pulo
+        if (interactInput && canJump)
+        {
+            jumpComponent.JumpInitialize(ObstacleEdgePosition, PosInFrontToEdge, isJumping);
+            isJumping = true;            
+        }
+        bool jumpingInProgress = jumpComponent.Jump(characterController, isJumping);
+        if (!jumpingInProgress)
+            isJumping = false;
+    }
+    void HandleMoviment()
     {
         // Handle player movement and gravity
         // Lidar com o movimento e gravidade do jogador
@@ -98,7 +127,7 @@ public class HandlerPlayer : MonoBehaviour
     // of movement and the height of obstacles in front of the player
     // Lidar com a varredura de obstáculos na direção
     // do movimento e a altura dos obstáculos à frente do jogador
-    private void HandleScanner()
+    void HandleScanner()
     {
         // Scan obstacles in the direction of movement
         // Scanear obstáculos na direção do movimento
@@ -123,6 +152,7 @@ public class HandlerPlayer : MonoBehaviour
         if (obstacleInDirection && obstacleHeight)
         {
             ObstacleEdgePosition = new Vector3(hit.point.x, hitHeight.point.y, hit.point.z);
+            PosInFrontToEdge = hit.point + (hit.normal * 1.45f);
             canJump = true;
         }
         else
@@ -131,7 +161,7 @@ public class HandlerPlayer : MonoBehaviour
 
     // Handle keyboard input for player movement
     // Lidar com a entrada do teclado para o movimento do jogador
-    private void HandleKeyboardInput()
+    void HandleKeyboardInput()
     {
         // Calculate the movement direction based on the camera's forward and right vectors
         // Calcular a direção do movimento com base nos vetores forward e right da câmera
@@ -164,5 +194,6 @@ public class HandlerPlayer : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(ObstacleEdgePosition, 0.1f);
+        Gizmos.DrawSphere(PosInFrontToEdge, 0.1f);
     }
 }
