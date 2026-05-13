@@ -25,7 +25,7 @@ public class Movimentation : IMovimentation
 
         if (direction != Vector2.zero)
         {
-            currentSpeed += acceleration * Time.deltaTime;
+            currentSpeed += acceleration * Time.fixedDeltaTime;
             currentSpeed = Mathf.Min(currentSpeed, maxSpeed);
 
             horizontalDirection = new Vector3(direction.x, 0f, direction.y).normalized;
@@ -34,7 +34,7 @@ public class Movimentation : IMovimentation
         }
         else
         {
-            currentSpeed -= deceleration * Time.deltaTime;
+            currentSpeed -= deceleration * Time.fixedDeltaTime;
             currentSpeed = Mathf.Max(currentSpeed, 0f);
 
             velocity.x = horizontalDirection.x * currentSpeed;

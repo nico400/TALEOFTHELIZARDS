@@ -30,6 +30,7 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
         {
             InputAction = new PlayersControlls();
             InputAction.Keyboard.SetCallbacks(this);
+            InputAction.Gamepad.SetCallbacks(this);
         }
         InputAction.Enable();
     }
