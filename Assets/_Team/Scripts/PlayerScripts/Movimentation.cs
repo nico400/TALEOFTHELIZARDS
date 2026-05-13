@@ -28,7 +28,6 @@ public class Movimentation : IMovimentation
             currentSpeed += acceleration * Time.deltaTime;
             currentSpeed = Mathf.Min(currentSpeed, maxSpeed);
 
-            // direção horizontal (Y fica 0, gravidade trata Y)
             horizontalDirection = new Vector3(direction.x, 0f, direction.y).normalized;
             velocity.x = horizontalDirection.x * currentSpeed;
             velocity.z = horizontalDirection.z * currentSpeed;

@@ -109,6 +109,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""InteractionGamepad"",
+                    ""type"": ""Button"",
+                    ""id"": ""4942efd0-779c-4d2b-829d-01d966ebf94f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -131,6 +140,17 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""LookGamepad"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9e19fb10-bed3-4d74-b83a-818d9c5f5705"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InteractionGamepad"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -157,6 +177,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""InteractionKeyboard"",
+                    ""type"": ""Button"",
+                    ""id"": ""136d77c3-d4b0-421c-a39f-846bb57a5f68"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -225,6 +254,17 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""action"": ""LookKeyboard"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e3abb1be-e520-4c5c-97e7-9abfd2b9b8ae"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InteractionKeyboard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -235,10 +275,12 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_MoveGamepad = m_Gamepad.FindAction("MoveGamepad", throwIfNotFound: true);
         m_Gamepad_LookGamepad = m_Gamepad.FindAction("LookGamepad", throwIfNotFound: true);
+        m_Gamepad_InteractionGamepad = m_Gamepad.FindAction("InteractionGamepad", throwIfNotFound: true);
         // Keyboard
         m_Keyboard = asset.FindActionMap("Keyboard", throwIfNotFound: true);
         m_Keyboard_MoveKeyboard = m_Keyboard.FindAction("MoveKeyboard", throwIfNotFound: true);
         m_Keyboard_LookKeyboard = m_Keyboard.FindAction("LookKeyboard", throwIfNotFound: true);
+        m_Keyboard_InteractionKeyboard = m_Keyboard.FindAction("InteractionKeyboard", throwIfNotFound: true);
     }
 
     ~@PlayersControlls()
@@ -322,6 +364,7 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private List<IGamepadActions> m_GamepadActionsCallbackInterfaces = new List<IGamepadActions>();
     private readonly InputAction m_Gamepad_MoveGamepad;
     private readonly InputAction m_Gamepad_LookGamepad;
+    private readonly InputAction m_Gamepad_InteractionGamepad;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gamepad".
     /// </summary>
@@ -341,6 +384,10 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gamepad/LookGamepad".
         /// </summary>
         public InputAction @LookGamepad => m_Wrapper.m_Gamepad_LookGamepad;
+        /// <summary>
+        /// Provides access to the underlying input action "Gamepad/InteractionGamepad".
+        /// </summary>
+        public InputAction @InteractionGamepad => m_Wrapper.m_Gamepad_InteractionGamepad;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -373,6 +420,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @LookGamepad.started += instance.OnLookGamepad;
             @LookGamepad.performed += instance.OnLookGamepad;
             @LookGamepad.canceled += instance.OnLookGamepad;
+            @InteractionGamepad.started += instance.OnInteractionGamepad;
+            @InteractionGamepad.performed += instance.OnInteractionGamepad;
+            @InteractionGamepad.canceled += instance.OnInteractionGamepad;
         }
 
         /// <summary>
@@ -390,6 +440,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @LookGamepad.started -= instance.OnLookGamepad;
             @LookGamepad.performed -= instance.OnLookGamepad;
             @LookGamepad.canceled -= instance.OnLookGamepad;
+            @InteractionGamepad.started -= instance.OnInteractionGamepad;
+            @InteractionGamepad.performed -= instance.OnInteractionGamepad;
+            @InteractionGamepad.canceled -= instance.OnInteractionGamepad;
         }
 
         /// <summary>
@@ -429,6 +482,7 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private List<IKeyboardActions> m_KeyboardActionsCallbackInterfaces = new List<IKeyboardActions>();
     private readonly InputAction m_Keyboard_MoveKeyboard;
     private readonly InputAction m_Keyboard_LookKeyboard;
+    private readonly InputAction m_Keyboard_InteractionKeyboard;
     /// <summary>
     /// Provides access to input actions defined in input action map "Keyboard".
     /// </summary>
@@ -448,6 +502,10 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Keyboard/LookKeyboard".
         /// </summary>
         public InputAction @LookKeyboard => m_Wrapper.m_Keyboard_LookKeyboard;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/InteractionKeyboard".
+        /// </summary>
+        public InputAction @InteractionKeyboard => m_Wrapper.m_Keyboard_InteractionKeyboard;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -480,6 +538,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @LookKeyboard.started += instance.OnLookKeyboard;
             @LookKeyboard.performed += instance.OnLookKeyboard;
             @LookKeyboard.canceled += instance.OnLookKeyboard;
+            @InteractionKeyboard.started += instance.OnInteractionKeyboard;
+            @InteractionKeyboard.performed += instance.OnInteractionKeyboard;
+            @InteractionKeyboard.canceled += instance.OnInteractionKeyboard;
         }
 
         /// <summary>
@@ -497,6 +558,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @LookKeyboard.started -= instance.OnLookKeyboard;
             @LookKeyboard.performed -= instance.OnLookKeyboard;
             @LookKeyboard.canceled -= instance.OnLookKeyboard;
+            @InteractionKeyboard.started -= instance.OnInteractionKeyboard;
+            @InteractionKeyboard.performed -= instance.OnInteractionKeyboard;
+            @InteractionKeyboard.canceled -= instance.OnInteractionKeyboard;
         }
 
         /// <summary>
@@ -551,6 +615,13 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLookGamepad(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "InteractionGamepad" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteractionGamepad(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Keyboard" which allows adding and removing callbacks.
@@ -573,5 +644,12 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLookKeyboard(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "InteractionKeyboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteractionKeyboard(InputAction.CallbackContext context);
     }
 }

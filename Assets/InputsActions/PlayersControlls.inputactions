@@ -23,6 +23,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "InteractionGamepad",
+                    "type": "Button",
+                    "id": "4942efd0-779c-4d2b-829d-01d966ebf94f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -45,6 +54,17 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "LookGamepad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9e19fb10-bed3-4d74-b83a-818d9c5f5705",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InteractionGamepad",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -71,6 +91,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "InteractionKeyboard",
+                    "type": "Button",
+                    "id": "136d77c3-d4b0-421c-a39f-846bb57a5f68",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -137,6 +166,17 @@
                     "processors": "",
                     "groups": ";Keyborad",
                     "action": "LookKeyboard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e3abb1be-e520-4c5c-97e7-9abfd2b9b8ae",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InteractionKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
