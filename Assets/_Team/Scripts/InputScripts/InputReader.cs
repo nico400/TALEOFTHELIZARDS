@@ -12,18 +12,23 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public event Action<Vector2> LookPad = delegate { };
     public event Action<bool> JumpBoard = delegate { };
     public event Action<bool> JumpPad = delegate { };
-
+    public event Action<bool> AimBoard = delegate { };
+    public event Action<bool> FireTongue = delegate { };
+    
     public PlayersControlls InputAction { get; private set; }
 
     // keyboard input
     public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
     public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
     public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPerformedThisFrame();
+    public bool AimBoardInput => InputAction.Keyboard.AimKeyboard.IsPressed();
+    public bool FireTongueInput => InputAction.Keyboard.FireTongue.WasPerformedThisFrame();
 
     // gamepad input
     public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
     public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
     public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPerformedThisFrame();
+
     public void EnablePlayerInput()
     {
         if (InputAction == null)
@@ -63,5 +68,15 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public void OnInteractionGamepad(InputAction.CallbackContext context)
     {
         JumpPad.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnAimKeyboard(InputAction.CallbackContext context)
+    {
+        AimBoard.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnFireTongue(InputAction.CallbackContext context)
+    {
+        FireTongue.Invoke(context.ReadValueAsButton());
     }
 }

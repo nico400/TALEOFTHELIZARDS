@@ -100,6 +100,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "AimKeyboard",
+                    "type": "PassThrough",
+                    "id": "58f286dc-f76b-492c-9a16-7708f33bb6e7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FireTongue",
+                    "type": "PassThrough",
+                    "id": "2b398d98-96cf-4d93-8b94-379aba5695d7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -177,6 +195,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "InteractionKeyboard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ef6cb30e-549f-402b-9bad-32c536da1402",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AimKeyboard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "41c3f716-685c-4c95-bc58-2e86df8aa48c",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FireTongue",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

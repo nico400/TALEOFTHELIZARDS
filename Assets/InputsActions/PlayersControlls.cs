@@ -186,6 +186,24 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AimKeyboard"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""58f286dc-f76b-492c-9a16-7708f33bb6e7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FireTongue"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""2b398d98-96cf-4d93-8b94-379aba5695d7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -265,6 +283,28 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""action"": ""InteractionKeyboard"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ef6cb30e-549f-402b-9bad-32c536da1402"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AimKeyboard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""41c3f716-685c-4c95-bc58-2e86df8aa48c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FireTongue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -281,6 +321,8 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         m_Keyboard_MoveKeyboard = m_Keyboard.FindAction("MoveKeyboard", throwIfNotFound: true);
         m_Keyboard_LookKeyboard = m_Keyboard.FindAction("LookKeyboard", throwIfNotFound: true);
         m_Keyboard_InteractionKeyboard = m_Keyboard.FindAction("InteractionKeyboard", throwIfNotFound: true);
+        m_Keyboard_AimKeyboard = m_Keyboard.FindAction("AimKeyboard", throwIfNotFound: true);
+        m_Keyboard_FireTongue = m_Keyboard.FindAction("FireTongue", throwIfNotFound: true);
     }
 
     ~@PlayersControlls()
@@ -483,6 +525,8 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Keyboard_MoveKeyboard;
     private readonly InputAction m_Keyboard_LookKeyboard;
     private readonly InputAction m_Keyboard_InteractionKeyboard;
+    private readonly InputAction m_Keyboard_AimKeyboard;
+    private readonly InputAction m_Keyboard_FireTongue;
     /// <summary>
     /// Provides access to input actions defined in input action map "Keyboard".
     /// </summary>
@@ -506,6 +550,14 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Keyboard/InteractionKeyboard".
         /// </summary>
         public InputAction @InteractionKeyboard => m_Wrapper.m_Keyboard_InteractionKeyboard;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/AimKeyboard".
+        /// </summary>
+        public InputAction @AimKeyboard => m_Wrapper.m_Keyboard_AimKeyboard;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/FireTongue".
+        /// </summary>
+        public InputAction @FireTongue => m_Wrapper.m_Keyboard_FireTongue;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -541,6 +593,12 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionKeyboard.started += instance.OnInteractionKeyboard;
             @InteractionKeyboard.performed += instance.OnInteractionKeyboard;
             @InteractionKeyboard.canceled += instance.OnInteractionKeyboard;
+            @AimKeyboard.started += instance.OnAimKeyboard;
+            @AimKeyboard.performed += instance.OnAimKeyboard;
+            @AimKeyboard.canceled += instance.OnAimKeyboard;
+            @FireTongue.started += instance.OnFireTongue;
+            @FireTongue.performed += instance.OnFireTongue;
+            @FireTongue.canceled += instance.OnFireTongue;
         }
 
         /// <summary>
@@ -561,6 +619,12 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionKeyboard.started -= instance.OnInteractionKeyboard;
             @InteractionKeyboard.performed -= instance.OnInteractionKeyboard;
             @InteractionKeyboard.canceled -= instance.OnInteractionKeyboard;
+            @AimKeyboard.started -= instance.OnAimKeyboard;
+            @AimKeyboard.performed -= instance.OnAimKeyboard;
+            @AimKeyboard.canceled -= instance.OnAimKeyboard;
+            @FireTongue.started -= instance.OnFireTongue;
+            @FireTongue.performed -= instance.OnFireTongue;
+            @FireTongue.canceled -= instance.OnFireTongue;
         }
 
         /// <summary>
@@ -651,5 +715,19 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractionKeyboard(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AimKeyboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAimKeyboard(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FireTongue" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFireTongue(InputAction.CallbackContext context);
     }
 }
