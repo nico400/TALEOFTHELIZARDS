@@ -1,5 +1,7 @@
 using System;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Playables;
 
 [RequireComponent(typeof(CharacterController))]
 public class HandlerPlayer : MonoBehaviour
@@ -34,15 +36,26 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] float jumpHeight = 2.5f;
     [SerializeField] float jumpDuration = 1.25f;
 
+    [Header("Player Abilities Config")]
+    [SerializeField] float tongueRange = 5f;
+    [SerializeField] float radiusSphereCast = 0.5f;
+    [SerializeField] float tongueSpeed = 10f;
+    [SerializeField] LayerMask tongueAttachLayer;
+
     IMovimentation movementComponent;
     IGravity gravityComponent;
     IScannerEnvironment scannerComponent;
     IJump jumpComponent;
 
+    // habilidades específicas (exemplo: pulo, mira, ataque com língua)
+    IGetPositionTongueFinal getPositionTongueFinal;
+
     Vector3 DirectionMove;
     Vector3 Velocity;
     Vector3 ObstacleEdgePosition;
     Vector3 PosInFrontToEdge;
+    Vector3 PosTogueFinal;
+
     bool interactInput;
     bool canJump;
     bool isJumping;
@@ -51,6 +64,8 @@ public class HandlerPlayer : MonoBehaviour
 
     private void Awake()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+
         if (inputReader == null)
             Debug.LogError("InputReader não foi atribuído!", this);
         if (playerCamera == null)
@@ -67,40 +82,40 @@ public class HandlerPlayer : MonoBehaviour
 
         switch (currentInput)
         {
+            // Inicializar componentes das habilidades específicas com base no método de entrada selecionado (teclado ou gamepad)
             case StateInput.Keyboard:
-                InitAbilitysKeyboard();
+                InitAbilitysComponentsKeyboard();
                 break;
             case StateInput.Gamepad:
-                InitAbilitysGamepad();
+                InitAbilitysComponentsGamepad();
                 break;
         }
 
         characterController = GetComponent<CharacterController>();
     }
 
-    // Usar Update para lidar com a entrada do jogador,
-    // varredura de obstáculos e ações de pulo
+    // Usar Update para lidar com a entrada do jogador, varredura de obstáculos, ação de pulo e habilidades, garantindo uma resposta rápida às ações do jogador
     private void Update()
     {
         HandleAllInputs();
         HandleScanner();
         HandleJump();
+        HandleAbilitys();
     }
 
-    // Usar FixedUpdate para lidar com o movimento e a gravidade do jogador,
-    // garantindo uma atualização consistente
+    // Usar FixedUpdate para lidar com o movimento e a gravidade do jogador, garantindo uma atualização consistente
     private void FixedUpdate()
     {
         if (isJumping) return; // Pular o tratamento de movimento e gravidade durante o pulo
         HandleMoviment();
     }
-
-    private void InitAbilitysKeyboard()
+    // Inicializar habilidades específicas para o teclado, como mira e ataque com língua
+    private void InitAbilitysComponentsKeyboard()
     {
-        
+        getPositionTongueFinal = new GetPositionTongueFinal(tongueRange, radiusSphereCast, tongueAttachLayer);
     }
 
-    private void InitAbilitysGamepad()
+    private void InitAbilitysComponentsGamepad()
     {
         
     }
@@ -130,6 +145,7 @@ public class HandlerPlayer : MonoBehaviour
         if (!jumpingInProgress)
             isJumping = false;
     }
+    // Lidar com o movimento e a gravidade do jogador usando os componentes de movimentação e gravidade
     void HandleMoviment()
     {
         // Lidar com o movimento e gravidade do jogador
@@ -142,8 +158,32 @@ public class HandlerPlayer : MonoBehaviour
         // Mover o jogador usando o CharacterController
         characterController.Move(Velocity * Time.deltaTime);
     }
-    // Lidar com a varredura de obstáculos na direção
-    // do movimento e a altura dos obstáculos à frente do jogador
+    // Lidar com as habilidades específicas do jogador, como mira e ataque com língua, com base na entrada do jogador
+    private void HandleAbilitys()
+    {
+        switch (currentInput)
+        {
+            case StateInput.Keyboard:
+                UseAbilityKeyboard();
+                break;
+            case StateInput.Gamepad:
+                UseAbilityGamepad();
+                break;
+        }
+    }
+    // Implementar a lógica para usar as habilidades específicas do jogador de gamepad, como a escalada e subir em cima da língua, com base na entrada do jogador
+    private void UseAbilityGamepad()
+    {
+
+    }
+    // Implementar a lógica para usar as habilidades específicas do jogador de teclado, como mira e ataque com língua, com base na entrada do jogador
+    private void UseAbilityKeyboard()
+    {       
+        if (getPositionTongueFinal != null)
+            PosTogueFinal = getPositionTongueFinal.PositionFinalTongue(transform.position, playerCamera.forward);
+    }
+
+    // Lidar com a varredura de obstáculos na direção do movimento e a altura dos obstáculos à frente do jogador
     void HandleScanner()
     {
         // Scanear obstáculos na direção do movimento
@@ -202,5 +242,35 @@ public class HandlerPlayer : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(ObstacleEdgePosition, 0.1f);
         Gizmos.DrawSphere(PosInFrontToEdge, 0.1f);
+
+        if (currentInput == StateInput.Keyboard)
+        {
+            Vector3 origin = transform.position;
+            Vector3 targetPosition = origin + (playerCamera.forward * tongueRange);
+            DrawWireCapsule(origin, targetPosition, radiusSphereCast);
+            Gizmos.DrawSphere(PosTogueFinal, 0.1f);
+        }
+            
+    }
+    public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius)
+    {
+        Vector3 upOffset = point2 - point1;
+        Vector3 up = upOffset.Equals(default) ? Vector3.up : upOffset.normalized;
+        Quaternion orientation = Quaternion.FromToRotation(Vector3.up, up);
+        Vector3 forward = orientation * Vector3.forward;
+        Vector3 right = orientation * Vector3.right;
+        // z axis
+        Handles.DrawWireArc(point2, forward, right, 180, radius);
+        Handles.DrawWireArc(point1, forward, right, -180, radius);
+        Handles.DrawLine(point1 + right * radius, point2 + right * radius);
+        Handles.DrawLine(point1 - right * radius, point2 - right * radius);
+        // x axis
+        Handles.DrawWireArc(point2, right, forward, -180, radius);
+        Handles.DrawWireArc(point1, right, forward, 180, radius);
+        Handles.DrawLine(point1 + forward * radius, point2 + forward * radius);
+        Handles.DrawLine(point1 - forward * radius, point2 - forward * radius);
+        // y axis
+        Handles.DrawWireDisc(point2, up, radius);
+        Handles.DrawWireDisc(point1, up, radius);
     }
 }
