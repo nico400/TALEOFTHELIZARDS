@@ -36,19 +36,24 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] float jumpHeight = 2.5f;
     [SerializeField] float jumpDuration = 1.25f;
 
-    [Header("Player Abilities Config")]
+    [Header("Player Togue Abilit Config")]
     [SerializeField] float tongueRange = 5f;
     [SerializeField] float radiusSphereCast = 0.5f;
     [SerializeField] float tongueSpeed = 10f;
+    [SerializeField] string tongueAttachTag = "TongueAttach";
     [SerializeField] LayerMask tongueAttachLayer;
+    [SerializeField] LineRenderer lineRenderer;
+    [SerializeField] Transform startTogue;
 
+    // componentes
     IMovimentation movementComponent;
     IGravity gravityComponent;
     IScannerEnvironment scannerComponent;
     IJump jumpComponent;
 
-    // habilidades específicas (exemplo: pulo, mira, ataque com língua)
+    // habilidades específicas (exemplo: ataque com língua)
     IGetPositionTongueFinal getPositionTongueFinal;
+    ITongueAttach tongueAttachComponent;
 
     Vector3 DirectionMove;
     Vector3 Velocity;
@@ -112,7 +117,11 @@ public class HandlerPlayer : MonoBehaviour
     // Inicializar habilidades específicas para o teclado, como mira e ataque com língua
     private void InitAbilitysComponentsKeyboard()
     {
-        getPositionTongueFinal = new GetPositionTongueFinal(tongueRange, radiusSphereCast, tongueAttachLayer);
+        if(lineRenderer == null)
+            lineRenderer = GetComponent<LineRenderer>();
+
+        getPositionTongueFinal = new GetPositionTongueFinal(tongueRange, radiusSphereCast, tongueAttachTag, tongueAttachLayer, obstacleLayer);
+        tongueAttachComponent = new TongueAttach();
     }
 
     private void InitAbilitysComponentsGamepad()
@@ -181,6 +190,21 @@ public class HandlerPlayer : MonoBehaviour
     {       
         if (getPositionTongueFinal != null)
             PosTogueFinal = getPositionTongueFinal.PositionFinalTongue(transform.position, playerCamera.forward);
+
+        // Lógica para ataque com língua
+        if (aimInput && fireTongueInput && PosTogueFinal != Vector3.zero)
+        {
+            // Implementar a lógica para lançar a língua em direção ao alvo e verificar se ela se conecta a um ponto de ancoragem
+            // Se a língua se conectar, permitir que o jogador suba nela ou use-a para alcançar áreas inacessíveis
+            // Exemplo: Verificar se a língua se conecta a um ponto de ancoragem e, em caso afirmativo, mover o jogador em direção a esse ponto
+            if (tongueAttachComponent != null)
+                tongueAttachComponent.TongueAttachActive(lineRenderer, startTogue.position, PosTogueFinal);
+            
+        }
+        if (!fireTongueInput)
+        {
+            tongueAttachComponent.TongueAttachDeactive(lineRenderer);
+        }
     }
 
     // Lidar com a varredura de obstáculos na direção do movimento e a altura dos obstáculos à frente do jogador
@@ -222,8 +246,13 @@ public class HandlerPlayer : MonoBehaviour
 
         // Verificar a entrada de interação do teclado
         interactInput = inputReader.InteractBoardInput;
+
+        // Verificar a entrada de mira com língua do teclado
         aimInput = inputReader.AimBoardInput;
-        fireTongueInput = inputReader.FireTongueInput;
+
+        // Verificar a entrada de ataque com língua do teclado 
+        if (aimInput)
+            fireTongueInput = inputReader.FireTongueInput;
     }
     // Lidar com a entrada do gamepad para o movimento do jogador
     private void HandleGamepadInput()

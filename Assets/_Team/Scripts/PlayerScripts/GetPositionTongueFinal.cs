@@ -4,32 +4,45 @@ public class GetPositionTongueFinal : IGetPositionTongueFinal
 {
     float distance;
     float radiusSphereCast;
+    string tagName;
     LayerMask layerToAttach;
-    public GetPositionTongueFinal(float distance, float radiusCapsuleCast, LayerMask layerToAttach)
+    LayerMask layerObstacle;
+
+    public GetPositionTongueFinal(float distance, float radiusCapsuleCast, string tagName, LayerMask layerToAttach, LayerMask layerObstacle)
     {
         this.distance = distance;
         this.radiusSphereCast = radiusCapsuleCast;
+        this.tagName = tagName;
         this.layerToAttach = layerToAttach;
+        this.layerObstacle = layerObstacle;
     }
+
     public Vector3 PositionFinalTongue(Vector3 posStart, Vector3 direction)
     {
-        RaycastHit sphereHit;
-        Physics.SphereCast(posStart, radiusSphereCast, direction, out sphereHit, distance, layerToAttach);
-        RaycastHit normalHit;
-        Physics.Raycast(posStart, direction, out normalHit, distance, layerToAttach);
+        LayerMask combineMask = layerToAttach | layerObstacle;
 
-        Vector3 realHitPoint;
+        RaycastHit raycastHit;
+        bool rayHit = Physics.Raycast(posStart, direction, out raycastHit, distance, combineMask);
 
-        // Opção 1 - Ray Hit
-        if (normalHit.point != Vector3.zero)
-            realHitPoint = normalHit.point;
-        // Opção 2 - Sphere Hit
-        else if (sphereHit.point != Vector3.zero)
-            realHitPoint = sphereHit.point;
-        // Opção 3 - errou
-        else
-            realHitPoint = Vector3.zero;
+        RaycastHit spherecastHit;
+        bool sphereHit = Physics.SphereCast(posStart, radiusSphereCast, direction, out spherecastHit, distance, combineMask);
 
-        return realHitPoint;
+        if (rayHit)
+        {
+            if (!raycastHit.collider.CompareTag(tagName))
+                return Vector3.zero;
+
+            return raycastHit.point;
+        }
+
+        else if (sphereHit)
+        {
+            if (!spherecastHit.collider.CompareTag(tagName))
+                return Vector3.zero;
+
+            return spherecastHit.point;
+        }
+
+        return Vector3.zero;
     }
 }

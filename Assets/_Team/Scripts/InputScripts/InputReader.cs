@@ -22,7 +22,7 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
     public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPerformedThisFrame();
     public bool AimBoardInput => InputAction.Keyboard.AimKeyboard.IsPressed();
-    public bool FireTongueInput => InputAction.Keyboard.FireTongue.WasPerformedThisFrame();
+    public bool FireTongueInput => InputAction.Keyboard.FireTongue.IsPressed();
 
     // gamepad input
     public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
