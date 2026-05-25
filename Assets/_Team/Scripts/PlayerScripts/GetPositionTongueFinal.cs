@@ -27,20 +27,22 @@ public class GetPositionTongueFinal : IGetPositionTongueFinal
         RaycastHit spherecastHit;
         bool sphereHit = Physics.SphereCast(posStart, radiusSphereCast, direction, out spherecastHit, distance, combineMask);
 
-        if (rayHit)
-        {
-            if (!raycastHit.collider.CompareTag(tagName))
-                return Vector3.zero;
-
-            return raycastHit.point;
-        }
-
-        else if (sphereHit)
+        if (sphereHit)
         {
             if (!spherecastHit.collider.CompareTag(tagName))
                 return Vector3.zero;
 
-            return spherecastHit.point;
+            spherecastHit.collider.TryGetComponent<AttachObjects>(out AttachObjects at);
+            return at.AttachPos.position;
+        }
+
+        else if (rayHit)
+        {
+            if (!raycastHit.collider.CompareTag(tagName))
+                return Vector3.zero;
+
+            raycastHit.collider.TryGetComponent<AttachObjects>(out AttachObjects at);
+            return at.AttachPos.position;
         }
 
         return Vector3.zero;

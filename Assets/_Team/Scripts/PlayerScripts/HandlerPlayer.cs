@@ -1,4 +1,5 @@
 using System;
+using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Playables;
@@ -44,6 +45,7 @@ public class HandlerPlayer : MonoBehaviour
     [SerializeField] LayerMask tongueAttachLayer;
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] Transform startTogue;
+    [SerializeField] CinemachineCameraOffset aimOffsetCam;
 
     // componentes
     IMovimentation movementComponent;
@@ -114,11 +116,14 @@ public class HandlerPlayer : MonoBehaviour
         if (isJumping) return; // Pular o tratamento de movimento e gravidade durante o pulo
         HandleMoviment();
     }
+
     // Inicializar habilidades específicas para o teclado, como mira e ataque com língua
     private void InitAbilitysComponentsKeyboard()
     {
-        if(lineRenderer == null)
+        if (lineRenderer == null)
             lineRenderer = GetComponent<LineRenderer>();
+        if (aimOffsetCam == null)
+            aimOffsetCam = GetComponentInChildren<CinemachineCameraOffset>();
 
         getPositionTongueFinal = new GetPositionTongueFinal(tongueRange, radiusSphereCast, tongueAttachTag, tongueAttachLayer, obstacleLayer);
         tongueAttachComponent = new TongueAttach();
@@ -128,6 +133,7 @@ public class HandlerPlayer : MonoBehaviour
     {
         
     }
+
     // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad)
     void HandleAllInputs()
     {     
@@ -141,6 +147,7 @@ public class HandlerPlayer : MonoBehaviour
                 break;
         }
     }
+
     // Lidar com a ação de pulo do jogador
     void HandleJump()
     {
@@ -154,6 +161,7 @@ public class HandlerPlayer : MonoBehaviour
         if (!jumpingInProgress)
             isJumping = false;
     }
+
     // Lidar com o movimento e a gravidade do jogador usando os componentes de movimentação e gravidade
     void HandleMoviment()
     {
@@ -167,6 +175,7 @@ public class HandlerPlayer : MonoBehaviour
         // Mover o jogador usando o CharacterController
         characterController.Move(Velocity * Time.deltaTime);
     }
+
     // Lidar com as habilidades específicas do jogador, como mira e ataque com língua, com base na entrada do jogador
     private void HandleAbilitys()
     {
@@ -180,30 +189,35 @@ public class HandlerPlayer : MonoBehaviour
                 break;
         }
     }
+
     // Implementar a lógica para usar as habilidades específicas do jogador de gamepad, como a escalada e subir em cima da língua, com base na entrada do jogador
     private void UseAbilityGamepad()
     {
 
     }
+
     // Implementar a lógica para usar as habilidades específicas do jogador de teclado, como mira e ataque com língua, com base na entrada do jogador
     private void UseAbilityKeyboard()
     {       
-        if (getPositionTongueFinal != null)
-            PosTogueFinal = getPositionTongueFinal.PositionFinalTongue(transform.position, playerCamera.forward);
+        if (getPositionTongueFinal != null && PosTogueFinal == Vector3.zero)
+            PosTogueFinal = getPositionTongueFinal.PositionFinalTongue(playerCamera.position + (playerCamera.forward * 2), playerCamera.forward);
 
         // Lógica para ataque com língua
-        if (aimInput && fireTongueInput && PosTogueFinal != Vector3.zero)
+        if (aimInput)
         {
-            // Implementar a lógica para lançar a língua em direção ao alvo e verificar se ela se conecta a um ponto de ancoragem
-            // Se a língua se conectar, permitir que o jogador suba nela ou use-a para alcançar áreas inacessíveis
-            // Exemplo: Verificar se a língua se conecta a um ponto de ancoragem e, em caso afirmativo, mover o jogador em direção a esse ponto
-            if (tongueAttachComponent != null)
-                tongueAttachComponent.TongueAttachActive(lineRenderer, startTogue.position, PosTogueFinal);
+            aimOffsetCam.Offset = new Vector3(1f, 0f, 0.75f);
             
-        }
-        if (!fireTongueInput)
+            if (fireTongueInput && PosTogueFinal != Vector3.zero)
+                if (tongueAttachComponent != null)
+                    tongueAttachComponent.TongueAttachActive(lineRenderer, startTogue.position, PosTogueFinal);
+            
+        }else
+            aimOffsetCam.Offset = Vector3.zero;
+
+        if (!fireTongueInput || !aimInput)
         {
             tongueAttachComponent.TongueAttachDeactive(lineRenderer);
+            PosTogueFinal = Vector3.zero;
         }
     }
 
@@ -235,6 +249,7 @@ public class HandlerPlayer : MonoBehaviour
         else
             canJump = false;
     }
+
     // Lidar com a entrada do teclado para o movimento do jogador
     void HandleKeyboardInput()
     {
@@ -254,6 +269,7 @@ public class HandlerPlayer : MonoBehaviour
         if (aimInput)
             fireTongueInput = inputReader.FireTongueInput;
     }
+
     // Lidar com a entrada do gamepad para o movimento do jogador
     private void HandleGamepadInput()
     {
@@ -266,6 +282,7 @@ public class HandlerPlayer : MonoBehaviour
         // Verificar a entrada de interação do gamepad
         interactInput = inputReader.InteractPadInput;
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
@@ -274,13 +291,13 @@ public class HandlerPlayer : MonoBehaviour
 
         if (currentInput == StateInput.Keyboard)
         {
-            Vector3 origin = transform.position;
+            Vector3 origin = playerCamera.position;
             Vector3 targetPosition = origin + (playerCamera.forward * tongueRange);
             DrawWireCapsule(origin, targetPosition, radiusSphereCast);
             Gizmos.DrawSphere(PosTogueFinal, 0.1f);
-        }
-            
+        }         
     }
+
     public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius)
     {
         Vector3 upOffset = point2 - point1;
