@@ -2,51 +2,51 @@ using UnityEngine;
 
 public class JumpPlayer : IJump
 {
-    float durationJump;
-    float jumpHeight;
-    float timer;
+    private float m_durationJump;
+    private float m_jumpHeight;
+    private float m_timer;
 
-    Vector3 startPos;
-    Vector3 endPos;
-    Vector3 midPos;
+    private Vector3 m_startPos;
+    private Vector3 m_endPos;
+    private Vector3 m_midPos;
 
-    bool isVaulting;
-    bool isCompleted; // Nova flag para evitar o loop
+    private bool m_isVaulting;
+    private bool m_isCompleted; // Nova flag para evitar o loop
 
     public JumpPlayer(float durationJump, float jumpHeight)
     {
-        this.durationJump = durationJump;
-        this.jumpHeight = jumpHeight;
+        m_durationJump = durationJump;
+        m_jumpHeight = jumpHeight;
     }
 
     // Mudamos para retornar bool: true = pulando, false = terminou
     public bool Jump(CharacterController ch, bool isJumping)
     {
-        if (!isJumping || isCompleted) return false;
+        if (!isJumping || m_isCompleted) return false;
 
         // FASE 1: Ajuste para o ponto inicial
-        if (!isVaulting)
+        if (!m_isVaulting)
         {
-            Vector3 nextPosition = Vector3.MoveTowards(ch.transform.position, startPos, 5 * Time.deltaTime);
+            Vector3 nextPosition = Vector3.MoveTowards(ch.transform.position, m_startPos, 5 * Time.deltaTime);
             Vector3 motion = nextPosition - ch.transform.position;
             ch.Move(motion);
 
-            if (Vector3.Distance(ch.transform.position, startPos) < 0.01f)
+            if (Vector3.Distance(ch.transform.position, m_startPos) < 0.01f)
             {
-                ch.transform.position = startPos;
-                isVaulting = true;
+                ch.transform.position = m_startPos;
+                m_isVaulting = true;
             }
             return true; // Continua executando o Jump
         }
 
         // FASE 2: O Salto (Vaulting)
-        timer += Time.deltaTime;
-        float t = Mathf.Clamp01(timer / durationJump);
+        m_timer += Time.deltaTime;
+        float t = Mathf.Clamp01(m_timer / m_durationJump);
 
         if (t < 1f)
         {
-            Vector3 m1 = Vector3.Lerp(startPos, midPos, t);
-            Vector3 m2 = Vector3.Lerp(midPos, endPos, t);
+            Vector3 m1 = Vector3.Lerp(m_startPos, m_midPos, t);
+            Vector3 m2 = Vector3.Lerp(m_midPos, m_endPos, t);
             Vector3 targetPos = Vector3.Lerp(m1, m2, t);
 
             Vector3 motion = targetPos - ch.transform.position;
@@ -56,13 +56,13 @@ public class JumpPlayer : IJump
         else
         {
             // FASE 3: Finalização
-            Vector3 finalMotion = endPos - ch.transform.position;
+            Vector3 finalMotion = m_endPos - ch.transform.position;
             ch.Move(finalMotion);
-            ch.transform.position = endPos;
+            ch.transform.position = m_endPos;
 
-            isVaulting = false;
-            isCompleted = true; // Impede que o código rode novamente até um novo Initialize
-            timer = 0;
+            m_isVaulting = false;
+            m_isCompleted = true; // Impede que o código rode novamente até um novo Initialize
+            m_timer = 0;
             return false; // Avisa que ACABOU
         }
     }
@@ -71,12 +71,12 @@ public class JumpPlayer : IJump
     {
         if (isJumping) return;
 
-        startPos = pointStart;
-        endPos = pointEnd;
-        midPos = Vector3.Lerp(startPos, endPos, 0.5f) + Vector3.up * jumpHeight;
+        m_startPos = pointStart;
+        m_endPos = pointEnd;
+        m_midPos = Vector3.Lerp(m_startPos, m_endPos, 0.5f) + Vector3.up * m_jumpHeight;
 
-        timer = 0;
-        isVaulting = false;
-        isCompleted = false; // Resetamos a flag para um novo pulo
+        m_timer = 0;
+        m_isVaulting = false;
+        m_isCompleted = false; // Resetamos a flag para um novo pulo
     }
 }

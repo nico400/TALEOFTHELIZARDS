@@ -1,303 +1,178 @@
-using System;
 using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Playables;
 
 [RequireComponent(typeof(CharacterController))]
 public class HandlerPlayer : MonoBehaviour
 {
-    enum StateInput { Keyboard, Gamepad }
-    [SerializeField] StateInput currentInput = StateInput.Keyboard;
+    private enum StateInput { Keyboard, Gamepad }
+    [SerializeField] private StateInput m_currentInput = StateInput.Keyboard;
 
     [Header("Input Controller")]
-    [SerializeField] InputReader inputReader;
+    [SerializeField] private InputReader m_inputReader;
 
     [Header("Player Components")]
-    [SerializeField] CharacterController characterController;
-    [SerializeField] Transform playerCamera;
+    [SerializeField] private CharacterController m_characterController;
+    [SerializeField] private Transform m_playerCamera;
 
     [Header("Player Movement Config")]
-    [SerializeField] bool canMove = true;
-    [SerializeField] float maxSpeed = 5f;
-    [SerializeField] float acceleration = 10f;
-    [SerializeField] float deceleration = 10f;
+    [SerializeField] private bool m_canMove = true;
+    [SerializeField] private float m_maxSpeed = 5f;
+    [SerializeField] private float m_acceleration = 10f;
+    [SerializeField] private float m_deceleration = 10f;
 
     [Header("Player Gravity Config")]
-    [SerializeField] bool useGravity = true;
-    [SerializeField] float gravityForce = -9.81f;
-    [SerializeField] float gravityMultiplier = 2f;
+    [SerializeField] private bool m_useGravity = true;
+    [SerializeField] private float m_gravityForce = -9.81f;
+    [SerializeField] private float m_gravityMultiplier = 2f;
 
     [Header("Player Scanner Config")]
-    [SerializeField] float checkDistanceObstacle = 1f;
-    [SerializeField] float checkHeightObstacle = 1f;
-    [SerializeField] LayerMask obstacleLayer;
+    [SerializeField] private float m_checkDistanceObstacle = 1f;
+    [SerializeField] private float m_checkHeightObstacle = 1f;
+    [SerializeField] private LayerMask m_obstacleLayer;
 
     [Header("Player Jump Config")]
-    [SerializeField] float jumpHeight = 2.5f;
-    [SerializeField] float jumpDuration = 1.25f;
+    [SerializeField] private float m_jumpHeight = 2.5f;
+    [SerializeField] private float m_jumpDuration = 1.25f;
 
     [Header("Player Togue Abilit Config")]
-    [SerializeField] float tongueRange = 5f;
-    [SerializeField] float radiusSphereCast = 0.5f;
-    [SerializeField] float tongueSpeed = 10f;
-    [SerializeField] string tongueAttachTag = "TongueAttach";
-    [SerializeField] LayerMask tongueAttachLayer;
-    [SerializeField] LineRenderer lineRenderer;
-    [SerializeField] Transform startTogue;
-    [SerializeField] CinemachineCameraOffset aimOffsetCam;
+    [SerializeField] private float m_tongueRange = 5f;
+    [SerializeField] private float m_radiusSphereCast = 0.5f;
+    [SerializeField] private float m_tongueSpeed = 10f;
+    [SerializeField] private string m_tongueAttachTag = "TongueAttach";
+    [SerializeField] private LayerMask m_tongueAttachLayer;
+    [SerializeField] private LineRenderer m_lineRenderer;
+    [SerializeField] private Transform m_startTogue;
+    [SerializeField] private CinemachineCameraOffset m_aimOffsetCam;
 
     // componentes
-    IMovimentation movementComponent;
-    IGravity gravityComponent;
-    IScannerEnvironment scannerComponent;
-    IJump jumpComponent;
+    private IMovimentation m_movementComponent;
+    private IGravity m_gravityComponent;
+    private IScannerEnvironment m_scannerComponent;
+    private IJump m_jumpComponent;
 
     // habilidades específicas (exemplo: ataque com língua)
-    IGetPositionTongueFinal getPositionTongueFinal;
-    ITongueAttach tongueAttachComponent;
+    private IGetPositionTongueFinal m_getPositionTongueFinal;
+    private ITongueAttach m_tongueAttachComponent;
 
-    Vector3 DirectionMove;
-    Vector3 Velocity;
-    Vector3 ObstacleEdgePosition;
-    Vector3 PosInFrontToEdge;
-    Vector3 PosTogueFinal;
+    private Vector3 m_directionMove;
+    private Vector3 m_velocity;
+    private Vector3 m_obstacleEdgePosition;
+    private Vector3 m_posInFrontToEdge;
+    private Vector3 m_posTogueFinal;
 
-    bool interactInput;
-    bool canJump;
-    bool isJumping;
-    bool aimInput;
-    bool fireTongueInput;
+    private bool m_interactInput;
+    private bool m_canJump;
+    private bool m_isJumping;
 
+    private IPlayerInputStrategy m_inputStrategy;
+     
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
 
-        if (inputReader == null)
+        if (m_inputReader == null)
             Debug.LogError("InputReader não foi atribuído!", this);
-        if (playerCamera == null)
+        if (m_playerCamera == null)
             Debug.LogError("Player Camera não foi atribuída!", this);
 
         // Habilitar entrada do jogador
-        inputReader.EnablePlayerInput();
+        m_inputReader.EnablePlayerInput();
 
         // Inicializar componentes do jogador
-        movementComponent = new Movimentation(maxSpeed, acceleration, deceleration);
-        gravityComponent = new Gravity(gravityForce, gravityMultiplier);
-        scannerComponent = new ScannerEnvieronment(checkDistanceObstacle, checkHeightObstacle);
-        jumpComponent = new JumpPlayer(jumpDuration, jumpHeight);
+        m_movementComponent = new Movimentation(m_maxSpeed, m_acceleration, m_deceleration);
+        m_gravityComponent = new Gravity(m_gravityForce, m_gravityMultiplier);
+        m_scannerComponent = new ScannerEnvieronment(m_checkDistanceObstacle, m_checkHeightObstacle);
+        m_jumpComponent = new JumpPlayer(m_jumpDuration, m_jumpHeight);
 
-        switch (currentInput)
-        {
-            // Inicializar componentes das habilidades específicas com base no método de entrada selecionado (teclado ou gamepad)
-            case StateInput.Keyboard:
-                InitAbilitysComponentsKeyboard();
-                break;
-            case StateInput.Gamepad:
-                InitAbilitysComponentsGamepad();
-                break;
-        }
+        m_inputStrategy = m_currentInput == StateInput.Keyboard ?
+            new KeyboardInputStrategy() : new GamepadInputStrategy();
 
-        characterController = GetComponent<CharacterController>();
+        m_characterController = GetComponent<CharacterController>();
     }
 
-    // Usar Update para lidar com a entrada do jogador, varredura de obstáculos, ação de pulo e habilidades, garantindo uma resposta rápida às ações do jogador
     private void Update()
     {
-        HandleAllInputs();
+        m_directionMove = m_inputStrategy.GetDirectionMove(m_playerCamera, m_inputReader);
+        m_interactInput = m_currentInput == StateInput.Keyboard ? m_inputReader.InteractBoardInput : m_inputReader.InteractPadInput;
+
         HandleScanner();
         HandleJump();
-        HandleAbilitys();
+        
+        print($"Can Jump: {m_canJump}, Is Jumping: {m_isJumping}");
     }
 
-    // Usar FixedUpdate para lidar com o movimento e a gravidade do jogador, garantindo uma atualização consistente
     private void FixedUpdate()
     {
-        if (isJumping) return; // Pular o tratamento de movimento e gravidade durante o pulo
+        if (m_isJumping) return; 
         HandleMoviment();
     }
 
-    // Inicializar habilidades específicas para o teclado, como mira e ataque com língua
-    private void InitAbilitysComponentsKeyboard()
-    {
-        if (lineRenderer == null)
-            lineRenderer = GetComponent<LineRenderer>();
-        if (aimOffsetCam == null)
-            aimOffsetCam = GetComponentInChildren<CinemachineCameraOffset>();
-
-        getPositionTongueFinal = new GetPositionTongueFinal(tongueRange, radiusSphereCast, tongueAttachTag, tongueAttachLayer, obstacleLayer);
-        tongueAttachComponent = new TongueAttach();
-    }
-
-    private void InitAbilitysComponentsGamepad()
-    {
-        
-    }
-
-    // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad)
-    void HandleAllInputs()
-    {     
-        switch (currentInput)
-        {
-            case StateInput.Keyboard:
-                HandleKeyboardInput();
-                break;
-            case StateInput.Gamepad:
-                HandleGamepadInput();
-                break;
-        }
-    }
-
-    // Lidar com a ação de pulo do jogador
     void HandleJump()
     {
-        // Se o jogador puder pular e a entrada de interação for detectada, realizar a ação de pulo
-        if (interactInput && canJump)
+        if (m_interactInput && m_canJump)
         {
-            jumpComponent.JumpInitialize(ObstacleEdgePosition, PosInFrontToEdge, isJumping);
-            isJumping = true;            
+            print("Jump!");
+            m_jumpComponent.JumpInitialize(m_obstacleEdgePosition, m_posInFrontToEdge, m_isJumping);
+            m_isJumping = true;            
         }
-        bool jumpingInProgress = jumpComponent.Jump(characterController, isJumping);
+        bool jumpingInProgress = m_jumpComponent.Jump(m_characterController, m_isJumping);
         if (!jumpingInProgress)
-            isJumping = false;
+            m_isJumping = false;
     }
-
-    // Lidar com o movimento e a gravidade do jogador usando os componentes de movimentação e gravidade
     void HandleMoviment()
     {
         // Lidar com o movimento e gravidade do jogador
-        Vector2 inputDirection = new Vector2(DirectionMove.x, DirectionMove.z);
+        Vector2 inputDirection = new Vector2(m_directionMove.x, m_directionMove.z);
 
         // Mover o jogador com base na entrada e aplicar gravidade
-        Velocity = movementComponent.Move(canMove, Velocity, inputDirection);
-        Velocity = gravityComponent.ApplyGravity(characterController.isGrounded, Velocity);
+        m_velocity = m_movementComponent.Move(m_canMove, m_velocity, inputDirection);
+        m_velocity = m_gravityComponent.ApplyGravity(m_characterController.isGrounded, m_velocity);
 
         // Mover o jogador usando o CharacterController
-        characterController.Move(Velocity * Time.deltaTime);
+        m_characterController.Move(m_velocity * Time.deltaTime);
     }
-
-    // Lidar com as habilidades específicas do jogador, como mira e ataque com língua, com base na entrada do jogador
-    private void HandleAbilitys()
-    {
-        switch (currentInput)
-        {
-            case StateInput.Keyboard:
-                UseAbilityKeyboard();
-                break;
-            case StateInput.Gamepad:
-                UseAbilityGamepad();
-                break;
-        }
-    }
-
-    // Implementar a lógica para usar as habilidades específicas do jogador de gamepad, como a escalada e subir em cima da língua, com base na entrada do jogador
-    private void UseAbilityGamepad()
-    {
-
-    }
-
-    // Implementar a lógica para usar as habilidades específicas do jogador de teclado, como mira e ataque com língua, com base na entrada do jogador
-    private void UseAbilityKeyboard()
-    {       
-        if (getPositionTongueFinal != null && PosTogueFinal == Vector3.zero)
-            PosTogueFinal = getPositionTongueFinal.PositionFinalTongue(playerCamera.position + (playerCamera.forward * 2), playerCamera.forward);
-
-        // Lógica para ataque com língua
-        if (aimInput)
-        {
-            aimOffsetCam.Offset = new Vector3(1f, 0f, 0.75f);
-            
-            if (fireTongueInput && PosTogueFinal != Vector3.zero)
-                if (tongueAttachComponent != null)
-                    tongueAttachComponent.TongueAttachActive(lineRenderer, startTogue.position, PosTogueFinal);
-            
-        }else
-            aimOffsetCam.Offset = Vector3.zero;
-
-        if (!fireTongueInput || !aimInput)
-        {
-            tongueAttachComponent.TongueAttachDeactive(lineRenderer);
-            PosTogueFinal = Vector3.zero;
-        }
-    }
-
-    // Lidar com a varredura de obstáculos na direção do movimento e a altura dos obstáculos à frente do jogador
     void HandleScanner()
     {
         // Scanear obstáculos na direção do movimento
-        Vector3 camLookDir = playerCamera.forward;
+        Vector3 camLookDir = m_playerCamera.forward;
         camLookDir.y = 0f;
         camLookDir = camLookDir.normalized;
 
         // Scanear obstáculos na direção do movimento
-        bool obstacleInDirection = scannerComponent.ScanObstacleInDirection(transform.position, camLookDir,
-            obstacleLayer, out RaycastHit hit);
+        bool obstacleInDirection = m_scannerComponent.ScanObstacleInDirection(transform.position, camLookDir,
+            m_obstacleLayer, out RaycastHit hit);
 
         // Scanear a altura do obstáculo à frente do jogador
         //Vector3 obstacleRayPos = transform.position + (camLookDir * checkDistanceObstacle) + (Vector3.up * checkHeightObstacle);
-        Vector3 obstacleRayPos = hit.point + (Vector3.up * checkHeightObstacle);
-        bool obstacleHeight = scannerComponent.ScanObstacleHeight(obstacleRayPos, Vector3.down,
-            obstacleLayer, out RaycastHit hitHeight);
+        Vector3 obstacleRayPos = hit.point + (Vector3.up * m_checkHeightObstacle);
+        bool obstacleHeight = m_scannerComponent.ScanObstacleHeight(obstacleRayPos, Vector3.down,
+            m_obstacleLayer, out RaycastHit hitHeight);
 
         // Se houver um obstáculo na direção do movimento e sua altura for compatível, posso interagir com ele para pular
         if (obstacleInDirection && obstacleHeight)
         {
-            ObstacleEdgePosition = new Vector3(hit.point.x, hitHeight.point.y, hit.point.z);
-            PosInFrontToEdge = hit.point + (hit.normal * 1.45f);
-            canJump = true;
+            m_obstacleEdgePosition = new Vector3(hit.point.x, hitHeight.point.y, hit.point.z);
+            m_posInFrontToEdge = hit.point + (hit.normal * 1.45f);
+            m_canJump = true;
         }
         else
-            canJump = false;
+            m_canJump = false;
     }
-
-    // Lidar com a entrada do teclado para o movimento do jogador
-    void HandleKeyboardInput()
-    {
-        // Calcular a direção do movimento com base nos vetores forward e right da câmera
-        DirectionMove = playerCamera.forward * inputReader.DirectionBoard.y +
-            playerCamera.right * inputReader.DirectionBoard.x;
-        DirectionMove.y = 0f;
-        DirectionMove = DirectionMove.normalized;
-
-        // Verificar a entrada de interação do teclado
-        interactInput = inputReader.InteractBoardInput;
-
-        // Verificar a entrada de mira com língua do teclado
-        aimInput = inputReader.AimBoardInput;
-
-        // Verificar a entrada de ataque com língua do teclado 
-        if (aimInput)
-            fireTongueInput = inputReader.FireTongueInput;
-    }
-
-    // Lidar com a entrada do gamepad para o movimento do jogador
-    private void HandleGamepadInput()
-    {
-        // Calcular a direção do movimento com base nos vetores forward e right da câmera
-        DirectionMove = playerCamera.forward * inputReader.DirectionPad.y +
-            playerCamera.right * inputReader.DirectionPad.x;
-        DirectionMove.y = 0f;
-        DirectionMove = DirectionMove.normalized;
-
-        // Verificar a entrada de interação do gamepad
-        interactInput = inputReader.InteractPadInput;
-    }
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(ObstacleEdgePosition, 0.1f);
-        Gizmos.DrawSphere(PosInFrontToEdge, 0.1f);
+        Gizmos.DrawSphere(m_obstacleEdgePosition, 0.1f);
+        Gizmos.DrawSphere(m_posInFrontToEdge, 0.1f);
 
-        if (currentInput == StateInput.Keyboard)
+        if (m_currentInput == StateInput.Keyboard)
         {
-            Vector3 origin = playerCamera.position;
-            Vector3 targetPosition = origin + (playerCamera.forward * tongueRange);
-            DrawWireCapsule(origin, targetPosition, radiusSphereCast);
-            Gizmos.DrawSphere(PosTogueFinal, 0.1f);
+            Vector3 origin = m_playerCamera.position;
+            Vector3 targetPosition = origin + (m_playerCamera.forward * m_tongueRange);
+            DrawWireCapsule(origin, targetPosition, m_radiusSphereCast);
+            Gizmos.DrawSphere(m_posTogueFinal, 0.1f);
         }         
     }
-
     public static void DrawWireCapsule(Vector3 point1, Vector3 point2, float radius)
     {
         Vector3 upOffset = point2 - point1;

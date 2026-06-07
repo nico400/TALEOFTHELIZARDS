@@ -3175,7 +3175,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1095114427
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3519,34 +3519,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e7236b3489672418f0a406a92f5cef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
-  currentInput: 0
-  inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
-  characterController: {fileID: 1195457524}
-  playerCamera: {fileID: 54822840}
-  canMove: 1
-  maxSpeed: 5
-  acceleration: 8
-  deceleration: 15
-  useGravity: 1
-  gravityForce: -9.8
-  gravityMultiplier: 2
-  checkDistanceObstacle: 2.5
-  checkHeightObstacle: 2.1
-  obstacleLayer:
+  m_currentInput: 0
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_characterController: {fileID: 1195457524}
+  m_playerCamera: {fileID: 54822840}
+  m_canMove: 1
+  m_maxSpeed: 5
+  m_acceleration: 10
+  m_deceleration: 10
+  m_useGravity: 1
+  m_gravityForce: -9.81
+  m_gravityMultiplier: 2
+  m_checkDistanceObstacle: 2
+  m_checkHeightObstacle: 2.15
+  m_obstacleLayer:
     serializedVersion: 2
     m_Bits: 1
-  jumpHeight: 4
-  jumpDuration: 0.6
-  tongueRange: 20
-  radiusSphereCast: 0.75
-  tongueSpeed: 10
-  tongueAttachTag: TongueAttach
-  tongueAttachLayer:
+  m_jumpHeight: 3
+  m_jumpDuration: 0.4
+  m_tongueRange: 5
+  m_radiusSphereCast: 0.5
+  m_tongueSpeed: 10
+  m_tongueAttachTag: TongueAttach
+  m_tongueAttachLayer:
     serializedVersion: 2
     m_Bits: 128
-  lineRenderer: {fileID: 985616000}
-  startTogue: {fileID: 1516578572}
-  aimOffsetCam: {fileID: 875707039}
+  m_lineRenderer: {fileID: 985616000}
+  m_startTogue: {fileID: 1516578572}
+  m_aimOffsetCam: {fileID: 875707039}
 --- !u!143 &1195457524
 CharacterController:
   m_ObjectHideFlags: 0
@@ -3823,34 +3823,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e7236b3489672418f0a406a92f5cef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
-  currentInput: 1
-  inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
-  characterController: {fileID: 1195457524}
-  playerCamera: {fileID: 274176121}
-  canMove: 1
-  maxSpeed: 5
-  acceleration: 8
-  deceleration: 15
-  useGravity: 1
-  gravityForce: -9.8
-  gravityMultiplier: 2
-  checkDistanceObstacle: 2.5
-  checkHeightObstacle: 2.1
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 1
-  jumpHeight: 4
-  jumpDuration: 0.6
-  tongueRange: 0
-  radiusSphereCast: 0
-  tongueSpeed: 0
-  tongueAttachTag: 
-  tongueAttachLayer:
+  m_currentInput: 1
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_characterController: {fileID: 1286832923}
+  m_playerCamera: {fileID: 274176121}
+  m_canMove: 1
+  m_maxSpeed: 5
+  m_acceleration: 10
+  m_deceleration: 10
+  m_useGravity: 1
+  m_gravityForce: -9.81
+  m_gravityMultiplier: 2
+  m_checkDistanceObstacle: 1
+  m_checkHeightObstacle: 1
+  m_obstacleLayer:
     serializedVersion: 2
     m_Bits: 0
-  lineRenderer: {fileID: 0}
-  startTogue: {fileID: 0}
-  aimOffsetCam: {fileID: 0}
+  m_jumpHeight: 2.5
+  m_jumpDuration: 1.25
+  m_tongueRange: 5
+  m_radiusSphereCast: 0.5
+  m_tongueSpeed: 10
+  m_tongueAttachTag: TongueAttach
+  m_tongueAttachLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  m_lineRenderer: {fileID: 0}
+  m_startTogue: {fileID: 0}
+  m_aimOffsetCam: {fileID: 0}
 --- !u!43 &1412248131
 Mesh:
   m_ObjectHideFlags: 0
