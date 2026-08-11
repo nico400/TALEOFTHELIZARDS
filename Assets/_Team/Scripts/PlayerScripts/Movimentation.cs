@@ -20,27 +20,25 @@ public class Movimentation : IMovimentation
         return m_horizontalDirection * m_currentSpeed;
     }
 
-    public Vector3 Move(bool canMove, Vector3 velocity, Vector2 direction)
+    public Vector3 Move(bool canMove, Vector3 velocity, Vector3 direction)
     {
         if (!canMove) return velocity;
 
-        if (direction != Vector2.zero)
+        if (direction.sqrMagnitude > 0.01f) 
         {
             m_currentSpeed += m_acceleration * Time.fixedDeltaTime;
             m_currentSpeed = Mathf.Min(m_currentSpeed, m_maxSpeed);
 
-            m_horizontalDirection = new Vector3(direction.x, 0f, direction.y).normalized;
-            velocity.x = m_horizontalDirection.x * m_currentSpeed;
-            velocity.z = m_horizontalDirection.z * m_currentSpeed;
+            m_horizontalDirection = direction.normalized;
         }
-        else
+        else 
         {
             m_currentSpeed -= m_deceleration * Time.fixedDeltaTime;
             m_currentSpeed = Mathf.Max(m_currentSpeed, 0f);
-
-            velocity.x = m_horizontalDirection.x * m_currentSpeed;
-            velocity.z = m_horizontalDirection.z * m_currentSpeed;
         }
+
+        velocity.x = m_horizontalDirection.x * m_currentSpeed;
+        velocity.z = m_horizontalDirection.z * m_currentSpeed;
 
         return velocity;
     }

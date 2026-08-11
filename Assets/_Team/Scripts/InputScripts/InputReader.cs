@@ -37,6 +37,10 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
             InputAction.Keyboard.SetCallbacks(this);
             InputAction.Gamepad.SetCallbacks(this);
         }
+
+        // Ativar os mapas de ação
+        InputAction.Keyboard.Enable();
+        InputAction.Gamepad.Enable();
         InputAction.Enable();
     }
 
