@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ChangeInputDirectionMove 
 {
-    StrategyInput m_strategyInput;
+    IStrategyToGetDirectionInput m_strategyInput;
 
-    public void SetStrategyInput(StrategyInput strategyInput)
+    public void SetStrategyInput(IStrategyToGetDirectionInput strategyInput)
     {
         m_strategyInput = strategyInput;
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface StrategyInput
+public interface IStrategyToGetDirectionInput
 {
     Vector3 GetDirectionMove(Transform cam, InputReader inputReader);
 }

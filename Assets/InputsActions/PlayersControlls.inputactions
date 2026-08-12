@@ -32,6 +32,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "JumpGamepad",
+                    "type": "PassThrough",
+                    "id": "b971ca4d-8c2c-484e-8e2b-0ef22e9ee1c4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -65,6 +74,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "InteractionGamepad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7da4f261-7af7-42e9-8b4a-fd2698b2f147",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "JumpGamepad",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -114,6 +134,15 @@
                     "name": "FireTongue",
                     "type": "PassThrough",
                     "id": "2b398d98-96cf-4d93-8b94-379aba5695d7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "JumpKeyboard",
+                    "type": "PassThrough",
+                    "id": "b44a2ce4-30b5-408d-8039-c78682192105",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -217,6 +246,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "FireTongue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7a3c4434-a265-4941-9714-1552baeb6091",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "JumpKeyboard",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

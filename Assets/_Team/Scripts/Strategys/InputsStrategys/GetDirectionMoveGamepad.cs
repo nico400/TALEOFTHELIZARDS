@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GetDirectionMoveGamepad : StrategyInput 
+public class GetDirectionMoveGamepad : IStrategyToGetDirectionInput 
 {
     public Vector3 GetDirectionMove(Transform cam, InputReader inputReader) 
     {

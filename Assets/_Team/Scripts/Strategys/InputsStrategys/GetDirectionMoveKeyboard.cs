@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GetDirectionMoveKeyboard : StrategyInput 
+public class GetDirectionMoveKeyboard : IStrategyToGetDirectionInput 
 {
     public Vector3 GetDirectionMove(Transform cam, InputReader inputReader) 
     {

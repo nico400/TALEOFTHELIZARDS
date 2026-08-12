@@ -2,6 +2,7 @@ using UnityEngine;
 
 public interface IJump
 {
-    bool Jump(CharacterController ch, bool isJumping);
-    void JumpInitialize(Vector3 pointEnd, Vector3 pointStart, bool isJumping);
+    void StartJump(Rigidbody rb, InputReader inputReader, bool isJump, bool jumpPressed);
+    void RealeaseJump(Rigidbody rb, InputReader inputReader, bool jumpPressed);
+    void Jump(Rigidbody rb, bool isGround, out bool inJump, InputReader inputReader, bool jumpPressed);
 }
