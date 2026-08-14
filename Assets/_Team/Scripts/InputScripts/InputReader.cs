@@ -12,25 +12,39 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     public event Action<Vector2> LookPad = delegate { };
     public event Action<bool> JumpBoard = delegate { };
     public event Action<bool> JumpPad = delegate { };
-
+    public event Action<bool> InteractBoard = delegate { };
+    public event Action<bool> InteractPad = delegate { };
+    public event Action<bool> AimBoard = delegate { };
+    public event Action<bool> FireTongue = delegate { };
+    
     public PlayersControlls InputAction { get; private set; }
 
     // keyboard input
     public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
     public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
     public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPerformedThisFrame();
+    public bool JumpBoardInput => InputAction.Keyboard.JumpKeyboard.IsPressed();
+    public bool AimBoardInput => InputAction.Keyboard.AimKeyboard.IsPressed();
+    public bool FireTongueInput => InputAction.Keyboard.FireTongue.IsPressed();
 
     // gamepad input
     public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
     public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
     public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPerformedThisFrame();
+    public bool JumpPadInput => InputAction.Gamepad.JumpGamepad.IsPressed();
+
     public void EnablePlayerInput()
     {
         if (InputAction == null)
         {
             InputAction = new PlayersControlls();
             InputAction.Keyboard.SetCallbacks(this);
+            InputAction.Gamepad.SetCallbacks(this);
         }
+
+        // Ativar os mapas de ação
+        InputAction.Keyboard.Enable();
+        InputAction.Gamepad.Enable();
         InputAction.Enable();
     }
 
@@ -49,17 +63,37 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
         MovePad.Invoke(context.ReadValue<Vector2>());
     }
 
-    public void OnLookGamepad(InputAction.CallbackContext context)
+    public void OnLookGamepad(InputAction.CallbackContext context) 
     {
         LookPad.Invoke(context.ReadValue<Vector2>());
     }
 
     public void OnInteractionKeyboard(InputAction.CallbackContext context)
     {
+        InteractBoard.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnInteractionGamepad(InputAction.CallbackContext context) 
+    {
+        InteractPad.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnAimKeyboard(InputAction.CallbackContext context)
+    {
+        AimBoard.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnFireTongue(InputAction.CallbackContext context)
+    {
+        FireTongue.Invoke(context.ReadValueAsButton());
+    }
+
+    public void OnJumpKeyboard(InputAction.CallbackContext context) 
+    {
         JumpBoard.Invoke(context.ReadValueAsButton());
     }
 
-    public void OnInteractionGamepad(InputAction.CallbackContext context)
+    public void OnJumpGamepad(InputAction.CallbackContext context) 
     {
         JumpPad.Invoke(context.ReadValueAsButton());
     }

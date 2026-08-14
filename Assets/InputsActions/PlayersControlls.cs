@@ -118,6 +118,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""JumpGamepad"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""b971ca4d-8c2c-484e-8e2b-0ef22e9ee1c4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -153,6 +162,17 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""action"": ""InteractionGamepad"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7da4f261-7af7-42e9-8b4a-fd2698b2f147"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""JumpGamepad"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -183,6 +203,33 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""type"": ""Button"",
                     ""id"": ""136d77c3-d4b0-421c-a39f-846bb57a5f68"",
                     ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AimKeyboard"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""58f286dc-f76b-492c-9a16-7708f33bb6e7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FireTongue"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""2b398d98-96cf-4d93-8b94-379aba5695d7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""JumpKeyboard"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""b44a2ce4-30b5-408d-8039-c78682192105"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -265,6 +312,39 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""action"": ""InteractionKeyboard"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ef6cb30e-549f-402b-9bad-32c536da1402"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AimKeyboard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""41c3f716-685c-4c95-bc58-2e86df8aa48c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FireTongue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7a3c4434-a265-4941-9714-1552baeb6091"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""JumpKeyboard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -276,11 +356,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         m_Gamepad_MoveGamepad = m_Gamepad.FindAction("MoveGamepad", throwIfNotFound: true);
         m_Gamepad_LookGamepad = m_Gamepad.FindAction("LookGamepad", throwIfNotFound: true);
         m_Gamepad_InteractionGamepad = m_Gamepad.FindAction("InteractionGamepad", throwIfNotFound: true);
+        m_Gamepad_JumpGamepad = m_Gamepad.FindAction("JumpGamepad", throwIfNotFound: true);
         // Keyboard
         m_Keyboard = asset.FindActionMap("Keyboard", throwIfNotFound: true);
         m_Keyboard_MoveKeyboard = m_Keyboard.FindAction("MoveKeyboard", throwIfNotFound: true);
         m_Keyboard_LookKeyboard = m_Keyboard.FindAction("LookKeyboard", throwIfNotFound: true);
         m_Keyboard_InteractionKeyboard = m_Keyboard.FindAction("InteractionKeyboard", throwIfNotFound: true);
+        m_Keyboard_AimKeyboard = m_Keyboard.FindAction("AimKeyboard", throwIfNotFound: true);
+        m_Keyboard_FireTongue = m_Keyboard.FindAction("FireTongue", throwIfNotFound: true);
+        m_Keyboard_JumpKeyboard = m_Keyboard.FindAction("JumpKeyboard", throwIfNotFound: true);
     }
 
     ~@PlayersControlls()
@@ -365,6 +449,7 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gamepad_MoveGamepad;
     private readonly InputAction m_Gamepad_LookGamepad;
     private readonly InputAction m_Gamepad_InteractionGamepad;
+    private readonly InputAction m_Gamepad_JumpGamepad;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gamepad".
     /// </summary>
@@ -388,6 +473,10 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gamepad/InteractionGamepad".
         /// </summary>
         public InputAction @InteractionGamepad => m_Wrapper.m_Gamepad_InteractionGamepad;
+        /// <summary>
+        /// Provides access to the underlying input action "Gamepad/JumpGamepad".
+        /// </summary>
+        public InputAction @JumpGamepad => m_Wrapper.m_Gamepad_JumpGamepad;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -423,6 +512,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionGamepad.started += instance.OnInteractionGamepad;
             @InteractionGamepad.performed += instance.OnInteractionGamepad;
             @InteractionGamepad.canceled += instance.OnInteractionGamepad;
+            @JumpGamepad.started += instance.OnJumpGamepad;
+            @JumpGamepad.performed += instance.OnJumpGamepad;
+            @JumpGamepad.canceled += instance.OnJumpGamepad;
         }
 
         /// <summary>
@@ -443,6 +535,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionGamepad.started -= instance.OnInteractionGamepad;
             @InteractionGamepad.performed -= instance.OnInteractionGamepad;
             @InteractionGamepad.canceled -= instance.OnInteractionGamepad;
+            @JumpGamepad.started -= instance.OnJumpGamepad;
+            @JumpGamepad.performed -= instance.OnJumpGamepad;
+            @JumpGamepad.canceled -= instance.OnJumpGamepad;
         }
 
         /// <summary>
@@ -483,6 +578,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Keyboard_MoveKeyboard;
     private readonly InputAction m_Keyboard_LookKeyboard;
     private readonly InputAction m_Keyboard_InteractionKeyboard;
+    private readonly InputAction m_Keyboard_AimKeyboard;
+    private readonly InputAction m_Keyboard_FireTongue;
+    private readonly InputAction m_Keyboard_JumpKeyboard;
     /// <summary>
     /// Provides access to input actions defined in input action map "Keyboard".
     /// </summary>
@@ -506,6 +604,18 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Keyboard/InteractionKeyboard".
         /// </summary>
         public InputAction @InteractionKeyboard => m_Wrapper.m_Keyboard_InteractionKeyboard;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/AimKeyboard".
+        /// </summary>
+        public InputAction @AimKeyboard => m_Wrapper.m_Keyboard_AimKeyboard;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/FireTongue".
+        /// </summary>
+        public InputAction @FireTongue => m_Wrapper.m_Keyboard_FireTongue;
+        /// <summary>
+        /// Provides access to the underlying input action "Keyboard/JumpKeyboard".
+        /// </summary>
+        public InputAction @JumpKeyboard => m_Wrapper.m_Keyboard_JumpKeyboard;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -541,6 +651,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionKeyboard.started += instance.OnInteractionKeyboard;
             @InteractionKeyboard.performed += instance.OnInteractionKeyboard;
             @InteractionKeyboard.canceled += instance.OnInteractionKeyboard;
+            @AimKeyboard.started += instance.OnAimKeyboard;
+            @AimKeyboard.performed += instance.OnAimKeyboard;
+            @AimKeyboard.canceled += instance.OnAimKeyboard;
+            @FireTongue.started += instance.OnFireTongue;
+            @FireTongue.performed += instance.OnFireTongue;
+            @FireTongue.canceled += instance.OnFireTongue;
+            @JumpKeyboard.started += instance.OnJumpKeyboard;
+            @JumpKeyboard.performed += instance.OnJumpKeyboard;
+            @JumpKeyboard.canceled += instance.OnJumpKeyboard;
         }
 
         /// <summary>
@@ -561,6 +680,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @InteractionKeyboard.started -= instance.OnInteractionKeyboard;
             @InteractionKeyboard.performed -= instance.OnInteractionKeyboard;
             @InteractionKeyboard.canceled -= instance.OnInteractionKeyboard;
+            @AimKeyboard.started -= instance.OnAimKeyboard;
+            @AimKeyboard.performed -= instance.OnAimKeyboard;
+            @AimKeyboard.canceled -= instance.OnAimKeyboard;
+            @FireTongue.started -= instance.OnFireTongue;
+            @FireTongue.performed -= instance.OnFireTongue;
+            @FireTongue.canceled -= instance.OnFireTongue;
+            @JumpKeyboard.started -= instance.OnJumpKeyboard;
+            @JumpKeyboard.performed -= instance.OnJumpKeyboard;
+            @JumpKeyboard.canceled -= instance.OnJumpKeyboard;
         }
 
         /// <summary>
@@ -622,6 +750,13 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractionGamepad(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "JumpGamepad" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnJumpGamepad(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Keyboard" which allows adding and removing callbacks.
@@ -651,5 +786,26 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractionKeyboard(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AimKeyboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAimKeyboard(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FireTongue" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFireTongue(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "JumpKeyboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnJumpKeyboard(InputAction.CallbackContext context);
     }
 }

@@ -8,5 +8,7 @@ public interface IInputReade
     Vector2 LookDirectionPad { get; }
     bool InteractBoardInput { get; }
     bool InteractPadInput { get; }
+    bool AimBoardInput { get; }
+    bool FireTongueInput { get; }
     void EnablePlayerInput();
 }

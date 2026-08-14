@@ -1,199 +1,129 @@
+using Unity.Cinemachine;
+using UnityEditor;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody))]
 public class HandlerPlayer : MonoBehaviour
 {
-    enum StateInput { Keyboard, Gamepad }
-    [SerializeField] StateInput currentInput = StateInput.Keyboard;
+    private enum StateInput { Keyboard, Gamepad }
+    [SerializeField] private StateInput m_currentInput = StateInput.Keyboard;
 
     [Header("Input Controller")]
-    [SerializeField] InputReader inputReader;
+    [SerializeField] private InputReader m_inputReader;
+    ChangeInputDirectionMove m_inputDirectionStrategy;
+    ChangeInputJump m_inputJumpStrategy;
 
     [Header("Player Components")]
-    [SerializeField] CharacterController characterController;
-    [SerializeField] Transform playerCamera;
+    [SerializeField] private Rigidbody m_rigidbody;
+    [SerializeField] private Transform m_playerCamera;
 
     [Header("Player Movement Config")]
-    [SerializeField] bool canMove = true;
-    [SerializeField] float maxSpeed = 5f;
-    [SerializeField] float acceleration = 10f;
-    [SerializeField] float deceleration = 10f;
+    [SerializeField] private bool m_canMove = true;
+    [SerializeField] private float m_maxSpeed = 5f;
+    [SerializeField] private float m_acceleration = 10f;
+    [SerializeField] private float m_deceleration = 10f;
 
     [Header("Player Gravity Config")]
-    [SerializeField] bool useGravity = true;
-    [SerializeField] float gravityForce = -9.81f;
-    [SerializeField] float gravityMultiplier = 2f;
-
-    [Header("Player Scanner Config")]
-    [SerializeField] float checkDistanceObstacle = 1f;
-    [SerializeField] float checkHeightObstacle = 1f;
-    [SerializeField] LayerMask obstacleLayer;
+    [SerializeField] private bool m_usePersoGravity = true;
+    [SerializeField] private float m_gravityForce = -9.81f;
+    [SerializeField] private float m_gravityMultiplier = 2f;
 
     [Header("Player Jump Config")]
-    [SerializeField] float jumpHeight = 2.5f;
-    [SerializeField] float jumpDuration = 1.25f;
+    [SerializeField] private float m_jumpForce = 2.5f;
+    [SerializeField] private float m_jumpMultiplier = 0.5f;
+    [SerializeField] private bool m_isGrounded;
+    [SerializeField] private LayerMask m_maskToIgnoreToCheck;
 
-    IMovimentation movementComponent;
-    IGravity gravityComponent;
-    IScannerEnvironment scannerComponent;
-    IJump jumpComponent;
+    // componentes
+    private IMovimentation m_movementComponent;
+    private IGravity m_gravityComponent;
+    private ICheckGround m_checkGroundComponent;
+    private IJump m_jumpComponent;
 
-    Vector3 DirectionMove;
-    Vector3 Velocity;
-    Vector3 LastInputDirection;
-    Vector3 ObstacleEdgePosition;
-    Vector3 PosInFrontToEdge;
-    bool interactInput;
-    bool canJump;
-    bool isJumping;
+    private Vector3 m_directionMove;
+    private Vector3 m_velocity;
+
+    [SerializeField]  private bool m_jumpPressed;
 
     private void Awake()
     {
-        if (inputReader == null)
+        Cursor.lockState = CursorLockMode.Locked;
+
+        if (m_inputReader == null)
             Debug.LogError("InputReader não foi atribuído!", this);
-        if (playerCamera == null)
+        if (m_playerCamera == null)
             Debug.LogError("Player Camera não foi atribuída!", this);
+        if (m_rigidbody == null)
+            Debug.LogError("Rigidbody não foi atribuído!", this);
 
-        // Enable player input
+        if (m_inputDirectionStrategy == null)
+            m_inputDirectionStrategy = new ChangeInputDirectionMove();
+
+        if (m_inputJumpStrategy == null)
+            m_inputJumpStrategy = new ChangeInputJump();
+
         // Habilitar entrada do jogador
-        inputReader.EnablePlayerInput();
+        m_inputReader.EnablePlayerInput();
 
-        // Initialize player components
         // Inicializar componentes do jogador
-        movementComponent = new Movimentation(maxSpeed, acceleration, deceleration);
-        gravityComponent = new Gravity(gravityForce, gravityMultiplier);
-        scannerComponent = new ScannerEnvieronment(checkDistanceObstacle, checkHeightObstacle);
-        jumpComponent = new JumpPlayer(jumpDuration, jumpHeight);
-        characterController = GetComponent<CharacterController>();
+        m_movementComponent = new Movimentation(m_maxSpeed, m_acceleration, m_deceleration);
+        m_gravityComponent = new Gravity(m_gravityForce, m_gravityMultiplier);
+        m_checkGroundComponent = new CheckGround();
+        m_jumpComponent = new JumpPlayer(m_jumpForce, m_jumpMultiplier);
+
+        // Inicializar estratégia de entrada com base no tipo de entrada atual
+        m_inputDirectionStrategy.SetStrategyInput(m_currentInput == StateInput.Keyboard ? new GetDirectionMoveKeyboard() : new GetDirectionMoveGamepad());
+        m_inputJumpStrategy.SetStrategyInput(m_currentInput == StateInput.Keyboard ? new GetButtonJumpKeyboard() : new GetButtonJumpGamepad());
+
+        m_rigidbody = GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        // Handle player input based on the current input method (keyboard or gamepad)
-        // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad)
-        switch (currentInput)
-        {
-            // Lidar com a entrada do jogador com base no método de entrada atual (teclado ou gamepad) // 
-            // Handle player input based on the current input method (keyboard or gamepad) // 
-            case StateInput.Keyboard:
-                HandleKeyboardInput();
-                break;
-            case StateInput.Gamepad:
-                HandleGamepadInput();
-                break;
-        }
+        HandleInputPlayer();
 
-        HandleScanner();
-        HandleJump();
+        float _distanceToGround = 0.5f; // Distância para verificar se o jogador está no chão
+        float _offsetHeight = 0.3f; // Altura do offset para a verificação de colisão com o chão
+        float _radiusSphereCheck = 0.25f; ; // Raio da esfera para a verificação de colisão
+        m_isGrounded = m_checkGroundComponent.IsGroundCheck(_distanceToGround, _radiusSphereCheck, transform.position + transform.up * _offsetHeight, -transform.up, m_maskToIgnoreToCheck);
+
+        print($"Is jump: {m_inputReader.JumpBoardInput || m_inputReader.JumpPadInput}");
     }
-
 
     private void FixedUpdate()
     {
-        if (isJumping) return; // Skip movement and gravity handling during the jump // Pular o tratamento de movimento e gravidade durante o pulo
-        HandleMoviment();
+        HandleVelocityPlayer();
+        m_jumpComponent.Jump(m_rigidbody, m_isGrounded, out bool inJump, m_inputReader, m_jumpPressed);
     }
 
-    void HandleJump()
+    void HandleInputPlayer()
     {
-        // If the player can jump and the interaction input is detected, perform the jump action
-        // Se o jogador puder pular e a entrada de interação for detectada, realizar a ação de pulo
-        if (interactInput && canJump)
+        // Atualiza a direção de movimento com base na entrada do jogador
+        m_directionMove = m_inputDirectionStrategy.GetDirectionMove(m_playerCamera, m_inputReader);
+
+        // Atualiza o estado do botão de pulo com base na entrada do jogador
+        m_jumpPressed = m_inputJumpStrategy.ExecuteJump(m_inputReader);
+
+        Debug.Log($"Jump pressed: {m_jumpPressed}");
+    }
+
+    void HandleVelocityPlayer()
+    {
+        // Seta a velocidade do jogador com base na direção de movimento e na velocidade atual
+        m_velocity = m_movementComponent.Move(m_canMove, m_velocity, m_directionMove);
+
+        // Nova velocidade do jogador é calculada com base na velocidade atual e na direção de movimento
+        Vector3 _newVelocity = m_rigidbody.linearVelocity;
+        _newVelocity.x = m_velocity.x;
+        _newVelocity.z = m_velocity.z;
+
+        // Seta a velocidade vertical do jogador com base na gravidade
+        if (m_usePersoGravity)
         {
-            jumpComponent.JumpInitialize(ObstacleEdgePosition, PosInFrontToEdge, isJumping);
-            isJumping = true;            
+            _newVelocity = m_gravityComponent.ApplyGravity(m_isGrounded, _newVelocity);
         }
-        bool jumpingInProgress = jumpComponent.Jump(characterController, isJumping);
-        if (!jumpingInProgress)
-            isJumping = false;
-    }
-    void HandleMoviment()
-    {
-        // Handle player movement and gravity
-        // Lidar com o movimento e gravidade do jogador
-        Vector2 inputDirection = new Vector2(DirectionMove.x, DirectionMove.z);
 
-        // Move the player based on input and apply gravity
-        // Mover o jogador com base na entrada e aplicar gravidade
-        Velocity = movementComponent.Move(canMove, Velocity, inputDirection);
-        Velocity = gravityComponent.ApplyGravity(characterController.isGrounded, Velocity);
-
-        // Move the player using the CharacterController
-        // Mover o jogador usando o CharacterController
-        characterController.Move(Velocity * Time.deltaTime);
-    }
-
-    // Handle scanning for obstacles in the direction
-    // of movement and the height of obstacles in front of the player
-    // Lidar com a varredura de obstáculos na direção
-    // do movimento e a altura dos obstáculos à frente do jogador
-    void HandleScanner()
-    {
-        // Scan obstacles in the direction of movement
-        // Scanear obstáculos na direção do movimento
-        Vector3 camLookDir = playerCamera.forward;
-        camLookDir.y = 0f;
-        camLookDir = camLookDir.normalized;
-
-        // Scan for obstacles in the direction of movement
-        // Scanear obstáculos na direção do movimento
-        bool obstacleInDirection = scannerComponent.ScanObstacleInDirection(transform.position, camLookDir,
-            obstacleLayer, out RaycastHit hit);
-
-        // Scan the height of the obstacle in front of the player
-        // Scanear a altura do obstáculo à frente do jogador
-        //Vector3 obstacleRayPos = transform.position + (camLookDir * checkDistanceObstacle) + (Vector3.up * checkHeightObstacle);
-        Vector3 obstacleRayPos = hit.point + (Vector3.up * checkHeightObstacle);
-        bool obstacleHeight = scannerComponent.ScanObstacleHeight(obstacleRayPos, Vector3.down,
-            obstacleLayer, out RaycastHit hitHeight);
-
-        // If there is an obstacle in the direction of movement and its height is compatible, i can interact with it to jump
-        // Se houver um obstáculo na direção do movimento e sua altura for compatível, posso interagir com ele para pular
-        if (obstacleInDirection && obstacleHeight)
-        {
-            ObstacleEdgePosition = new Vector3(hit.point.x, hitHeight.point.y, hit.point.z);
-            PosInFrontToEdge = hit.point + (hit.normal * 1.45f);
-            canJump = true;
-        }
-        else
-            canJump = false;
-    }
-
-    // Handle keyboard input for player movement
-    // Lidar com a entrada do teclado para o movimento do jogador
-    void HandleKeyboardInput()
-    {
-        // Calculate the movement direction based on the camera's forward and right vectors
-        // Calcular a direção do movimento com base nos vetores forward e right da câmera
-        DirectionMove = playerCamera.forward * inputReader.DirectionBoard.y +
-            playerCamera.right * inputReader.DirectionBoard.x;
-        DirectionMove.y = 0f;
-        DirectionMove = DirectionMove.normalized;
-
-        // Check for interaction input from the keyboard
-        // Verificar a entrada de interação do teclado
-        interactInput = inputReader.InteractBoardInput;
-    }
-
-    // Handle gamepad input for player movement
-    // Lidar com a entrada do gamepad para o movimento do jogador
-    private void HandleGamepadInput()
-    {
-        // Calculate the movement direction based on the camera's forward and right vectors
-        // Calcular a direção do movimento com base nos vetores forward e right da câmera
-        DirectionMove = playerCamera.forward * inputReader.DirectionPad.y +
-            playerCamera.right * inputReader.DirectionPad.x;
-        DirectionMove.y = 0f;
-        DirectionMove = DirectionMove.normalized;
-
-        // Check for interaction input from the gamepad
-        // Verificar a entrada de interação do gamepad
-        interactInput = inputReader.InteractPadInput;
-    }
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(ObstacleEdgePosition, 0.1f);
-        Gizmos.DrawSphere(PosInFrontToEdge, 0.1f);
+        // Aplica a velocidade calculada ao Rigidbody do jogador
+        m_rigidbody.linearVelocity = _newVelocity;
     }
 }
