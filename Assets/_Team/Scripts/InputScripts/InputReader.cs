@@ -22,16 +22,18 @@ public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGam
     // keyboard input
     public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
     public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
-    public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPerformedThisFrame();
-    public bool JumpBoardInput => InputAction.Keyboard.JumpKeyboard.IsPressed();
+    public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPressedThisFrame();
+    public bool JumpBoardInputStart => InputAction.Keyboard.JumpKeyboard.WasPressedThisFrame();
+    public bool JumpBoardInputRelease => InputAction.Keyboard.JumpKeyboard.WasReleasedThisFrame();
     public bool AimBoardInput => InputAction.Keyboard.AimKeyboard.IsPressed();
     public bool FireTongueInput => InputAction.Keyboard.FireTongue.IsPressed();
 
     // gamepad input
     public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
     public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
-    public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPerformedThisFrame();
-    public bool JumpPadInput => InputAction.Gamepad.JumpGamepad.IsPressed();
+    public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPressedThisFrame();
+    public bool JumpPadInputStart => InputAction.Gamepad.JumpGamepad.WasPressedThisFrame();
+    public bool JumpPadInputRelease => InputAction.Gamepad.JumpGamepad.WasReleasedThisFrame();
 
     public void EnablePlayerInput()
     {

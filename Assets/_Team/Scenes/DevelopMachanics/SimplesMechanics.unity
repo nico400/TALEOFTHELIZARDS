@@ -3191,6 +3191,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
   m_currentInput: 0
   m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_jumpBufferStart:
+    m_bufferValue: 0
+    m_holdTime: 0.2
+  m_jumpBufferRealease:
+    m_bufferValue: 0
+    m_holdTime: 0.2
   m_rigidbody: {fileID: 1195457524}
   m_playerCamera: {fileID: 54822840}
   m_canMove: 1
@@ -3200,7 +3206,7 @@ MonoBehaviour:
   m_usePersoGravity: 1
   m_gravityForce: -9.81
   m_gravityMultiplier: 2
-  m_jumpForce: 15
+  m_jumpForce: 12
   m_jumpMultiplier: 0.5
   m_isGrounded: 0
   m_maskToIgnoreToCheck:
@@ -3485,6 +3491,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
   m_currentInput: 1
   m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_jumpBufferStart:
+    m_bufferValue: 0
+    m_holdTime: 0.25
+  m_jumpBufferRealease:
+    m_bufferValue: 0
+    m_holdTime: 0.25
   m_rigidbody: {fileID: 1286832925}
   m_playerCamera: {fileID: 274176121}
   m_canMove: 1
@@ -3494,7 +3506,7 @@ MonoBehaviour:
   m_usePersoGravity: 1
   m_gravityForce: -9.81
   m_gravityMultiplier: 2
-  m_jumpForce: 2.5
+  m_jumpForce: 14.5
   m_jumpMultiplier: 0.5
   m_isGrounded: 0
   m_maskToIgnoreToCheck:

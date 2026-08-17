@@ -2,5 +2,6 @@ using UnityEngine;
 
 public interface IStrategyToGetButtonJumpInput
 {
-   bool GetButtonJump(InputReader inputReader);
+   bool GetButtonJumpStart(InputReader inputReader);
+   bool GetButtonJumpRelease(InputReader inputReader);
 }
