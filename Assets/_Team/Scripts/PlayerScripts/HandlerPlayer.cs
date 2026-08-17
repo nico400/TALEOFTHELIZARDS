@@ -1,3 +1,4 @@
+using System;
 using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
@@ -11,7 +12,10 @@ public class HandlerPlayer : MonoBehaviour
     [Header("Input Controller")]
     [SerializeField] private InputReader m_inputReader;
     ChangeInputDirectionMove m_inputDirectionStrategy;
-    ChangeInputJump m_inputJumpStrategy;
+
+    [Header("Input Buffer")]
+    [SerializeField] TimedInputBuffer m_jumpBufferStart = new();
+    [SerializeField] TimedInputBuffer m_jumpBufferRealease = new();
 
     [Header("Player Components")]
     [SerializeField] private Rigidbody m_rigidbody;
@@ -43,7 +47,8 @@ public class HandlerPlayer : MonoBehaviour
     private Vector3 m_directionMove;
     private Vector3 m_velocity;
 
-    [SerializeField]  private bool m_jumpPressed;
+    private bool m_jumpStartLatched;
+    private bool m_jumpReleaseThisFixedFrame;
 
     private void Awake()
     {
@@ -59,9 +64,6 @@ public class HandlerPlayer : MonoBehaviour
         if (m_inputDirectionStrategy == null)
             m_inputDirectionStrategy = new ChangeInputDirectionMove();
 
-        if (m_inputJumpStrategy == null)
-            m_inputJumpStrategy = new ChangeInputJump();
-
         // Habilitar entrada do jogador
         m_inputReader.EnablePlayerInput();
 
@@ -73,9 +75,26 @@ public class HandlerPlayer : MonoBehaviour
 
         // Inicializar estratégia de entrada com base no tipo de entrada atual
         m_inputDirectionStrategy.SetStrategyInput(m_currentInput == StateInput.Keyboard ? new GetDirectionMoveKeyboard() : new GetDirectionMoveGamepad());
-        m_inputJumpStrategy.SetStrategyInput(m_currentInput == StateInput.Keyboard ? new GetButtonJumpKeyboard() : new GetButtonJumpGamepad());
+        
+        
 
         m_rigidbody = GetComponent<Rigidbody>();
+    }
+    void OnEnable() 
+    {
+        // Eventos do pulo
+        if (m_currentInput == StateInput.Keyboard) {
+            m_inputReader.JumpBoard += OnJumpStart;
+        }
+        else {
+            m_inputReader.JumpPad += OnJumpStart;
+        }
+    }
+
+    void OnDisable() 
+    {
+        m_inputReader.JumpBoard -= OnJumpStart;
+        m_inputReader.JumpPad -= OnJumpStart;
     }
 
     private void Update()
@@ -86,25 +105,18 @@ public class HandlerPlayer : MonoBehaviour
         float _offsetHeight = 0.3f; // Altura do offset para a verificação de colisão com o chão
         float _radiusSphereCheck = 0.25f; ; // Raio da esfera para a verificação de colisão
         m_isGrounded = m_checkGroundComponent.IsGroundCheck(_distanceToGround, _radiusSphereCheck, transform.position + transform.up * _offsetHeight, -transform.up, m_maskToIgnoreToCheck);
-
-        print($"Is jump: {m_inputReader.JumpBoardInput || m_inputReader.JumpPadInput}");
     }
 
     private void FixedUpdate()
     {
         HandleVelocityPlayer();
-        m_jumpComponent.Jump(m_rigidbody, m_isGrounded, out bool inJump, m_inputReader, m_jumpPressed);
+        HandleJumpPlayer();
     }
 
     void HandleInputPlayer()
     {
         // Atualiza a direção de movimento com base na entrada do jogador
         m_directionMove = m_inputDirectionStrategy.GetDirectionMove(m_playerCamera, m_inputReader);
-
-        // Atualiza o estado do botão de pulo com base na entrada do jogador
-        m_jumpPressed = m_inputJumpStrategy.ExecuteJump(m_inputReader);
-
-        Debug.Log($"Jump pressed: {m_jumpPressed}");
     }
 
     void HandleVelocityPlayer()
@@ -125,5 +137,26 @@ public class HandlerPlayer : MonoBehaviour
 
         // Aplica a velocidade calculada ao Rigidbody do jogador
         m_rigidbody.linearVelocity = _newVelocity;
+    }
+    void HandleJumpPlayer() 
+    {
+        bool jumpStartThisFixedFrame = m_jumpStartLatched;
+        m_jumpStartLatched = false;
+
+        bool jumpReleaseThisFixedFrame = m_jumpReleaseThisFixedFrame;
+        m_jumpReleaseThisFixedFrame = false;
+
+        m_jumpComponent.Jump(m_rigidbody, m_isGrounded, m_jumpBufferStart, m_jumpBufferRealease, jumpStartThisFixedFrame, jumpReleaseThisFixedFrame);
+    }
+    private void OnJumpStart(bool pressed) 
+    {
+        if (pressed) 
+        {
+            m_jumpStartLatched = true;
+        }
+        else 
+        {
+            m_jumpReleaseThisFixedFrame = true;
+        }
     }
 }

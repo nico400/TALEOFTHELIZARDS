@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class GetButtonJumpGamepad : IStrategyToGetButtonJumpInput 
 {
-    public bool GetButtonJump(InputReader inputReader) 
+    public bool GetButtonJumpRelease(InputReader inputReader) 
     {
-        return inputReader.JumpPadInput;
+        return inputReader.JumpPadInputRelease;
+    }
+
+    public bool GetButtonJumpStart(InputReader inputReader) 
+    {
+        return inputReader.JumpPadInputStart;
     }
 }

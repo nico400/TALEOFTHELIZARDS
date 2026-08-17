@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class GetButtonJumpKeyboard : IStrategyToGetButtonJumpInput 
 {
-    public bool GetButtonJump(InputReader inputReader) 
+    public bool GetButtonJumpRelease(InputReader inputReader) 
     {
-        return inputReader.JumpBoardInput;
+        return inputReader.JumpBoardInputRelease;
+    }
+
+    public bool GetButtonJumpStart(InputReader inputReader) 
+    {
+        return inputReader.JumpBoardInputStart;
     }
 }

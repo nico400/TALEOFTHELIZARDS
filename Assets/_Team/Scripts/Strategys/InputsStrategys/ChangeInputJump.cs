@@ -8,12 +8,19 @@ public class ChangeInputJump
     {
         m_strategyInput = strategyInput;
     }
-    public bool ExecuteJump(InputReader inputReader) 
+    public bool ExecuteStartJump(InputReader inputReader) 
     {
         if (m_strategyInput == null) 
         {
             return false;
         }
-        return m_strategyInput.GetButtonJump(inputReader);
+        return m_strategyInput.GetButtonJumpStart(inputReader);
+    }
+    public bool ExecuteReleaseJump(InputReader inputReader) 
+    {
+        if (m_strategyInput == null) {
+            return false;
+        }
+        return m_strategyInput.GetButtonJumpRelease(inputReader);
     }
 }

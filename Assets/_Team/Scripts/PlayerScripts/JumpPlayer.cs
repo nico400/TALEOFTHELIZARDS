@@ -5,7 +5,7 @@ public class JumpPlayer : IJump
 {
     private float m_jumpForce;
     private float m_jumpMultiplier;
-
+    private bool m_hasReleasedCurrentJump;
 
     public JumpPlayer(float jumpForce, float jumpMultiplier) 
     {
@@ -13,31 +13,62 @@ public class JumpPlayer : IJump
         m_jumpMultiplier = jumpMultiplier;
     }
 
-    public void Jump(Rigidbody rb, bool isGround, out bool inJump, InputReader inputReader, bool jumpPressed) 
+    public void Jump(Rigidbody rb, bool isGround, TimedInputBuffer jumpBufferStart, TimedInputBuffer jumpBufferRelease, bool jumpButtonStart, bool jumpButtonRelease) 
     {
-        StartJump(rb, inputReader, isGround, jumpPressed);
-        RealeaseJump(rb, inputReader, jumpPressed);
+        StartJump(rb, isGround, jumpBufferStart, jumpButtonStart);
+        RealeaseJump(rb, jumpBufferRelease, jumpButtonRelease);
+    }
 
-        inJump = true;
-        if (inJump && isGround) 
+    public void RealeaseJump(Rigidbody rb, TimedInputBuffer jumpBufferRelease, bool releaseButtonJump) 
+    {
+        if (rb.linearVelocity.y > 0 && !m_hasReleasedCurrentJump)
         {
-            inJump = false;
+            if (releaseButtonJump) {
+                jumpBufferRelease.Set();
+            }
+            TryConsumeBufferedReleaseJump(rb, jumpBufferRelease);
         }
     }
 
-    public void RealeaseJump(Rigidbody rb, InputReader inputReader, bool jumpPressed) 
+    public void StartJump(Rigidbody rb, bool isGround, TimedInputBuffer jumpBuffer, bool startButtonJump) 
     {
-        if (rb.linearVelocity.y > 0 && jumpPressed) 
+        if (isGround) 
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * m_jumpMultiplier);
-        }         
+            m_hasReleasedCurrentJump = false;
+        }
+
+        if (startButtonJump) 
+        {
+            jumpBuffer.Set();
+        }
+        TryConsumeBufferedStartJump(rb, isGround, jumpBuffer);
     }
 
-    public void StartJump(Rigidbody rb, InputReader inputReader, bool isGround, bool jumpPressed) 
+    void TryConsumeBufferedStartJump(Rigidbody rb, bool isGround, TimedInputBuffer jumpBuffer) 
     {
-        if (isGround && jumpPressed) 
+        if (!isGround || !jumpBuffer.HasBufferedInput) 
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, m_jumpForce);
-        }           
+            return;
+        }
+
+        var velocity = rb.linearVelocity;
+        velocity.y = m_jumpForce;
+        rb.linearVelocity = velocity;
+
+        jumpBuffer.Consume();
+    }
+
+    void TryConsumeBufferedReleaseJump(Rigidbody rb, TimedInputBuffer jumpBuffer) {
+        if (!jumpBuffer.HasBufferedInput) 
+        {
+            return;
+        }
+
+        var velocity = rb.linearVelocity;
+        velocity.y = m_jumpForce * m_jumpMultiplier;
+        rb.linearVelocity = velocity;
+
+        jumpBuffer.Consume();
+        m_hasReleasedCurrentJump = true;
     }
 }
