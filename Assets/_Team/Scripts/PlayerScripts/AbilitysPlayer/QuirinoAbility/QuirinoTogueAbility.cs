@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class QuirinoTogueAbility : IAbilityPlayer 
 {
-    public void ExecuteAbility() 
+    public void ExecuteAbilityUpdate(Transform playerTransform) 
     {
         Debug.Log("Execute Quirino habilidade");
     }

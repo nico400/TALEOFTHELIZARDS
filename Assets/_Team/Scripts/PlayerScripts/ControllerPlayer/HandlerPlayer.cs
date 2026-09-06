@@ -11,6 +11,7 @@ public class HandlerPlayer : MonoBehaviour
 
     [Header("Input Controller")]
     [SerializeField] private InputReader m_inputReader;
+    public InputReader InputReader => m_inputReader;
     ChangeInputDirectionMove m_inputDirectionStrategy;
 
     [Header("Input Buffer")]
@@ -45,11 +46,12 @@ public class HandlerPlayer : MonoBehaviour
     private IJump m_jumpComponent;
 
     private Vector3 m_directionMove;
+    public Vector3 DirectionMove => m_directionMove;
+
     private Vector3 m_velocity;
 
     private bool m_jumpStartLatched;
     private bool m_jumpReleaseThisFixedFrame;
-
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -74,10 +76,13 @@ public class HandlerPlayer : MonoBehaviour
         m_jumpComponent = new JumpPlayer(m_jumpForce, m_jumpMultiplier);
 
         // Inicializar estratégia de entrada com base no tipo de entrada atual
-        m_inputDirectionStrategy.SetStrategyInput(m_currentInput == StateInput.Keyboard ? new GetDirectionMoveKeyboard() : new GetDirectionMoveGamepad());
+        m_inputDirectionStrategy.SetStrategyInput
+            (
+                m_currentInput == StateInput.Keyboard ? 
+                new GetDirectionMoveKeyboard() : 
+                new GetDirectionMoveGamepad()
+            );
         
-        
-
         m_rigidbody = GetComponent<Rigidbody>();
     }
     void OnEnable() 
@@ -121,6 +126,8 @@ public class HandlerPlayer : MonoBehaviour
 
     void HandleVelocityPlayer()
     {
+        if (!m_canMove) return;
+
         // Seta a velocidade do jogador com base na direção de movimento e na velocidade atual
         m_velocity = m_movementComponent.Move(m_canMove, m_velocity, m_directionMove);
 

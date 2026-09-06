@@ -8,8 +8,8 @@ public class CharacterAbility
         m_abilityPlayer = abilityPlayer;
     }
 
-    public void Ability() 
+    public void Ability(Transform playerTransform) 
     {
-        m_abilityPlayer.ExecuteAbility();
+        m_abilityPlayer.ExecuteAbilityUpdate(playerTransform);
     }
 }
