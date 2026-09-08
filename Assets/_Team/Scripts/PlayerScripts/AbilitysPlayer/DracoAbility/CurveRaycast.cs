@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CurveRaycast {
-    float m_distanceRay = 1.55f;
+    float m_distanceRay = 1.25f;
     Vector3 m_lastDirMoviment;
     LayerMask m_maskToNotDetectedHit = ~LayerMask.GetMask("Players");
 

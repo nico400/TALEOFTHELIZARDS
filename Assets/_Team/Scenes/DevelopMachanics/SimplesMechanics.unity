@@ -5025,7 +5025,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 663233932781288510, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: VerticalAxis.Range.y
-      value: 85
+      value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 663233932781288510, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: VerticalAxis.Recentering.Enabled
@@ -5045,7 +5045,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 977854563164050214, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -3.45
       objectReference: {fileID: 0}
     - target: {fileID: 977854563164050214, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5053,7 +5053,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 977854563164050214, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 10.9
       objectReference: {fileID: 0}
     - target: {fileID: 977854563164050214, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5170,6 +5170,10 @@ PrefabInstance:
     - target: {fileID: 3046762037395483841, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_Direction
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3046762037395483841, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4205381257868317413, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
       propertyPath: m_Name
