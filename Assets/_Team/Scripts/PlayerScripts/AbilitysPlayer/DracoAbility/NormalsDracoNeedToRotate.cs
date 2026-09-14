@@ -1,38 +1,48 @@
 using UnityEngine;
 
-public class NormalsDracoNeedToRotate 
-{
-    float m_radiusSphereCast = 1.25f;
-    float m_distanceRay = 1.25f;
-    float m_distanceRaycast = 1.25f;
-    float m_wallProbeRadius = 0.15f;
+public class NormalsDracoNeedToRotate {
+
+    // radius of the sphere cast to detect ground and wall collisions
+    float m_radiusSphereCast = 0.85f;
+    float m_wallProbeRadius = 0.85f;
+
+    // distance of the raycast to detect ground and wall collisions
+    float m_distanceGroundCast = 1.15f;
+    float m_distanceWallCast = 1.15f;
+
+    // layer to ignore when detecting collisions (e.g., players)
     LayerMask m_maskToNotDetectedHit = ~LayerMask.GetMask("Players");
 
     public DataNormalsDracoNeedToRotate GetNormalsDracoNeedToRotate(Transform playerTransform, Vector3 dirMoviment, Vector3 normalToUse) 
     {
         DataNormalsDracoNeedToRotate _data = new DataNormalsDracoNeedToRotate();
-        float _offsetSphere = m_radiusSphereCast + 0.1f;
-        float _offsetRay = 0.25f;
-        Vector3 _originSphere = playerTransform.position + normalToUse * _offsetSphere;
-        Vector3 _oringinRay = playerTransform.position + normalToUse * _offsetRay;
+
+        float _offsetColisionGround = m_radiusSphereCast + 0.1f; // offset to avoid self-collision when casting the sphere
+        float _offsetColisionWall = m_wallProbeRadius + 0.1f; // offset to avoid self-collision when casting the ray
+
+        Vector3 _originGroundCast = playerTransform.position + normalToUse * _offsetColisionGround;
+        Vector3 _oringinWallCast = playerTransform.position + normalToUse * _offsetColisionWall;
+
+        float _pullBack = m_wallProbeRadius + 0.2f;
+        Vector3 _originWallCastSafe = _oringinWallCast - dirMoviment * _pullBack;
 
         _data.GroundHitFound = Physics.SphereCast
             (
-                _originSphere,
+                _originGroundCast,
                 m_radiusSphereCast,
                 -normalToUse,
                 out _data.GroundHit,
-                m_distanceRay,
+                m_distanceGroundCast,
                 m_maskToNotDetectedHit
             );
 
         _data.WallHitFound = Physics.SphereCast
             (
-                _oringinRay,
+                _originWallCastSafe,
                 m_wallProbeRadius,
                 dirMoviment,
                 out _data.WallHit,
-                m_distanceRaycast,
+                m_distanceWallCast + _pullBack,
                 m_maskToNotDetectedHit
             );
 

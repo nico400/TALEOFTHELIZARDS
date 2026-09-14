@@ -25,7 +25,7 @@ public class HandlerAbilitys : MonoBehaviour
         }
     }
 
-    private void Update() 
+    private void FixedUpdate() 
     {
         if (m_ability == null) return;
         m_ability.Ability(transform);
