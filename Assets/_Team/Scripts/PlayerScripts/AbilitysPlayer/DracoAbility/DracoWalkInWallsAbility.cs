@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
 
-public class DracoWalkInWallsAbility : IAbilityPlayer {
+public class DracoWalkInWallsAbility : IAbilityPlayer 
+{
     private Func<Vector2> m_getRawInput;
     private Transform m_cam;
     private NormalsDracoNeedToRotate m_normalsDraco;
     private Rigidbody m_rb;
+    private LayerMask m_layerMask;
 
     private Vector3 m_lastKnownNormal;
     private bool m_hasNormal = false;
@@ -26,8 +28,7 @@ public class DracoWalkInWallsAbility : IAbilityPlayer {
 
     public void ExecuteAbilityUpdate(Transform playerTransform) 
     {
-        MoveThroughWall(playerTransform);
-        
+        MoveThroughWall(playerTransform);      
     }
 
     void MoveThroughWall(Transform playerTransform) 
@@ -64,9 +65,10 @@ public class DracoWalkInWallsAbility : IAbilityPlayer {
         }
 
         RotateDraco(playerTransform, m_lastKnownNormal, t);
-        SnapToGround(playerTransform, _dataNormalsDraco);
 
-        m_rb.linearVelocity = _probeDirection * 4;
+        Vector3 _snapCorrection = ComputeSnapCorrection(playerTransform, _dataNormalsDraco);
+
+        m_rb.linearVelocity = _dirMoviment * 4 + _snapCorrection;
     }
 
     void RotateDraco(Transform playerTransform, Vector3 targetNormal, float t) 
@@ -80,9 +82,21 @@ public class DracoWalkInWallsAbility : IAbilityPlayer {
             playerTransform.rotation = _smoothRotation;
     }
 
-    void SnapToGround(Transform playerTransform, DataNormalsDracoNeedToRotate data) 
+    Vector3 ComputeSnapCorrection(Transform playerTransform, DataNormalsDracoNeedToRotate data) 
     {
-        if (!data.GroundHitFound) return;
+        if (!data.GroundHitFound) return Vector3.zero;
 
+        float _distanceToGround = Vector3.Dot(
+            playerTransform.position - data.GroundHit.point,
+            data.GroundHit.normal
+        );
+
+        float _distanceMin = 0.085f;
+        float _force = 6;
+
+        if (_distanceToGround > _distanceMin)
+            return -data.GroundHit.normal * _force;
+
+        return Vector3.zero;
     }
 }

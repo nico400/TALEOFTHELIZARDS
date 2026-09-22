@@ -10,8 +10,8 @@ public class NormalsDracoNeedToRotate {
     float m_distanceGroundCast = 2.35f;
     float m_distanceWallCast = 1.35f;
 
-    // layer to ignore when detecting collisions (e.g., players)
-    LayerMask m_maskToNotDetectedHit = ~LayerMask.GetMask("Players");
+    // layer to ignore when detecting collisions (e.g., Walkables)
+    LayerMask m_layerToDetect = LayerMask.GetMask("Walkables");
 
     public DataNormalsDracoNeedToRotate GetNormalsDracoNeedToRotate(Transform playerTransform, Vector3 dirMoviment, Vector3 normalToUse) 
     {
@@ -34,7 +34,7 @@ public class NormalsDracoNeedToRotate {
                 dirMoviment,
                 out _data.WallHit,
                 m_distanceWallCast + _pullBack,
-                m_maskToNotDetectedHit
+                m_layerToDetect
             );
 
         if (!_data.WallHitFound) 
@@ -46,7 +46,7 @@ public class NormalsDracoNeedToRotate {
                 -normalToUse,
                 out _data.GroundHit,
                 m_distanceGroundCast,
-                m_maskToNotDetectedHit
+                m_layerToDetect
             );
         }
 
