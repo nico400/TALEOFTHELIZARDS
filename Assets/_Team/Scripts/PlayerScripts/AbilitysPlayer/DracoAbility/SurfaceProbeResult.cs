@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct DataNormalsDracoNeedToRotate
+public struct SurfaceProbeResult
 {
     public RaycastHit GroundHit;
     public RaycastHit WallHit;

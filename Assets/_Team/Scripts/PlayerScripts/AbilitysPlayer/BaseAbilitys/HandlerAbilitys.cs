@@ -13,15 +13,16 @@ public class HandlerAbilitys : MonoBehaviour
     [SerializeField] private HandlerPlayer m_handlerPlayer;
     [SerializeField] private Transform m_cam;
     [SerializeField] private Rigidbody m_rb;
+    [SerializeField] private DracoWallClimbSettings m_dracoWallClimbSettings = new DracoWallClimbSettings();
     CharacterAbility m_ability;
 
-    private void Awake() 
+    private void Awake()
     {
-        if (m_ability == null) 
+        if (m_ability == null)
         {
-            m_ability = m_persoAbility == PersoAbility.Quirino ? 
-                new CharacterAbility(new QuirinoTogueAbility()) : 
-                new CharacterAbility(new DracoWalkInWallsAbility(() => m_handlerPlayer.InputReader.DirectionBoard, m_cam, m_rb));
+            m_ability = m_persoAbility == PersoAbility.Quirino ?
+                new CharacterAbility(new QuirinoTogueAbility()) :
+                new CharacterAbility(new DracoWalkInWallsAbility(() => m_handlerPlayer.InputReader.DirectionBoard, m_cam, m_rb, m_dracoWallClimbSettings));
         }
     }
 
