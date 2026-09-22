@@ -1,80 +1,64 @@
 using System;
 using UnityEngine;
 
-public class DracoWalkInWallsAbility : IAbilityPlayer 
+public class DracoWalkInWallsAbility : IAbilityPlayer
 {
-    private Func<Vector2> m_getRawInput;
-    private Transform m_cam;
-    private NormalsDracoNeedToRotate m_normalsDraco;
-    private Rigidbody m_rb;
-    private LayerMask m_layerMask;
-
-    private Vector3 m_lastKnownNormal;
-    private bool m_hasNormal = false;
+    private readonly Func<Vector2> m_getRawInput;
+    private readonly Transform m_cam;
+    private readonly Rigidbody m_rb;
+    private readonly DracoWallClimbSettings m_settings;
+    private readonly WallAndGroundSurfaceProbe m_surfaceProbe;
+    private readonly SurfaceNormalTracker m_normalTracker;
 
     private Vector3 m_lastProbeDirection = Vector3.forward;
-    private const float k_normalSlerpSpeed = 12f;
 
-    private float m_timeSinceLastHit = 0f;
-    private const float k_normalGraceTime = 0.35f;
-
-    public DracoWalkInWallsAbility(Func<Vector2> rawInput, Transform cam, Rigidbody rb) 
+    public DracoWalkInWallsAbility(Func<Vector2> rawInput, Transform cam, Rigidbody rb, DracoWallClimbSettings settings = null)
     {
-        m_normalsDraco = new NormalsDracoNeedToRotate();
         m_getRawInput = rawInput;
         m_cam = cam;
         m_rb = rb;
+        m_settings = settings ?? new DracoWallClimbSettings();
+        m_surfaceProbe = new WallAndGroundSurfaceProbe(m_settings);
+        m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);
     }
 
-    public void ExecuteAbilityUpdate(Transform playerTransform) 
+    public void ExecuteAbilityUpdate(Transform playerTransform)
     {
-        MoveThroughWall(playerTransform);      
+        MoveThroughWall(playerTransform);
     }
 
-    void MoveThroughWall(Transform playerTransform) 
+    private void MoveThroughWall(Transform playerTransform)
+    {
+        Vector3 _normalToUse = m_normalTracker.HasNormal ? m_normalTracker.CurrentNormal : playerTransform.up;
+        Vector3 _dirMoviment = ComputeMoveDirection(playerTransform, _normalToUse);
+
+        SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(playerTransform, _dirMoviment, _normalToUse);
+        m_normalTracker.Update(_probeResult, Time.deltaTime);
+
+        RotateDraco(playerTransform, m_normalTracker.CurrentNormal);
+
+        Vector3 _snapCorrection = ComputeSnapCorrection(playerTransform, _probeResult);
+        m_rb.linearVelocity = _dirMoviment * m_settings.MoveSpeed + _snapCorrection;
+    }
+
+    private Vector3 ComputeMoveDirection(Transform playerTransform, Vector3 normalToUse)
     {
         Vector2 _input = m_getRawInput();
-        Vector3 _normalToUse = m_hasNormal ? m_lastKnownNormal : playerTransform.up;
-        Vector3 _dirMoviment = UtilsToAbilityDraco.NewOrientationPlayer(playerTransform, _normalToUse, m_cam, _input).normalized;
-        Vector3 _probeDirection = _dirMoviment.sqrMagnitude > 0.1f ? _dirMoviment : m_lastProbeDirection;
-        m_lastProbeDirection = _probeDirection;
-        DataNormalsDracoNeedToRotate _dataNormalsDraco = m_normalsDraco.GetNormalsDracoNeedToRotate(playerTransform, _probeDirection, _normalToUse);
+        Vector3 _dirMoviment = UtilsToAbilityDraco.NewOrientationPlayer(playerTransform, normalToUse, m_cam, _input).normalized;
 
-        float t = 1f - Mathf.Exp(-k_normalSlerpSpeed * Time.deltaTime);
+        if (_dirMoviment.sqrMagnitude > 0.1f)
+            m_lastProbeDirection = _dirMoviment;
+        else
+            _dirMoviment = m_lastProbeDirection;
 
-        if (_dataNormalsDraco.WallHitFound) 
-        {
-            m_lastKnownNormal = _dataNormalsDraco.WallHit.normal;
-            m_hasNormal = true;
-            m_timeSinceLastHit = 0f;
-        }
-        else if (_dataNormalsDraco.GroundHitFound) 
-        {
-            m_lastKnownNormal = _dataNormalsDraco.GroundHit.normal;
-            m_hasNormal = true;
-            m_timeSinceLastHit = 0f;
-        }
-        else 
-        {
-            m_timeSinceLastHit += Time.deltaTime;
-            if (m_timeSinceLastHit >= k_normalGraceTime) 
-            {
-                m_lastKnownNormal = Vector3.up;
-                m_hasNormal = false;
-            }
-        }
-
-        RotateDraco(playerTransform, m_lastKnownNormal, t);
-
-        Vector3 _snapCorrection = ComputeSnapCorrection(playerTransform, _dataNormalsDraco);
-
-        m_rb.linearVelocity = _dirMoviment * 4 + _snapCorrection;
+        return _dirMoviment;
     }
 
-    void RotateDraco(Transform playerTransform, Vector3 targetNormal, float t) 
+    private void RotateDraco(Transform playerTransform, Vector3 targetNormal)
     {
+        float _t = 1f - Mathf.Exp(-m_settings.NormalSlerpSpeed * Time.deltaTime);
         Quaternion _targetRotation = Quaternion.FromToRotation(playerTransform.up, targetNormal) * playerTransform.rotation;
-        Quaternion _smoothRotation = Quaternion.Slerp(playerTransform.rotation, _targetRotation, t);
+        Quaternion _smoothRotation = Quaternion.Slerp(playerTransform.rotation, _targetRotation, _t);
 
         if (m_rb != null)
             m_rb.MoveRotation(_smoothRotation);
@@ -82,7 +66,7 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
             playerTransform.rotation = _smoothRotation;
     }
 
-    Vector3 ComputeSnapCorrection(Transform playerTransform, DataNormalsDracoNeedToRotate data) 
+    private Vector3 ComputeSnapCorrection(Transform playerTransform, SurfaceProbeResult data)
     {
         if (!data.GroundHitFound) return Vector3.zero;
 
@@ -91,11 +75,8 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
             data.GroundHit.normal
         );
 
-        float _distanceMin = 0.085f;
-        float _force = 6;
-
-        if (_distanceToGround > _distanceMin)
-            return -data.GroundHit.normal * _force;
+        if (_distanceToGround > m_settings.SnapDistanceMin)
+            return -data.GroundHit.normal * m_settings.SnapForce;
 
         return Vector3.zero;
     }
