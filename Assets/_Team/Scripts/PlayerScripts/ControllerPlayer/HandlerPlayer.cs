@@ -6,13 +6,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class HandlerPlayer : MonoBehaviour
 {
-    private enum StateInput { Keyboard, Gamepad }
-    [SerializeField] private StateInput m_currentInput = StateInput.Keyboard;
-
     [Header("Input Controller")]
     [SerializeField] private InputReader m_inputReader;
-    public InputReader InputReader => m_inputReader;
-    ChangeInputDirectionMove m_inputDirectionStrategy;
+    public IPlayerInput Input => m_inputReader;
 
     [Header("Input Buffer")]
     [SerializeField] TimedInputBuffer m_jumpBufferStart = new();
@@ -63,43 +59,29 @@ public class HandlerPlayer : MonoBehaviour
         if (m_rigidbody == null)
             Debug.LogError("Rigidbody não foi atribuído!", this);
 
-        if (m_inputDirectionStrategy == null)
-            m_inputDirectionStrategy = new ChangeInputDirectionMove();
-
-        // Habilitar entrada do jogador
-        m_inputReader.EnablePlayerInput();
-
         // Inicializar componentes do jogador
         m_movementComponent = new Movimentation(m_maxSpeed, m_acceleration, m_deceleration);
         m_gravityComponent = new Gravity(m_gravityForce, m_gravityMultiplier);
         m_checkGroundComponent = new CheckGround();
         m_jumpComponent = new JumpPlayer(m_jumpForce, m_jumpMultiplier);
 
-        // Inicializar estratégia de entrada com base no tipo de entrada atual
-        m_inputDirectionStrategy.SetStrategyInput
-            (
-                m_currentInput == StateInput.Keyboard ? 
-                new GetDirectionMoveKeyboard() : 
-                new GetDirectionMoveGamepad()
-            );
-        
         m_rigidbody = GetComponent<Rigidbody>();
     }
     void OnEnable() 
     {
+        m_inputReader.EnableGameplay();
+
         // Eventos do pulo
-        if (m_currentInput == StateInput.Keyboard) {
-            m_inputReader.JumpBoard += OnJumpStart;
-        }
-        else {
-            m_inputReader.JumpPad += OnJumpStart;
-        }
+        m_inputReader.JumpStarted += OnJumpStarted;
+        m_inputReader.JumpCanceled += OnJumpCanceled;
     }
 
     void OnDisable() 
     {
-        m_inputReader.JumpBoard -= OnJumpStart;
-        m_inputReader.JumpPad -= OnJumpStart;
+        m_inputReader.JumpStarted -= OnJumpStarted;
+        m_inputReader.JumpCanceled -= OnJumpCanceled;
+
+        m_inputReader.DisableGameplay();
     }
 
     private void Update()
@@ -121,7 +103,7 @@ public class HandlerPlayer : MonoBehaviour
     void HandleInputPlayer()
     {
         // Atualiza a direção de movimento com base na entrada do jogador
-        m_directionMove = m_inputDirectionStrategy.GetDirectionMove(m_playerCamera, m_inputReader);
+        m_directionMove = CameraRelative.ToWorld(m_inputReader.Move, m_playerCamera);
     }
 
     void HandleVelocityPlayer()
@@ -155,15 +137,7 @@ public class HandlerPlayer : MonoBehaviour
 
         m_jumpComponent.Jump(m_rigidbody, m_isGrounded, m_jumpBufferStart, m_jumpBufferRealease, jumpStartThisFixedFrame, jumpReleaseThisFixedFrame);
     }
-    private void OnJumpStart(bool pressed) 
-    {
-        if (pressed) 
-        {
-            m_jumpStartLatched = true;
-        }
-        else 
-        {
-            m_jumpReleaseThisFixedFrame = true;
-        }
-    }
+    private void OnJumpStarted() => m_jumpStartLatched = true;
+
+    private void OnJumpCanceled() => m_jumpReleaseThisFixedFrame = true;
 }

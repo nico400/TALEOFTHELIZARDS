@@ -22,7 +22,7 @@ public class HandlerAbilitys : MonoBehaviour
         {
             m_ability = m_persoAbility == PersoAbility.Quirino ?
                 new CharacterAbility(new QuirinoTogueAbility()) :
-                new CharacterAbility(new DracoWalkInWallsAbility(() => m_handlerPlayer.InputReader.DirectionBoard, m_cam, m_rb, m_dracoWallClimbSettings));
+                new CharacterAbility(new DracoWalkInWallsAbility(() => m_handlerPlayer.Input.Move, m_cam, m_rb, m_dracoWallClimbSettings));
         }
     }
 
