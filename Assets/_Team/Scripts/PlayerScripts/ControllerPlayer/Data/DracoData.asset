@@ -9,6 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78233f9b63c610246a4457c5fce87ea3, type: 3}
-  m_Name: InputReader
-  m_EditorClassIdentifier: Assembly-CSharp::InputReader
+  m_Script: {fileID: 11500000, guid: 49f3314012feaa9409cf50b92fbdd65e, type: 3}
+  m_Name: DracoData
+  m_EditorClassIdentifier: Assembly-CSharp::CreateDataPlayers
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_speedPlayer: 5

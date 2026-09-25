@@ -1,102 +1,203 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 using static PlayersControlls;
 
-[CreateAssetMenu(fileName = "InputReade", menuName = "ScriptableObjects/InputReade", order = 1)]
-public class InputReader : ScriptableObject, IInputReade, IKeyboardActions, IGamepadActions
+[CreateAssetMenu(fileName = "InputReader", menuName = "ScriptableObjects/InputReader", order = 1)]
+public class InputReader : ScriptableObject, IPlayerInput, IGameplayActions
 {
-    public event Action<Vector2> MoveBoard = delegate { };
-    public event Action<Vector2> LookBoard = delegate { };
-    public event Action<Vector2> MovePad = delegate { };
-    public event Action<Vector2> LookPad = delegate { };
-    public event Action<bool> JumpBoard = delegate { };
-    public event Action<bool> JumpPad = delegate { };
-    public event Action<bool> InteractBoard = delegate { };
-    public event Action<bool> InteractPad = delegate { };
-    public event Action<bool> AimBoard = delegate { };
+    // Dispositivo que este jogador controla. Em co-op, cada jogador tem seu próprio asset de InputReader.
+    public enum DeviceSlot { Any, KeyboardMouse, Gamepad }
+
+    [SerializeField] private DeviceSlot m_deviceSlot = DeviceSlot.Any;
+    [Tooltip("Qual gamepad conectado usar (0 = primeiro). Só vale para DeviceSlot.Gamepad.")]
+    [SerializeField, Min(0)] private int m_gamepadIndex;
+
+    public event Action JumpStarted = delegate { };
+    public event Action JumpCanceled = delegate { };
+    public event Action Interact = delegate { };
+    public event Action<bool> Aim = delegate { };
     public event Action<bool> FireTongue = delegate { };
-    
-    public PlayersControlls InputAction { get; private set; }
+    public event Action<string> ControlSchemeChanged = delegate { };
 
-    // keyboard input
-    public Vector2 DirectionBoard => InputAction.Keyboard.MoveKeyboard.ReadValue<Vector2>();
-    public Vector2 LookDirectionBoard => InputAction.Keyboard.LookKeyboard.ReadValue<Vector2>();
-    public bool InteractBoardInput => InputAction.Keyboard.InteractionKeyboard.WasPressedThisFrame();
-    public bool JumpBoardInputStart => InputAction.Keyboard.JumpKeyboard.WasPressedThisFrame();
-    public bool JumpBoardInputRelease => InputAction.Keyboard.JumpKeyboard.WasReleasedThisFrame();
-    public bool AimBoardInput => InputAction.Keyboard.AimKeyboard.IsPressed();
-    public bool FireTongueInput => InputAction.Keyboard.FireTongue.IsPressed();
+    public Vector2 Move { get; private set; }
+    public Vector2 Look { get; private set; }
+    public bool IsAiming { get; private set; }
+    public bool IsFiringTongue { get; private set; }
+    public string CurrentControlScheme { get; private set; }
 
-    // gamepad input
-    public Vector2 DirectionPad => InputAction.Gamepad.MoveGamepad.ReadValue<Vector2>();
-    public Vector2 LookDirectionPad => InputAction.Gamepad.LookGamepad.ReadValue<Vector2>();
-    public bool InteractPadInput => InputAction.Gamepad.InteractionGamepad.WasPressedThisFrame();
-    public bool JumpPadInputStart => InputAction.Gamepad.JumpGamepad.WasPressedThisFrame();
-    public bool JumpPadInputRelease => InputAction.Gamepad.JumpGamepad.WasReleasedThisFrame();
+    private PlayersControlls m_controls;
+    private InputDevice m_lastDevice;
+    private bool m_isJumpHeld;
+    private bool m_isListeningDevices;
 
-    public void EnablePlayerInput()
+    public void EnableGameplay()
     {
-        if (InputAction == null)
+        if (m_controls == null)
         {
-            InputAction = new PlayersControlls();
-            InputAction.Keyboard.SetCallbacks(this);
-            InputAction.Gamepad.SetCallbacks(this);
+            m_controls = new PlayersControlls();
+            m_controls.Gameplay.SetCallbacks(this);
         }
 
-        // Ativar os mapas de ação
-        InputAction.Keyboard.Enable();
-        InputAction.Gamepad.Enable();
-        InputAction.Enable();
+        if (!m_isListeningDevices)
+        {
+            InputSystem.onDeviceChange += OnDeviceChange;
+            m_isListeningDevices = true;
+        }
+
+        PairDevices();
+        m_controls.Gameplay.Enable();
     }
 
-    public void OnMoveKeyboard(InputAction.CallbackContext context)
+    public void DisableGameplay()
     {
-        MoveBoard.Invoke(context.ReadValue<Vector2>());
+        StopListeningDevices();
+        m_controls?.Gameplay.Disable();
+        ResetState();
     }
 
-    public void OnLookKeyboard(InputAction.CallbackContext context)
+    // Restringe as actions aos dispositivos deste jogador, para que um jogador não controle o outro
+    private void PairDevices()
     {
-        LookBoard.Invoke(context.ReadValue<Vector2>());
+        switch (m_deviceSlot)
+        {
+            case DeviceSlot.KeyboardMouse:
+                m_controls.bindingMask = InputBinding.MaskByGroup("KeyboardMouse");
+                m_controls.devices = new ReadOnlyArray<InputDevice>(ConnectedDevices(Keyboard.current, Mouse.current));
+                SetControlScheme("KeyboardMouse");
+                break;
+
+            case DeviceSlot.Gamepad:
+                Gamepad gamepad = m_gamepadIndex < Gamepad.all.Count ? Gamepad.all[m_gamepadIndex] : null;
+                if (gamepad == null)
+                    Debug.LogWarning($"{name}: nenhum gamepad conectado no índice {m_gamepadIndex}.", this);
+
+                m_controls.bindingMask = InputBinding.MaskByGroup("Gamepad");
+                m_controls.devices = new ReadOnlyArray<InputDevice>(ConnectedDevices(gamepad));
+                SetControlScheme("Gamepad");
+                break;
+
+            default:
+                m_controls.bindingMask = null;
+                m_controls.devices = null;
+                break;
+        }
     }
 
-    public void OnMoveGamepad(InputAction.CallbackContext context)
+    private static InputDevice[] ConnectedDevices(params InputDevice[] devices)
     {
-        MovePad.Invoke(context.ReadValue<Vector2>());
+        return Array.FindAll(devices, device => device != null);
     }
 
-    public void OnLookGamepad(InputAction.CallbackContext context) 
+    // Refaz o pareamento quando um controle é conectado/desconectado
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        LookPad.Invoke(context.ReadValue<Vector2>());
+        if (m_controls == null || m_deviceSlot == DeviceSlot.Any) return;
+
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+            case InputDeviceChange.Removed:
+            case InputDeviceChange.Reconnected:
+            case InputDeviceChange.Disconnected:
+                PairDevices();
+                break;
+        }
     }
 
-    public void OnInteractionKeyboard(InputAction.CallbackContext context)
+    private void StopListeningDevices()
     {
-        InteractBoard.Invoke(context.ReadValueAsButton());
+        if (!m_isListeningDevices) return;
+
+        InputSystem.onDeviceChange -= OnDeviceChange;
+        m_isListeningDevices = false;
     }
 
-    public void OnInteractionGamepad(InputAction.CallbackContext context) 
+    // Chamado pela Unity ao descarregar o asset (ex.: sair do Play Mode com Domain Reload desligado)
+    private void OnDisable()
     {
-        InteractPad.Invoke(context.ReadValueAsButton());
+        StopListeningDevices();
+        if (m_controls == null) return;
+
+        m_controls.Gameplay.RemoveCallbacks(this);
+        m_controls.Dispose();
+        m_controls = null;
+        ResetState();
     }
 
-    public void OnAimKeyboard(InputAction.CallbackContext context)
+    private void ResetState()
     {
-        AimBoard.Invoke(context.ReadValueAsButton());
+        Move = Vector2.zero;
+        Look = Vector2.zero;
+        IsAiming = false;
+        IsFiringTongue = false;
+        m_isJumpHeld = false;
+        m_lastDevice = null;
+    }
+
+    private void TrackDevice(InputAction.CallbackContext context)
+    {
+        InputDevice device = context.control?.device;
+        if (device == null || device == m_lastDevice) return;
+        m_lastDevice = device;
+
+        InputControlScheme? scheme = InputControlScheme.FindControlSchemeForDevice(device, m_controls.controlSchemes);
+        if (scheme != null) SetControlScheme(scheme.Value.name);
+    }
+
+    private void SetControlScheme(string scheme)
+    {
+        if (scheme == CurrentControlScheme) return;
+
+        CurrentControlScheme = scheme;
+        ControlSchemeChanged.Invoke(CurrentControlScheme);
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        Move = context.ReadValue<Vector2>();
+    }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        Look = context.ReadValue<Vector2>();
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        if (context.performed && !m_isJumpHeld)
+        {
+            m_isJumpHeld = true;
+            JumpStarted.Invoke();
+        }
+        else if (context.canceled && m_isJumpHeld)
+        {
+            m_isJumpHeld = false;
+            JumpCanceled.Invoke();
+        }
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        if (context.performed) Interact.Invoke();
+    }
+
+    public void OnAim(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        if (context.performed && !IsAiming) Aim.Invoke(IsAiming = true);
+        else if (context.canceled && IsAiming) Aim.Invoke(IsAiming = false);
     }
 
     public void OnFireTongue(InputAction.CallbackContext context)
     {
-        FireTongue.Invoke(context.ReadValueAsButton());
-    }
-
-    public void OnJumpKeyboard(InputAction.CallbackContext context) 
-    {
-        JumpBoard.Invoke(context.ReadValueAsButton());
-    }
-
-    public void OnJumpGamepad(InputAction.CallbackContext context) 
-    {
-        JumpPad.Invoke(context.ReadValueAsButton());
+        TrackDevice(context);
+        if (context.performed && !IsFiringTongue) FireTongue.Invoke(IsFiringTongue = true);
+        else if (context.canceled && IsFiringTongue) FireTongue.Invoke(IsFiringTongue = false);
     }
 }
