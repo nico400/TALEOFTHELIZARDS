@@ -21,11 +21,11 @@ public class SurfaceNormalTracker
 
     public void Update(SurfaceProbeResult probeResult, float deltaTime)
     {
-        if (probeResult.WallHitFound)
+        if (probeResult.WallHitFound && probeResult.WallHit.collider.CompareTag("Climb"))
         {
             SetNormal(probeResult.WallHit.normal);
         }
-        else if (probeResult.GroundHitFound)
+        else if (probeResult.GroundHitFound && probeResult.GroundHit.collider.CompareTag("Climb"))
         {
             SetNormal(probeResult.GroundHit.normal);
         }

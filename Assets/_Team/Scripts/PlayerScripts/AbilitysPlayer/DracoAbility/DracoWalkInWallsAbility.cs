@@ -19,7 +19,7 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
         m_rb = rb;
         m_settings = settings ?? new DracoWallClimbSettings();
         m_surfaceProbe = new WallAndGroundSurfaceProbe(m_settings);
-        m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);
+        m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);    
     }
 
     public void ExecuteAbilityUpdate(Transform playerTransform)
@@ -33,6 +33,7 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
         Vector3 _dirMoviment = ComputeMoveDirection(playerTransform, _normalToUse);
 
         SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(playerTransform, _dirMoviment, _normalToUse);
+
         m_normalTracker.Update(_probeResult, Time.deltaTime);
 
         RotateDraco(playerTransform, m_normalTracker.CurrentNormal);
