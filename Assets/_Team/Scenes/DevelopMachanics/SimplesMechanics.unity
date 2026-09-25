@@ -35076,43 +35076,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &221040138 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4205381257868317413, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
-  m_PrefabInstance: {fileID: 1448696478}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &221040143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 221040138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ffd9ae98f62bc74bbea9a465045b235, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandleAbilitys
-  m_persoAbility: 0
-  m_handlerPlayer: {fileID: 221040146}
-  m_cam: {fileID: 1988362992}
-  m_rb: {fileID: 221040148}
---- !u!114 &221040146 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 684073771412368904, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
-  m_PrefabInstance: {fileID: 1448696478}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 221040138}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16e7236b3489672418f0a406a92f5cef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
---- !u!54 &221040148 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 2085643767490427695, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
-  m_PrefabInstance: {fileID: 1448696478}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &274176120
 GameObject:
   m_ObjectHideFlags: 0
@@ -36424,7 +36387,7 @@ GameObject:
   - component: {fileID: 621492473}
   m_Layer: 8
   m_Name: placeHolders (1)
-  m_TagString: Untagged
+  m_TagString: Climb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -36438,7 +36401,7 @@ Transform:
   m_GameObject: {fileID: 621492471}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.3363, y: -0.13, z: 12.743811}
+  m_LocalPosition: {x: -3.3363, y: -0.2, z: 12.743811}
   m_LocalScale: {x: 7.7115235, y: 0.0349, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -40581,7 +40544,7 @@ GameObject:
   - component: {fileID: 1447250860}
   m_Layer: 8
   m_Name: placeHolders
-  m_TagString: Untagged
+  m_TagString: Climb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -40595,7 +40558,7 @@ Transform:
   m_GameObject: {fileID: 1447250858}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.98, y: 2.205566, z: 12.743811}
+  m_LocalPosition: {x: -6.08, y: 2.205566, z: 12.743811}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -41140,10 +41103,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4205381257868317413, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 221040143}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
 --- !u!43 &1512318350
 Mesh:
@@ -41873,7 +41833,7 @@ GameObject:
   - component: {fileID: 1791044180}
   m_Layer: 8
   m_Name: placeHolders
-  m_TagString: Untagged
+  m_TagString: Climb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -41887,8 +41847,8 @@ Transform:
   m_GameObject: {fileID: 1791044178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.70710677, w: 0.7071068}
-  m_LocalPosition: {x: -3.1305, y: 11.3, z: 12.743811}
-  m_LocalScale: {x: 1, y: 1.0106, z: 1}
+  m_LocalPosition: {x: -2.8056, y: 11.11, z: 12.7438}
+  m_LocalScale: {x: 1, y: 0.9842227, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 484985490}
@@ -43690,7 +43650,7 @@ GameObject:
   - component: {fileID: 1923362167}
   m_Layer: 8
   m_Name: placeHolders
-  m_TagString: Untagged
+  m_TagString: Climb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43704,8 +43664,8 @@ Transform:
   m_GameObject: {fileID: 1923362165}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.70710677, w: 0.7071068}
-  m_LocalPosition: {x: -3.0103, y: 7.98, z: 12.743811}
-  m_LocalScale: {x: 1, y: 0.9967, z: 1}
+  m_LocalPosition: {x: -3.0287, y: 8.11, z: 12.743811}
+  m_LocalScale: {x: 1, y: 0.99081945, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 484985490}
@@ -44208,11 +44168,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!4 &1988362992 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6442657170012763755, guid: 5dce36fdd80b3c448b20dba737a7b392, type: 3}
-  m_PrefabInstance: {fileID: 1448696478}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2004398797
 GameObject:
   m_ObjectHideFlags: 0
@@ -44588,7 +44543,7 @@ GameObject:
   - component: {fileID: 2122171570}
   m_Layer: 8
   m_Name: placeHolders
-  m_TagString: Untagged
+  m_TagString: Climb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44602,8 +44557,8 @@ Transform:
   m_GameObject: {fileID: 2122171568}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.03, y: 9.4, z: 12.743811}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 12.984, y: 9.3304, z: 12.743811}
+  m_LocalScale: {x: 0.8831, y: 0.90188247, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 484985490}
