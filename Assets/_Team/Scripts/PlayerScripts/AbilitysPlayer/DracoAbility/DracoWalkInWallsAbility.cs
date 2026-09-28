@@ -6,9 +6,10 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
     private readonly Func<Vector2> m_getRawInput;
     private readonly Transform m_cam;
     private readonly Rigidbody m_rb;
+
     private readonly DracoWallClimbSettings m_settings;
     private readonly WallAndGroundSurfaceProbe m_surfaceProbe;
-    private readonly SurfaceNormalTracker m_normalTracker;
+    private  SurfaceNormalTracker m_normalTracker;
 
     private Vector3 m_lastProbeDirection = Vector3.forward;
 
