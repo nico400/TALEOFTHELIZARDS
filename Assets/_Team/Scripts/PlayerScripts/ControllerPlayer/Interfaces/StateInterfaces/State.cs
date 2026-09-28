@@ -1,14 +1,22 @@
+
 using UnityEngine;
 
-public abstract class State 
+public abstract class State
 {
-    StateMachineController m_controller;
-    public State(StateMachineController controller) 
+    protected readonly StateMachineControllerDraco Controller;
+
+    protected State(StateMachineControllerDraco controller)
     {
-        m_controller = controller;
+        Controller = controller;
     }
 
-    public abstract void Enter();
-    public abstract void Update();
-    public abstract void Exit();
+    public virtual void Enter() { }
+
+    // Leitura de input e transicoes de estado
+    public virtual void Update() { }
+
+    // Tudo que mexe no Rigidbody (velocidade, rotacao)
+    public virtual void FixedUpdate() { }
+
+    public virtual void Exit() { }
 }

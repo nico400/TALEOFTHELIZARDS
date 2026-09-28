@@ -217,7 +217,7 @@ MonoBehaviour:
       Driver:
         AccelTime: 0
         DecelTime: 0
-  m_inputReader: {fileID: 11400000, guid: f5384a381fd34fdbad002a33d8978ea0, type: 2}
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
 --- !u!1 &2123216087443508160
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,7 +459,7 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.5
+    x: 0
     y: 0
     width: 1
     height: 1
@@ -524,9 +524,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1940406714279900908}
-  - component: {fileID: 6691004997379017106}
   - component: {fileID: 5482072492787711067}
   - component: {fileID: 585419073443460163}
+  - component: {fileID: 8703516377147005508}
   m_Layer: 6
   m_Name: PlayerControllerForTests
   m_TagString: Untagged
@@ -552,40 +552,6 @@ Transform:
   - {fileID: 9182966838208913911}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
---- !u!114 &6691004997379017106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7742097489162456309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16e7236b3489672418f0a406a92f5cef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandlerPlayer
-  m_inputReader: {fileID: 11400000, guid: f5384a381fd34fdbad002a33d8978ea0, type: 2}
-  m_jumpBufferStart:
-    m_bufferValue: 0
-    m_holdTime: 0.25
-  m_jumpBufferRealease:
-    m_bufferValue: 0
-    m_holdTime: 0.25
-  m_rigidbody: {fileID: 5482072492787711067}
-  m_playerCamera: {fileID: 8332716610049846502}
-  m_canMove: 1
-  m_maxSpeed: 5
-  m_acceleration: 10
-  m_deceleration: 10
-  m_usePersoGravity: 1
-  m_gravityForce: -9.81
-  m_gravityMultiplier: 2
-  m_jumpForce: 14.5
-  m_jumpMultiplier: 0.5
-  m_isGrounded: 0
-  m_maskToIgnoreToCheck:
-    serializedVersion: 2
-    m_Bits: 246
 --- !u!54 &5482072492787711067
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -636,3 +602,30 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &8703516377147005508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7742097489162456309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13100093d5b5ebb4084c9c256113d3b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StateMachineController
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_rigidbody: {fileID: 5482072492787711067}
+  m_camera: {fileID: 8332716610049846502}
+  m_settingsClimb:
+    MoveSpeed: 5
+    AccelerationPlayer: 15
+    DecelerationPlayer: 20
+    NormalSlerpSpeed: 7.5
+    NormalGraceTime: 0.15
+    SnapDistanceMin: 0.1
+    SnapForce: 5
+    GroundProbeRadius: 0.35
+    WallProbeRadius: 0.18
+    GroundProbeDistance: 2.35
+    WallProbeDistance: 1.35

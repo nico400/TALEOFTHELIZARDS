@@ -1,26 +1,28 @@
 using UnityEngine;
 
-public class MovimentStatePlayer : State 
+public class MovimentStatePlayer : State
 {
-    StateMachineController m_controller;
+    public MovimentStatePlayer(StateMachineControllerDraco controller) : base(controller) { }
 
-    public MovimentStatePlayer(StateMachineController controller) : base(controller) 
+    public override void Update()
     {
-        m_controller = controller;
+        // Pulo tem prioridade sobre parar
+        if (Controller.JumpBuffer.HasBufferedInput && (Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface))
+        {
+            Controller.SwitchState(Controller.JumpState);
+            return;
+        }
+
+        if (!Controller.HasMoveInput)
+            Controller.SwitchState(Controller.IdleState);
     }
 
-    public override void Enter() 
+    public override void FixedUpdate()
     {
-        Debug.Log("movimentation");
-    }   
-
-    public override void Update() 
-    {
-        
-    }
-
-    public override void Exit() 
-    {
+        if (Controller.Motor.IsOnClimbSurface)
+            Controller.Motor.MoveOnSurface(true);
+        else
+            Controller.Motor.MoveOnGround(Controller.PlayerInput.Move);
 
     }
 }

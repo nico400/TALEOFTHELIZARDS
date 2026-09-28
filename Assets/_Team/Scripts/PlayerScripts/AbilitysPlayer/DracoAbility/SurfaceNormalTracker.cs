@@ -40,6 +40,14 @@ public class SurfaceNormalTracker
         }
     }
 
+    // Esquece a superficie atual (ex.: ao pular da parede)
+    public void Reset()
+    {
+        m_lastKnownNormal = Vector3.up;
+        m_hasNormal = false;
+        m_timeSinceLastHit = 0f;
+    }
+
     private void SetNormal(Vector3 normal)
     {
         m_lastKnownNormal = normal;

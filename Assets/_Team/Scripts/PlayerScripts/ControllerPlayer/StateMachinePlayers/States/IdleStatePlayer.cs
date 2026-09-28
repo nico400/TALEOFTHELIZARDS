@@ -1,28 +1,27 @@
 using UnityEngine;
 
-public class IdleStatePlayer : State 
+public class IdleStatePlayer : State
 {
-    StateMachineController m_controller;
+    public IdleStatePlayer(StateMachineControllerDraco controller) : base(controller) { }
 
-    public IdleStatePlayer(StateMachineController controller) : base(controller) 
+    public override void Update()
     {
-        m_controller = controller;
+        // Pulo tem prioridade sobre andar
+        if (Controller.JumpBuffer.HasBufferedInput && (Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface))
+        {
+            Controller.SwitchState(Controller.JumpState);
+            return;
+        }
+
+        if (Controller.HasMoveInput)
+            Controller.SwitchState(Controller.MoveState);
     }
 
-    public override void Enter() 
+    public override void FixedUpdate()
     {
-        Debug.Log("Idle");
-    }
-
-    public override void Update() 
-    {
-        if (m_controller == null) return;
-
-    }
-
-    public override void Exit() 
-    {
-
+        if (Controller.Motor.IsOnClimbSurface)
+            Controller.Motor.MoveOnSurface(false);   // fica grudado na parede
+        else
+            Controller.Motor.MoveOnGround(Vector2.zero); // desacelera ate parar
     }
 }
-
