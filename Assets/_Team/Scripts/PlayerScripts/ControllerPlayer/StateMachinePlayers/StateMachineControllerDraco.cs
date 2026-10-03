@@ -24,9 +24,9 @@ public class StateMachineControllerDraco : MonoBehaviour
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
-    public IdleStatePlayer IdleState { get; private set; }
-    public MovimentStatePlayer MoveState { get; private set; }
-    public JumpStatePlayer JumpState { get; private set; }
+    public IdleStateDraco IdleState { get; private set; }
+    public MovimentStateDraco MoveState { get; private set; }
+    public JumpStateDraco JumpState { get; private set; }
 
     private State m_currentState;
 
@@ -41,9 +41,9 @@ public class StateMachineControllerDraco : MonoBehaviour
         Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
         
         // cria os estados uma vez aqui para nao perder os paremetros
-        IdleState = new IdleStatePlayer(this);
-        MoveState = new MovimentStatePlayer(this);
-        JumpState = new JumpStatePlayer(this);
+        IdleState = new IdleStateDraco(this);
+        MoveState = new MovimentStateDraco(this);
+        JumpState = new JumpStateDraco(this);
     }
 
     private void OnEnable()
