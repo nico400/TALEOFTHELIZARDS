@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class JumpStatePlayer : State
+public class JumpStateDraco : State<StateMachineControllerDraco>
 {
     private bool m_jumpCut; // true quando este pulo ja foi cortado
 
-    public JumpStatePlayer(StateMachineControllerDraco controller) : base(controller) { }
+    public JumpStateDraco(StateMachineControllerDraco controller) : base(controller) { }
 
     public override void Enter()
     {
