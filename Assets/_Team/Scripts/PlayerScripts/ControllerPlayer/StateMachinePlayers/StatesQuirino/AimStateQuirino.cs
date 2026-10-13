@@ -6,6 +6,7 @@ public class AimStateQuirino : State<ControllerQuirino>
     public override void Enter()
     {
         Controller.ConsumeFireTongue(); // descarta tiro apertado antes de mirar
+        Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
     }
 
     public override void Update()
@@ -23,5 +24,11 @@ public class AimStateQuirino : State<ControllerQuirino>
     public override void FixedUpdate()
     {
         Controller.Motor.MoveOnGround(Controller.PlayerInput.Move, Controller.Camera.forward);
+    }
+
+    // Se o proximo estado tambem mira, ele sobe a camera de novo no Enter
+    public override void Exit()
+    {
+        Controller.Motor.ResetCameraOffset();
     }
 }

@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class ControllerQuirino : MonoBehaviour
@@ -12,6 +13,9 @@ public class ControllerQuirino : MonoBehaviour
 
     [SerializeField] private Transform m_camera;
     public Transform Camera => m_camera;
+
+    [Tooltip("CinemachineCamera do Quirino (com OrbitalFollow e RotationComposer)")]
+    [SerializeField] private CinemachineCamera m_cinemachineCamera;
 
     [SerializeField] private QuirinoSettings m_settings = new();
     public QuirinoSettings Settings => m_settings;
@@ -53,7 +57,7 @@ public class ControllerQuirino : MonoBehaviour
         if (m_settings == null)
             m_settings = new QuirinoSettings();
 
-        Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_settings);
+        Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_cinemachineCamera, m_settings);
         Tongue = new QuirinoTongue(m_tongueOrigin != null ? m_tongueOrigin : transform, m_tongueLine, m_camera, m_settings);
 
         // cria os estados uma vez aqui para nao perder os paremetros
@@ -89,6 +93,7 @@ public class ControllerQuirino : MonoBehaviour
 
     private void Update()
     {
+        Motor.UpdateCameraOffset(Time.deltaTime);
         m_currentState?.Update();
     }
 

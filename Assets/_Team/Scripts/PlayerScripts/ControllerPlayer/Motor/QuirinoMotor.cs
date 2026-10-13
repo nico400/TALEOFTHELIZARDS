@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 // Cuida da parte fisica do Quirino que vale para qualquer estado:
@@ -15,16 +16,28 @@ public class QuirinoMotor
     private readonly IMovimentation m_groundMovimentation;
     private readonly LayerMask m_groundLayerMask;
 
+    private readonly CinemachineOrbitalFollow m_orbitalFollow;
+    private readonly CinemachineRotationComposer m_rotationComposer;
+
     private Vector3 m_groundVelocity;
+    private Vector3 m_cameraOffsetTarget;
+    private Vector3 m_cameraOffsetCurrent;
 
     public bool IsGrounded { get; private set; }
 
-    public QuirinoMotor(Transform transform, Rigidbody rigidbody, Transform camera, QuirinoSettings settings)
+    public QuirinoMotor(Transform transform, Rigidbody rigidbody, Transform camera, CinemachineCamera cinemachineCamera, QuirinoSettings settings)
     {
         m_transform = transform;
         m_rigidbody = rigidbody;
         m_camera = camera;
         m_settings = settings;
+
+        // Busca uma vez so; TryGetComponent todo frame e desperdicio
+        if (cinemachineCamera != null)
+        {
+            cinemachineCamera.TryGetComponent(out m_orbitalFollow);
+            cinemachineCamera.TryGetComponent(out m_rotationComposer);
+        }
 
         m_groundMovimentation = new Movimentation(m_settings.MoveSpeed, m_settings.AccelerationPlayer, m_settings.DecelerationPlayer);
         m_groundLayerMask = ~LayerMask.GetMask("Players");
@@ -99,5 +112,23 @@ public class QuirinoMotor
         Vector3 _v = m_rigidbody.linearVelocity;
         if (_v.y > 0) _v.y *= multiplier;
         m_rigidbody.linearVelocity = _v;
+    }
+
+    // Offset extra somado aos offsets padrao da camera (ex.: subir a camera ao mirar).
+    // So guarda o alvo; a transicao suave acontece no UpdateCameraOffset.
+    public void SetCameraOffset(Vector3 offset) => m_cameraOffsetTarget = offset;
+    public void ResetCameraOffset() => m_cameraOffsetTarget = Vector3.zero;
+
+    // Chamar todo Update (camera nao e fisica, entao usa deltaTime e nao fixedDeltaTime)
+    public void UpdateCameraOffset(float deltaTime)
+    {
+        float _t = 1f - Mathf.Exp(-m_settings.OffsetSpeedCam * deltaTime);
+        m_cameraOffsetCurrent = Vector3.Lerp(m_cameraOffsetCurrent, m_cameraOffsetTarget, _t);
+
+        if (m_orbitalFollow != null)
+            m_orbitalFollow.TargetOffset = m_settings.OrbitFollowCam + m_cameraOffsetCurrent;
+
+        if (m_rotationComposer != null)
+            m_rotationComposer.TargetOffset = m_settings.RotationComposerCam + m_cameraOffsetCurrent;
     }
 }

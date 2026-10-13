@@ -13,6 +13,7 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
     {
         m_attachedTime = 0f;
         m_heldEventFired = false;
+        Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
         Controller.Tongue.Target.OnTongueAttached(Controller);
     }
 
@@ -47,6 +48,8 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
 
     public override void Exit()
     {
+        Controller.Motor.ResetCameraOffset();
+
         if (Controller.Tongue.HasTarget)
             Controller.Tongue.Target.OnTongueReleased(Controller);
     }

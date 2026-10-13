@@ -8,6 +8,12 @@ public class TongueExtendStateQuirino : State<ControllerQuirino>
     public override void Enter()
     {
         Controller.Tongue.Shoot();
+        Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
+    }
+
+    public override void Exit()
+    {
+        Controller.Motor.ResetCameraOffset();
     }
 
     public override void Update()

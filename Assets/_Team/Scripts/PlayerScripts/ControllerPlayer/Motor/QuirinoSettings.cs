@@ -28,6 +28,17 @@ public class QuirinoSettings
     public float TongueRange = 8f;
     public float TongueExtendSpeed = 30f;
     public float TongueRetractSpeed = 40f;
+    
     [Tooltip("Tempo com a lingua presa ate disparar o evento do alvo")]
     public float TongueHeldEventTime = 1f;
+
+    [Header("Camera")]
+    [Tooltip("Velocidade que a camera troca Offset para melhor mira")]
+    public float OffsetSpeedCam = 5f;
+    [Tooltip("Offset padrao do CinemachineRotationComposer")]
+    public Vector3 RotationComposerCam = new Vector3(0, 1.5f, 0);
+    [Tooltip("Offset padrao do CinemachineOrbitalFollow")]
+    public Vector3 OrbitFollowCam = new Vector3(0, 1f, 0);
+    [Tooltip("Quanto a camera sobe (somado aos offsets padrao) enquanto mira")]
+    public Vector3 AimCameraOffset = new Vector3(0, 0.5f, 0);
 }

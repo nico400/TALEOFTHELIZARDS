@@ -8,6 +8,12 @@ public class TongueRetractStateQuirino : State<ControllerQuirino>
     public override void Enter()
     {
         Controller.Tongue.Release();
+        Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
+    }
+
+    public override void Exit()
+    {
+        Controller.Motor.ResetCameraOffset();
     }
 
     public override void Update()
