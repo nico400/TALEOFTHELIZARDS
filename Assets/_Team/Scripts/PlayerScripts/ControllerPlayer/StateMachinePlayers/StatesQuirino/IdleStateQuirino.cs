@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class IdleStateQuirino : State<StateMachineControllerQuirino>
+public class IdleStateQuirino : State<ControllerQuirino>
 {
-    public IdleStateQuirino(StateMachineControllerQuirino controller) : base(controller) { }
+    public IdleStateQuirino(ControllerQuirino controller) : base(controller) { }
 
     public override void Update()
     {
@@ -10,6 +10,12 @@ public class IdleStateQuirino : State<StateMachineControllerQuirino>
         if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
             Controller.SwitchState(Controller.JumpState);
+            return;
+        }
+
+        if (Controller.CanAim)
+        {
+            Controller.SwitchState(Controller.AimState);
             return;
         }
 

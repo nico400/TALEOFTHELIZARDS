@@ -1,6 +1,6 @@
-public class MovimentationStateQuirino : State<StateMachineControllerQuirino>
+public class MovimentationStateQuirino : State<ControllerQuirino>
 {
-    public MovimentationStateQuirino(StateMachineControllerQuirino controller) : base(controller) { }
+    public MovimentationStateQuirino(ControllerQuirino controller) : base(controller) { }
 
     public override void Update()
     {
@@ -8,6 +8,12 @@ public class MovimentationStateQuirino : State<StateMachineControllerQuirino>
         if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
             Controller.SwitchState(Controller.JumpState);
+            return;
+        }
+
+        if (Controller.CanAim)
+        {
+            Controller.SwitchState(Controller.AimState);
             return;
         }
 

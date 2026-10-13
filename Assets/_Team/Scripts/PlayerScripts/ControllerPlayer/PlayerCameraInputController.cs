@@ -42,6 +42,12 @@ public class PlayerCameraInputController : InputAxisControllerBase<PlayerCameraI
                 return 0f;
 
             IPlayerInput input = controller.Input;
+            bool _usingMouse = input.CurrentControlScheme == "KeyboardMouse";
+
+            // Mouse solto (para clicar em menus/editor): a camera nao gira
+            if (_usingMouse && !input.IsCursorLocked)
+                return 0f;
+
             float value = hint switch
             {
                 IInputAxisOwner.AxisDescriptor.Hints.X => input.Look.x,
@@ -49,7 +55,7 @@ public class PlayerCameraInputController : InputAxisControllerBase<PlayerCameraI
                 _ => 0f
             };
 
-            float gain = input.CurrentControlScheme == "KeyboardMouse" ? KeyboardMouseGain : GamepadGain;
+            float gain = _usingMouse ? KeyboardMouseGain : GamepadGain;
             return value * gain;
         }
     }

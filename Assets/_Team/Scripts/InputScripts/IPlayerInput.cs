@@ -15,6 +15,10 @@ public interface IPlayerInput
     event Action<bool> Aim;
     event Action<bool> FireTongue;
 
+    // Mouse travado no centro da tela (só teclado e mouse)
+    bool IsCursorLocked { get; }
+    event Action<bool> CursorLockChanged;
+
     // Nome do control scheme ativo ("KeyboardMouse" ou "Gamepad")
     string CurrentControlScheme { get; }
     event Action<string> ControlSchemeChanged;

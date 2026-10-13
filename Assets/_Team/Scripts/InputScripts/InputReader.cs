@@ -14,11 +14,15 @@ public class InputReader : ScriptableObject, IPlayerInput, IGameplayActions
     [Tooltip("Qual gamepad conectado usar (0 = primeiro). Só vale para DeviceSlot.Gamepad.")]
     [SerializeField, Min(0)] private int m_gamepadIndex;
 
+    [Tooltip("Trava o mouse no centro da tela ao ativar o gameplay (só teclado e mouse)")]
+    [SerializeField] private bool m_lockCursorOnEnable = true;
+
     public event Action JumpStarted = delegate { };
     public event Action JumpCanceled = delegate { };
     public event Action Interact = delegate { };
     public event Action<bool> Aim = delegate { };
     public event Action<bool> FireTongue = delegate { };
+    public event Action<bool> CursorLockChanged = delegate { };
     public event Action<string> ControlSchemeChanged = delegate { };
 
     public Vector2 Move { get; private set; }
@@ -26,6 +30,7 @@ public class InputReader : ScriptableObject, IPlayerInput, IGameplayActions
     public bool IsAiming { get; private set; }
     public bool IsFiringTongue { get; private set; }
     public string CurrentControlScheme { get; private set; }
+    public bool IsCursorLocked => Cursor.lockState == CursorLockMode.Locked;
 
     private PlayersControlls m_controls;
     private InputDevice m_lastDevice;
@@ -48,6 +53,19 @@ public class InputReader : ScriptableObject, IPlayerInput, IGameplayActions
 
         PairDevices();
         m_controls.Gameplay.Enable();
+
+        if (m_lockCursorOnEnable && UsesKeyboardMouse)
+            SetCursorLocked(true);
+    }
+
+    // Gamepad nao usa cursor; Any pode estar no teclado
+    private bool UsesKeyboardMouse => m_deviceSlot != DeviceSlot.Gamepad;
+
+    public void SetCursorLocked(bool locked)
+    {
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !locked;
+        CursorLockChanged.Invoke(locked);
     }
 
     public void DisableGameplay()
@@ -192,6 +210,14 @@ public class InputReader : ScriptableObject, IPlayerInput, IGameplayActions
         TrackDevice(context);
         if (context.performed && !IsAiming) Aim.Invoke(IsAiming = true);
         else if (context.canceled && IsAiming) Aim.Invoke(IsAiming = false);
+    }
+
+    // Tecla Esc no teclado: alterna entre mouse travado e livre
+    public void OnToggleCursorLock(InputAction.CallbackContext context)
+    {
+        TrackDevice(context);
+        if (context.performed && UsesKeyboardMouse)
+            SetCursorLocked(!IsCursorLocked);
     }
 
     public void OnFireTongue(InputAction.CallbackContext context)

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StateMachineControllerDraco : MonoBehaviour
+public class ControllerDraco : MonoBehaviour
 {
     private const float k_inputDeadZone = 0.1f;
 
@@ -13,8 +13,8 @@ public class StateMachineControllerDraco : MonoBehaviour
     [SerializeField] private Transform m_camera;
     public Transform Camera => m_camera;
 
-    [SerializeField] private DracoWallClimbSettings m_settingsClimb;
-    public DracoWallClimbSettings Settings => m_settingsClimb;
+    [SerializeField] private DracoSettings m_settingsClimb;
+    public DracoSettings Settings => m_settingsClimb;
 
     [SerializeField] private TimedInputBuffer m_jumpBuffer = new();
     public TimedInputBuffer JumpBuffer => m_jumpBuffer;
@@ -36,7 +36,7 @@ public class StateMachineControllerDraco : MonoBehaviour
             m_rigidbody = GetComponent<Rigidbody>();
 
         if (m_settingsClimb == null)
-            m_settingsClimb = new DracoWallClimbSettings();
+            m_settingsClimb = new DracoSettings();
 
         Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
         
