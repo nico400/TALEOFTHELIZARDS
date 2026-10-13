@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &370047644379538886
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2853529043366771012}
+  m_Layer: 6
+  m_Name: Mouth
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2853529043366771012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370047644379538886}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.208, z: 0.808}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3876936424817933884}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &795063186358842403
 GameObject:
   m_ObjectHideFlags: 0
@@ -369,6 +400,7 @@ Transform:
   - {fileID: 6508024569708724805}
   - {fileID: 6975204459039393716}
   - {fileID: 838903583089128702}
+  - {fileID: 2853529043366771012}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
 --- !u!54 &5700460560332740280
@@ -456,6 +488,10 @@ MonoBehaviour:
     TongueWalkSpeed: 3
     TongueEdgeMargin: 0.5
     TongueStandHeight: 0.05
+    GrabRadius: 1
+    GrabLayers:
+      serializedVersion: 2
+      m_Bits: 4294967295
   m_jumpBuffer:
     m_bufferValue: 0
     m_holdTime: 0.25
@@ -463,6 +499,7 @@ MonoBehaviour:
   m_interactBuffer:
     m_bufferValue: 0
     m_holdTime: 0.25
+  m_holdPoint: {fileID: 2853529043366771012}
 --- !u!1 &4658528588890939758
 GameObject:
   m_ObjectHideFlags: 0

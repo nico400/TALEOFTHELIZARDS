@@ -15,8 +15,8 @@ TagManager:
   - UI
   - Players
   - Attach
-  - Walkables
-  - 
+  - AttachPin
+  - JumpTarget
   - 
   - 
   - 

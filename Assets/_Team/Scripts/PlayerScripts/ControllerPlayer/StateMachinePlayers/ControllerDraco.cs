@@ -27,7 +27,12 @@ public class ControllerDraco : MonoBehaviour
 
     [SerializeField] private TimedInputBuffer m_interactBuffer = new();
 
+    [Header("Grab")]
+    [Tooltip("GameObject vazio na boca do Draco: onde o objeto pego fica")]
+    [SerializeField] private Transform m_holdPoint;
+
     public DracoMotor Motor { get; private set; }
+    public DracoGrabber Grabber { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
@@ -50,7 +55,14 @@ public class ControllerDraco : MonoBehaviour
             m_settingsClimb = new DracoSettings();
 
         Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
-        
+
+        if (m_holdPoint == null)
+        {
+            Debug.LogWarning($"{name}: Hold Point nao configurado, usando o proprio Draco.", this);
+            m_holdPoint = transform;
+        }
+        Grabber = new DracoGrabber(m_holdPoint, m_settingsClimb);
+
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
         MoveState = new MovimentStateDraco(this);
@@ -72,6 +84,9 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.JumpStarted -= OnJumpStarted;
         m_inputReader.JumpCanceled -= OnJumpCanceled;
         m_inputReader.Interact -= OnInteract;
+
+        // Nao deixa o objeto preso na boca de um Draco desativado
+        Grabber?.Release(Vector3.zero);
     }
 
     private void Start()
@@ -102,10 +117,29 @@ public class ControllerDraco : MonoBehaviour
         m_currentState.Enter();
     }
 
-    // Chamado pelos estados de locomocao: sobe na lingua se apertou Interagir perto dela
-    public bool TryMountTongue()
+    // Chamado pelos estados de locomocao. Prioridade do Interagir:
+    // 1. segurando algo: solta
+    // 2. objeto pegavel perto: pega
+    // 3. lingua perto: sobe nela
+    // Retorna true so quando trocou de estado (subiu na lingua)
+    public bool TryInteract()
     {
-        if (!m_interactBuffer.HasBufferedInput || !TongueWalkState.CanMount()) return false;
+        if (!m_interactBuffer.HasBufferedInput) return false;
+
+        if (Grabber.IsHolding)
+        {
+            m_interactBuffer.Consume();
+            Grabber.Release(m_rigidbody.linearVelocity);
+            return false;
+        }
+
+        if (Grabber.TryGrabNearest())
+        {
+            m_interactBuffer.Consume();
+            return false;
+        }
+
+        if (!TongueWalkState.CanMount()) return false;
 
         m_interactBuffer.Consume();
         SwitchState(TongueWalkState);
