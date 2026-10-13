@@ -6,6 +6,8 @@ public class IdleStateDraco : State<ControllerDraco>
 
     public override void Update()
     {
+        if (Controller.TryMountTongue()) return;
+
         // Pulo tem prioridade sobre andar
         if (Controller.JumpBuffer.HasBufferedInput && (Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface))
         {

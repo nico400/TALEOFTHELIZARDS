@@ -2,7 +2,7 @@ using UnityEngine;
 
 // Dados e visual da lingua do Quirino, compartilhados pelos estados de lingua.
 // Nao decide nada: quem decide quando esticar, prender e recolher sao os estados.
-public class QuirinoTongue
+public class QuirinoTongue : ITongueBridge
 {
     private const float k_cameraAimDistance = 100f;
     private const float k_reachedDistance = 0.05f;
@@ -28,6 +28,13 @@ public class QuirinoTongue
     public Vector3 AttachPoint => m_hitTransform != null ? m_hitTransform.TransformPoint(m_localHitPoint) : m_missPoint;
 
     public bool IsAttachInRange => HasTarget && Vector3.Distance(OriginPosition, AttachPoint) <= m_settings.TongueRange;
+
+    // Ligado pelo TongueAttachedState: so conta como presa depois que a ponta chegou
+    public bool IsAttached { get; set; }
+
+    public bool IsWalkable => IsAttached && HasTarget && Target.IsWalkable;
+    public Vector3 BridgeStart => OriginPosition;
+    public Vector3 BridgeEnd => AttachPoint;
 
     public QuirinoTongue(Transform origin, LineRenderer line, Transform camera, QuirinoSettings settings)
     {
@@ -80,6 +87,7 @@ public class QuirinoTongue
     // Esquece o alvo (a ponta continua onde esta para voltar dali)
     public void Release()
     {
+        IsAttached = false;
         Target = null;
         m_hitTransform = null;
     }

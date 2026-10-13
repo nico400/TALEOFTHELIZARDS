@@ -32,4 +32,13 @@ public class DracoSettings
     public float WallProbeRadius = 0.2f;
     public float GroundProbeDistance = 2.35f;
     public float WallProbeDistance = 1.35f;
+
+    [Header("Tongue Walk")]
+    [Tooltip("Distancia maxima do Draco ate a lingua para conseguir subir")]
+    public float TongueMountDistance = 1.5f;
+    public float TongueWalkSpeed = 3f;
+    [Tooltip("Distancia que o Draco para antes da boca e da ponta da lingua")]
+    public float TongueEdgeMargin = 0.5f;
+    [Tooltip("Altura do pe do Draco acima da linha da lingua")]
+    public float TongueStandHeight = 0.05f;
 }
