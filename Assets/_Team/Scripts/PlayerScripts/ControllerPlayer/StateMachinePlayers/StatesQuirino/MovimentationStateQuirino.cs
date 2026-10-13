@@ -7,7 +7,7 @@ public class MovimentationStateQuirino : State<ControllerQuirino>
         // Pulo tem prioridade sobre parar
         if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
-            Controller.SwitchState(Controller.JumpState);
+            Controller.SwitchState(Controller.ResolveJumpState(Controller.MoveDirection));
             return;
         }
 

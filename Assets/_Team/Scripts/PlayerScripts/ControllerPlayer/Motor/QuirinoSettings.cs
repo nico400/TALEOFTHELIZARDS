@@ -23,6 +23,20 @@ public class QuirinoSettings
     [Tooltip("Distancia maxima do pe ate o chao para considerar que esta no chao")]
     public float GroundCheckDistance = 0.1f;
 
+    [Header("Jump Point")]
+    [Tooltip("Raio da area que procura JumpPoints em volta do Quirino")]
+    public float JumpPointDetectRadius = 6f;
+    [Tooltip("Angulo maximo entre a direcao do pulo e o Target para ele valer")]
+    public float JumpPointMaxAngle = 35f;
+    [Tooltip("Layers dos objetos com JumpPoint")]
+    public LayerMask JumpPointLayers = ~0;
+    [Tooltip("Altura do arco no meio do pulo direcionado")]
+    public float TargetJumpArcHeight = 1.5f;
+    [Tooltip("Velocidade horizontal do pulo direcionado (define a duracao)")]
+    public float TargetJumpSpeed = 8f;
+    [Tooltip("Duracao minima do pulo direcionado, para alvos muito perto")]
+    public float TargetJumpMinDuration = 0.35f;
+
     [Header("Tongue")]
     [Tooltip("Distancia maxima que a lingua alcanca a partir da boca")]
     public float TongueRange = 8f;

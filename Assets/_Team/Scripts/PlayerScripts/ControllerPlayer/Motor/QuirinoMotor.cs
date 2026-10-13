@@ -64,6 +64,13 @@ public class QuirinoMotor
         ApplyGroundVelocity(Vector3.zero);
     }
 
+    // Zera a velocidade guardada do andar (ex.: ao sair de um pulo direcionado)
+    public void ResetGroundVelocity()
+    {
+        m_groundVelocity = Vector3.zero;
+        m_groundMovimentation.Stop();
+    }
+
     private void ApplyGroundVelocity(Vector3 direction)
     {
         m_groundVelocity = m_groundMovimentation.Move(true, m_groundVelocity, direction);
@@ -76,7 +83,7 @@ public class QuirinoMotor
 
     // Vira o Quirino para onde ele esta andando. Ele nao escala,
     // entao o up e sempre o Vector3.up e so gira no plano do chao.
-    private void RotateTowards(Vector3 facingDirection)
+    public void RotateTowards(Vector3 facingDirection)
     {
         Vector3 _forward = Vector3.ProjectOnPlane(facingDirection, Vector3.up);
         if (_forward.sqrMagnitude < 0.001f) return; // sem input: mantem para onde olha

@@ -15,8 +15,8 @@ public class JumpStateDraco : State<ControllerDraco>
 
     public override void Update()
     {
-        // Da para agarrar a lingua no meio do pulo
-        if (Controller.TryMountTongue()) return;
+        // Da para pegar/soltar objeto ou agarrar a lingua no meio do pulo
+        if (Controller.TryInteract()) return;
 
         // So pousa depois de parar de subir (evita sair no mesmo frame do pulo)
         bool _falling = Controller.RB.linearVelocity.y <= 0f;

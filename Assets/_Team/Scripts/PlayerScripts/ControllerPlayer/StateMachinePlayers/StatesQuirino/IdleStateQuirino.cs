@@ -9,7 +9,7 @@ public class IdleStateQuirino : State<ControllerQuirino>
         // Pulo tem prioridade sobre andar
         if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
-            Controller.SwitchState(Controller.JumpState);
+            Controller.SwitchState(Controller.ResolveJumpState(Controller.MoveDirection));
             return;
         }
 

@@ -20,6 +20,11 @@ public class Movimentation : IMovimentation
         return m_horizontalDirection * m_currentSpeed;
     }
 
+    public void Stop()
+    {
+        m_currentSpeed = 0f;
+    }
+
     public Vector3 Move(bool canMove, Vector3 velocity, Vector3 direction)
     {
         if (!canMove) return velocity;

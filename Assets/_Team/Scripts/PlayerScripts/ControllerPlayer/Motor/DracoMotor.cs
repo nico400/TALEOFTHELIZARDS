@@ -120,6 +120,13 @@ public class DracoMotor
         SurfaceMoveDirection = ComputeSurfaceDirection(_normalToUse, input);
 
         SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(m_transform, SurfaceMoveDirection, _normalToUse);
+
+        // No ar o probe acha a parede de longe; so gruda se estiver encostando,
+        // senao ele deita no ar sem gravidade longe da parede
+        bool _isAirborne = !IsGrounded && !m_normalTracker.HasNormal;
+        if (_isAirborne && IsWallTooFarToAttach(_probeResult))
+            _probeResult.WallHitFound = false;
+
         m_normalTracker.Update(_probeResult, Time.fixedDeltaTime);
 
         bool _hasInput = input.sqrMagnitude >= k_inputDeadZone;
@@ -171,6 +178,14 @@ public class DracoMotor
 
         float _distanceToGround = Vector3.Dot(m_transform.position - data.GroundHit.point, data.GroundHit.normal);
         return _distanceToGround <= m_settings.GroundedDistance;
+    }
+
+    private bool IsWallTooFarToAttach(SurfaceProbeResult data)
+    {
+        if (!data.WallHitFound) return false;
+
+        float _distanceToWall = Vector3.Dot(m_transform.position - data.WallHit.point, data.WallHit.normal);
+        return _distanceToWall > m_settings.WallAttachDistanceAir;
     }
 
     private Vector3 ComputeSnapCorrection(SurfaceProbeResult data)

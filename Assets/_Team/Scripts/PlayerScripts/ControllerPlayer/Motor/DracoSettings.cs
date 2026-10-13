@@ -32,6 +32,8 @@ public class DracoSettings
     public float WallProbeRadius = 0.2f;
     public float GroundProbeDistance = 2.35f;
     public float WallProbeDistance = 1.35f;
+    [Tooltip("No ar, distancia maxima do centro do Draco ate a parede para grudar nela (raio do collider + folga)")]
+    public float WallAttachDistanceAir = 0.75f;
 
     [Header("Tongue Walk")]
     [Tooltip("Distancia maxima do Draco ate a lingua para conseguir subir")]
@@ -41,4 +43,10 @@ public class DracoSettings
     public float TongueEdgeMargin = 0.5f;
     [Tooltip("Altura do pe do Draco acima da linha da lingua")]
     public float TongueStandHeight = 0.05f;
+
+    [Header("Grab")]
+    [Tooltip("Raio em volta da boca do Draco para achar objetos pegaveis")]
+    public float GrabRadius = 1f;
+    [Tooltip("Layers onde ficam os objetos pegaveis")]
+    public LayerMask GrabLayers = ~0;
 }
