@@ -20,13 +20,24 @@ public class ControllerDraco : MonoBehaviour
     public TimedInputBuffer JumpBuffer => m_jumpBuffer;
     public bool JumpHeld { get; private set; }
 
+    [Header("Tongue Walk")]
+    [Tooltip("Quirino cuja lingua o Draco pode usar como ponte")]
+    [SerializeField] private ControllerQuirino m_quirino;
+    public ITongueBridge TongueBridge => m_quirino != null ? m_quirino.Tongue : null;
+
+    [SerializeField] private TimedInputBuffer m_interactBuffer = new();
+
     public DracoMotor Motor { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
+    // Estado para voltar quando sai da lingua
+    public State LocomotionState => HasMoveInput ? MoveState : IdleState;
+
     public IdleStateDraco IdleState { get; private set; }
     public MovimentStateDraco MoveState { get; private set; }
     public JumpStateDraco JumpState { get; private set; }
+    public TongueWalkStateDraco TongueWalkState { get; private set; }
 
     private State m_currentState;
 
@@ -44,6 +55,7 @@ public class ControllerDraco : MonoBehaviour
         IdleState = new IdleStateDraco(this);
         MoveState = new MovimentStateDraco(this);
         JumpState = new JumpStateDraco(this);
+        TongueWalkState = new TongueWalkStateDraco(this);
     }
 
     private void OnEnable()
@@ -51,6 +63,7 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.EnableGameplay();
         m_inputReader.JumpStarted += OnJumpStarted;
         m_inputReader.JumpCanceled += OnJumpCanceled;
+        m_inputReader.Interact += OnInteract;
     }
 
     private void OnDisable()
@@ -58,6 +71,7 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.DisableGameplay();
         m_inputReader.JumpStarted -= OnJumpStarted;
         m_inputReader.JumpCanceled -= OnJumpCanceled;
+        m_inputReader.Interact -= OnInteract;
     }
 
     private void Start()
@@ -72,7 +86,10 @@ public class ControllerDraco : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Motor.UpdateSurface(PlayerInput.Move);
+        // Na lingua quem move e o proprio estado; o probe grudaria em parede/chao
+        if (m_currentState != TongueWalkState)
+            Motor.UpdateSurface(PlayerInput.Move);
+
         m_currentState?.FixedUpdate();
     }
 
@@ -85,7 +102,18 @@ public class ControllerDraco : MonoBehaviour
         m_currentState.Enter();
     }
 
+    // Chamado pelos estados de locomocao: sobe na lingua se apertou Interagir perto dela
+    public bool TryMountTongue()
+    {
+        if (!m_interactBuffer.HasBufferedInput || !TongueWalkState.CanMount()) return false;
+
+        m_interactBuffer.Consume();
+        SwitchState(TongueWalkState);
+        return true;
+    }
+
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
+    private void OnInteract() => m_interactBuffer.Set();
 
 }

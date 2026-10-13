@@ -14,6 +14,7 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
         m_attachedTime = 0f;
         m_heldEventFired = false;
         Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
+        Controller.Tongue.IsAttached = true;
         Controller.Tongue.Target.OnTongueAttached(Controller);
     }
 
@@ -49,6 +50,7 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
     public override void Exit()
     {
         Controller.Motor.ResetCameraOffset();
+        Controller.Tongue.IsAttached = false; // derruba o Draco se estiver em cima
 
         if (Controller.Tongue.HasTarget)
             Controller.Tongue.Target.OnTongueReleased(Controller);

@@ -83,6 +83,26 @@ public class DracoMotor
     }
     public void Detach(float duration) => m_detachTimer = duration;
 
+    // Esquece parede e chao ao sair do motor de superficie (ex: subir na lingua),
+    // senao ao voltar ele acha que ainda esta grudado
+    public void ClearSurface()
+    {
+        m_normalTracker.Reset();
+        m_detachTimer = 0f;
+        m_groundVelocity = Vector3.zero;
+        SnapCorrection = Vector3.zero;
+        IsGrounded = false;
+    }
+
+    // Leva o Draco ate um ponto pela velocidade (respeita colisao) e alinha com up/facing.
+    // Usado por estados que nao usam o UpdateSurface, como andar na lingua.
+    public void FollowPoint(Vector3 targetPosition, Vector3 up, Vector3 facing)
+    {
+        m_rigidbody.useGravity = false;
+        m_rigidbody.linearVelocity = (targetPosition - m_rigidbody.position) / Time.fixedDeltaTime;
+        RotateTowards(up, facing);
+    }
+
     // Chamar todo FixedUpdate, antes do estado atual
     public void UpdateSurface(Vector2 input)
     {

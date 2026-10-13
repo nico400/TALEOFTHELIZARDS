@@ -2,6 +2,9 @@
 // Sem isso, a lingua bate no objeto e volta.
 public interface ITongueTarget
 {
+    // Lingua presa aqui vira ponte para o Draco andar por cima
+    bool IsWalkable { get; }
+
     void OnTongueAttached(ControllerQuirino quirino);
 
     // Lingua presa por TongueHeldEventTime segundos (dispara uma vez)

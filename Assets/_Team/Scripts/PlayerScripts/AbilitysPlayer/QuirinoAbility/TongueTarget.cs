@@ -6,6 +6,10 @@ using UnityEngine.Events;
 // Para algo mais especifico, crie outro script que implemente ITongueTarget.
 public class TongueTarget : MonoBehaviour, ITongueTarget
 {
+    [Tooltip("Lingua presa aqui vira ponte: o Draco pode subir nela com Interagir")]
+    [SerializeField] private bool m_isWalkable;
+    public bool IsWalkable => m_isWalkable;
+
     [SerializeField] private UnityEvent m_onAttached;
     [SerializeField] private UnityEvent m_onHeld;
     [SerializeField] private UnityEvent m_onReleased;
