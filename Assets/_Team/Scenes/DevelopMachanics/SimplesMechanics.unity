@@ -44375,10 +44375,6 @@ PrefabInstance:
       propertyPath: m_quirino
       value: 
       objectReference: {fileID: 1614898139}
-    - target: {fileID: 8795126762311187678, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
-      propertyPath: m_settingsClimb.TongueMountDistance
-      value: 2.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44392,10 +44388,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 649372056614772923, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
-      propertyPath: m_Positions.Array.size
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 860338203509477633, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_Name
       value: PlayerControllerQuirino
@@ -44439,10 +44431,6 @@ PrefabInstance:
     - target: {fileID: 2783356473536524222, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8836150125674712594, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
-      propertyPath: m_settings.TongueRange
-      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
