@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StateMachineControllerQuirino : MonoBehaviour
+public class ControllerDraco : MonoBehaviour
 {
     private const float k_inputDeadZone = 0.1f;
 
@@ -13,20 +13,20 @@ public class StateMachineControllerQuirino : MonoBehaviour
     [SerializeField] private Transform m_camera;
     public Transform Camera => m_camera;
 
-    [SerializeField] private QuirinoSettings m_settings = new();
-    public QuirinoSettings Settings => m_settings;
+    [SerializeField] private DracoSettings m_settingsClimb;
+    public DracoSettings Settings => m_settingsClimb;
 
     [SerializeField] private TimedInputBuffer m_jumpBuffer = new();
     public TimedInputBuffer JumpBuffer => m_jumpBuffer;
     public bool JumpHeld { get; private set; }
 
-    public QuirinoMotor Motor { get; private set; }
+    public DracoMotor Motor { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
-    public IdleStateQuirino IdleState { get; private set; }
-    public MovimentationStateQuirino MoveState { get; private set; }
-    public JumpStateQuirino JumpState { get; private set; }
+    public IdleStateDraco IdleState { get; private set; }
+    public MovimentStateDraco MoveState { get; private set; }
+    public JumpStateDraco JumpState { get; private set; }
 
     private State m_currentState;
 
@@ -35,15 +35,15 @@ public class StateMachineControllerQuirino : MonoBehaviour
         if (m_rigidbody == null)
             m_rigidbody = GetComponent<Rigidbody>();
 
-        if (m_settings == null)
-            m_settings = new QuirinoSettings();
+        if (m_settingsClimb == null)
+            m_settingsClimb = new DracoSettings();
 
-        Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_settings);
-
+        Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
+        
         // cria os estados uma vez aqui para nao perder os paremetros
-        IdleState = new IdleStateQuirino(this);
-        MoveState = new MovimentationStateQuirino(this);
-        JumpState = new JumpStateQuirino(this);
+        IdleState = new IdleStateDraco(this);
+        MoveState = new MovimentStateDraco(this);
+        JumpState = new JumpStateDraco(this);
     }
 
     private void OnEnable()
@@ -72,7 +72,7 @@ public class StateMachineControllerQuirino : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Motor.UpdateGround();
+        Motor.UpdateSurface(PlayerInput.Move);
         m_currentState?.FixedUpdate();
     }
 
@@ -87,4 +87,5 @@ public class StateMachineControllerQuirino : MonoBehaviour
 
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
+
 }

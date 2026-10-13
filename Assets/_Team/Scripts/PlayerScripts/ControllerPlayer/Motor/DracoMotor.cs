@@ -9,7 +9,7 @@ public class DracoMotor
     private readonly Transform m_transform;
     private readonly Rigidbody m_rigidbody;
     private readonly Transform m_camera;
-    private readonly DracoWallClimbSettings m_settings;
+    private readonly DracoSettings m_settings;
 
     private readonly WallAndGroundSurfaceProbe m_surfaceProbe;
     private readonly SurfaceNormalTracker m_normalTracker;
@@ -25,7 +25,7 @@ public class DracoMotor
     public bool IsGrounded { get; private set; }
     public bool IsDetached => m_detachTimer > 0f;
 
-    public DracoMotor(Transform transform, Rigidbody rigidbody, Transform camera, DracoWallClimbSettings settings)
+    public DracoMotor(Transform transform, Rigidbody rigidbody, Transform camera, DracoSettings settings)
     {
         m_transform = transform;
         m_rigidbody = rigidbody;
@@ -92,7 +92,7 @@ public class DracoMotor
             m_rigidbody.useGravity = true;
             SnapCorrection = Vector3.zero;
             IsGrounded = false;
-            RotateTowards(Vector3.up);
+            RotateTowards(Vector3.up, Vector3.zero);
             return;
         }
 
@@ -102,7 +102,8 @@ public class DracoMotor
         SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(m_transform, SurfaceMoveDirection, _normalToUse);
         m_normalTracker.Update(_probeResult, Time.fixedDeltaTime);
 
-        RotateTowards(m_normalTracker.CurrentNormal);
+        bool _hasInput = input.sqrMagnitude >= k_inputDeadZone;
+        RotateTowards(m_normalTracker.CurrentNormal, _hasInput ? SurfaceMoveDirection : Vector3.zero);
         SnapCorrection = ComputeSnapCorrection(_probeResult);
         IsGrounded = ComputeIsGrounded(_probeResult);
 
@@ -121,14 +122,24 @@ public class DracoMotor
         return _dir;
     }
 
-    private void RotateTowards(Vector3 targetNormal)
+    // Unica rotacao do Draco: alinha o "up" com a normal e, se tiver input,
+    // vira o "forward" para a direcao do movimento (no plano da superficie).
+    // Tem que ser um MoveRotation so por frame, senao um sobrescreve o outro.
+    private void RotateTowards(Vector3 targetNormal, Vector3 facingDirection)
     {
         float _t = 1f - Mathf.Exp(-m_settings.NormalSlerpSpeed * Time.fixedDeltaTime);
 
         Quaternion _currentRotation = m_rigidbody.rotation;
         Vector3 _currentUp = _currentRotation * Vector3.up;
 
+        // Sem input: menor rotacao que leva o up atual para a normal (mantem para onde olha)
         Quaternion _targetRotation = Quaternion.FromToRotation(_currentUp, targetNormal) * _currentRotation;
+
+        // Com input: olha para onde anda, usando a normal como up
+        Vector3 _forward = Vector3.ProjectOnPlane(facingDirection, targetNormal);
+        if (_forward.sqrMagnitude > 0.001f)
+            _targetRotation = Quaternion.LookRotation(_forward.normalized, targetNormal);
+
         m_rigidbody.MoveRotation(Quaternion.Slerp(_currentRotation, _targetRotation, _t));
     }
 

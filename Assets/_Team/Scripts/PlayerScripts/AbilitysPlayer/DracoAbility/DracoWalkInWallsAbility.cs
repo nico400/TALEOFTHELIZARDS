@@ -7,18 +7,18 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
     private readonly Transform m_cam;
     private readonly Rigidbody m_rb;
 
-    private readonly DracoWallClimbSettings m_settings;
+    private readonly DracoSettings m_settings;
     private readonly WallAndGroundSurfaceProbe m_surfaceProbe;
     private  SurfaceNormalTracker m_normalTracker;
 
     private Vector3 m_lastProbeDirection = Vector3.forward;
 
-    public DracoWalkInWallsAbility(Func<Vector2> rawInput, Transform cam, Rigidbody rb, DracoWallClimbSettings settings = null)
+    public DracoWalkInWallsAbility(Func<Vector2> rawInput, Transform cam, Rigidbody rb, DracoSettings settings = null)
     {
         m_getRawInput = rawInput;
         m_cam = cam;
         m_rb = rb;
-        m_settings = settings ?? new DracoWallClimbSettings();
+        m_settings = settings ?? new DracoSettings();
         m_surfaceProbe = new WallAndGroundSurfaceProbe(m_settings);
         m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);    
     }

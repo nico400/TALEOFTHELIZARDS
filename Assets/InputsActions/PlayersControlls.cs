@@ -145,6 +145,15 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleCursorLock"",
+                    ""type"": ""Button"",
+                    ""id"": ""47de9aca-19f5-4f12-945e-46d7ebb5515c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -323,6 +332,17 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
                     ""action"": ""FireTongue"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ea783443-6541-46a8-aa65-6e95354cd824"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyboardMouse"",
+                    ""action"": ""ToggleCursorLock"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -365,6 +385,7 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
         m_Gameplay_Aim = m_Gameplay.FindAction("Aim", throwIfNotFound: true);
         m_Gameplay_FireTongue = m_Gameplay.FindAction("FireTongue", throwIfNotFound: true);
+        m_Gameplay_ToggleCursorLock = m_Gameplay.FindAction("ToggleCursorLock", throwIfNotFound: true);
     }
 
     ~@PlayersControlls()
@@ -451,6 +472,7 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Jump;
     private readonly InputAction m_Gameplay_Aim;
     private readonly InputAction m_Gameplay_FireTongue;
+    private readonly InputAction m_Gameplay_ToggleCursorLock;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -486,6 +508,10 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/FireTongue".
         /// </summary>
         public InputAction @FireTongue => m_Wrapper.m_Gameplay_FireTongue;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/ToggleCursorLock".
+        /// </summary>
+        public InputAction @ToggleCursorLock => m_Wrapper.m_Gameplay_ToggleCursorLock;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -530,6 +556,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @FireTongue.started += instance.OnFireTongue;
             @FireTongue.performed += instance.OnFireTongue;
             @FireTongue.canceled += instance.OnFireTongue;
+            @ToggleCursorLock.started += instance.OnToggleCursorLock;
+            @ToggleCursorLock.performed += instance.OnToggleCursorLock;
+            @ToggleCursorLock.canceled += instance.OnToggleCursorLock;
         }
 
         /// <summary>
@@ -559,6 +588,9 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
             @FireTongue.started -= instance.OnFireTongue;
             @FireTongue.performed -= instance.OnFireTongue;
             @FireTongue.canceled -= instance.OnFireTongue;
+            @ToggleCursorLock.started -= instance.OnToggleCursorLock;
+            @ToggleCursorLock.performed -= instance.OnToggleCursorLock;
+            @ToggleCursorLock.canceled -= instance.OnToggleCursorLock;
         }
 
         /// <summary>
@@ -667,5 +699,12 @@ public partial class @PlayersControlls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFireTongue(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCursorLock" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCursorLock(InputAction.CallbackContext context);
     }
 }

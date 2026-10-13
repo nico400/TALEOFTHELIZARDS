@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 540362147322989407}
   serializedVersion: 2
-  m_LocalRotation: {x: 1.4170662e-11, y: 0.99999994, z: -0.00037003338, w: 0.000000038024012}
-  m_LocalPosition: {x: 0, y: 1.5035291, z: 4.7685847}
+  m_LocalRotation: {x: -1.7399808e-30, y: 0.99519026, z: -0.097961225, w: -1.295223e-29}
+  m_LocalPosition: {x: 0, y: 2.353176, z: 4.291726}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b5d7c088409d9a40b7b09aa707777f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineOrbitalFollow
-  TargetOffset: {x: 0, y: 0, z: 0}
+  TargetOffset: {x: 0, y: 1, z: 0}
   TrackerSettings:
     BindingMode: 4
     PositionDamping: {x: 1, y: 1, z: 1}
@@ -98,7 +98,7 @@ MonoBehaviour:
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
   OrbitStyle: 0
-  Radius: 5
+  Radius: 4.5
   Orbits:
     Top:
       Radius: 2
@@ -124,7 +124,7 @@ MonoBehaviour:
   VerticalAxis:
     Value: 17.5
     Center: 17.5
-    Range: {x: -10, y: 45}
+    Range: {x: -80, y: 80}
     Wrap: 0
     Recentering:
       Enabled: 0
@@ -164,7 +164,7 @@ MonoBehaviour:
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
   TargetOffset: {x: 0, y: 1.5, z: 0}
-  Damping: {x: 0.25, y: 0.25}
+  Damping: {x: 0.1, y: 0.1}
   Lookahead:
     Enabled: 0
     Time: 0
@@ -425,8 +425,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6556474546938647670}
   serializedVersion: 2
-  m_LocalRotation: {x: 1.4070158e-11, y: 0.99999994, z: -0.00037003343, w: 0.000000038024016}
-  m_LocalPosition: {x: 0, y: 1.5035291, z: 4.7685847}
+  m_LocalRotation: {x: -1.2703988e-30, y: 0.99519026, z: -0.09796125, w: -1.290601e-29}
+  m_LocalPosition: {x: 0, y: 2.353176, z: 4.291726}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -527,6 +527,7 @@ GameObject:
   - component: {fileID: 5482072492787711067}
   - component: {fileID: 585419073443460163}
   - component: {fileID: 8703516377147005508}
+  - component: {fileID: 3463216687801473231}
   m_Layer: 6
   m_Name: PlayerControllerForTests
   m_TagString: Untagged
@@ -621,6 +622,10 @@ MonoBehaviour:
     MoveSpeed: 5
     AccelerationPlayer: 15
     DecelerationPlayer: 20
+    JumpForce: 7
+    JumpCutMultiplier: 0.5
+    WallJumpDetachTime: 0.2
+    GroundedDistance: 0.2
     NormalSlerpSpeed: 7.5
     NormalGraceTime: 0.15
     SnapDistanceMin: 0.1
@@ -629,3 +634,32 @@ MonoBehaviour:
     WallProbeRadius: 0.18
     GroundProbeDistance: 2.35
     WallProbeDistance: 1.35
+  m_jumpBuffer:
+    m_bufferValue: 0
+    m_holdTime: 0.25
+--- !u!114 &3463216687801473231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7742097489162456309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bf102520c8e3e746bb1b6a977646056, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StateMachineControllerQuirino
+  m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
+  m_rigidbody: {fileID: 5482072492787711067}
+  m_camera: {fileID: 8332716610049846502}
+  m_settings:
+    MoveSpeed: 5
+    AccelerationPlayer: 15
+    DecelerationPlayer: 20
+    JumpForce: 6
+    JumpCutMultiplier: 0.5
+    GroundCheckRadius: 0.25
+    GroundCheckDistance: 0.1
+  m_jumpBuffer:
+    m_bufferValue: 0
+    m_holdTime: 0.25

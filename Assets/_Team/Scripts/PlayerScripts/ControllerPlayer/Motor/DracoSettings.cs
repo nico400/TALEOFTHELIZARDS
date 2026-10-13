@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class DracoWallClimbSettings
+public class DracoSettings
 {
     [Header("Movement")]
     public float MoveSpeed = 5f;

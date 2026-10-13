@@ -5,10 +5,10 @@ using UnityEngine;
 // climbing-capable abilities can reuse it.
 public class WallAndGroundSurfaceProbe
 {
-    private readonly DracoWallClimbSettings m_settings;
+    private readonly DracoSettings m_settings;
     private readonly LayerMask m_layerToDetect = ~LayerMask.GetMask("Players");
 
-    public WallAndGroundSurfaceProbe(DracoWallClimbSettings settings)
+    public WallAndGroundSurfaceProbe(DracoSettings settings)
     {
         m_settings = settings;
     }

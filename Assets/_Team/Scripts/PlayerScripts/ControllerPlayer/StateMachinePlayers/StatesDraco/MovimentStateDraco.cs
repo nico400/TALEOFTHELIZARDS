@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class MovimentStateDraco : State<StateMachineControllerDraco>
+public class MovimentStateDraco : State<ControllerDraco>
 {
-    public MovimentStateDraco(StateMachineControllerDraco controller) : base(controller) { }
+    public MovimentStateDraco(ControllerDraco controller) : base(controller) { }
 
     public override void Update()
     {

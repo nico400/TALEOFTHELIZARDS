@@ -1,8 +1,8 @@
-public class JumpStateQuirino : State<StateMachineControllerQuirino>
+public class JumpStateQuirino : State<ControllerQuirino>
 {
     private bool m_jumpCut; // true quando este pulo ja foi cortado
 
-    public JumpStateQuirino(StateMachineControllerQuirino controller) : base(controller) { }
+    public JumpStateQuirino(ControllerQuirino controller) : base(controller) { }
 
     public override void Enter()
     {

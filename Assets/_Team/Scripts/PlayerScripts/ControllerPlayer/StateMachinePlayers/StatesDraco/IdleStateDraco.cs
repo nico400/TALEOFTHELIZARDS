@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class IdleStateDraco : State<StateMachineControllerDraco>
+public class IdleStateDraco : State<ControllerDraco>
 {
-    public IdleStateDraco(StateMachineControllerDraco controller) : base(controller) { }
+    public IdleStateDraco(ControllerDraco controller) : base(controller) { }
 
     public override void Update()
     {
