@@ -16,7 +16,6 @@ public class TongueWalkStateDraco : State<ControllerDraco>
     // Lingua presa em alvo caminhavel e perto o bastante do Draco
     public bool CanMount()
     {
-        Debug.Log("aaaaaaaaa");
         ITongueBridge _bridge = Controller.TongueBridge;
         if (_bridge == null || !_bridge.IsWalkable) return false;
 
