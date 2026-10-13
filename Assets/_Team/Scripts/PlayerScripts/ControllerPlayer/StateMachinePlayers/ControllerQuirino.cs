@@ -32,8 +32,10 @@ public class ControllerQuirino : MonoBehaviour
     private bool m_fireTongueRequested;
 
     public QuirinoMotor Motor { get; private set; }
+    public JumpPointDetector JumpPoints { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
+    public Vector3 MoveDirection => CameraRelative.ToWorld(PlayerInput.Move, m_camera);
     public bool CanAim => PlayerInput.IsAiming && Motor.IsGrounded;
 
     // Estado para voltar quando sai da mira ou da lingua
@@ -46,6 +48,8 @@ public class ControllerQuirino : MonoBehaviour
     public TongueExtendStateQuirino TongueExtendState { get; private set; }
     public TongueAttachedStateQuirino TongueAttachedState { get; private set; }
     public TongueRetractStateQuirino TongueRetractState { get; private set; }
+    public TargetJumpStateQuirino TargetJumpState { get; private set; }
+    public PerchedStateQuirino PerchedState { get; private set; }
 
     private State m_currentState;
 
@@ -59,6 +63,7 @@ public class ControllerQuirino : MonoBehaviour
 
         Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_cinemachineCamera, m_settings);
         Tongue = new QuirinoTongue(m_tongueOrigin != null ? m_tongueOrigin : transform, m_tongueLine, m_camera, m_settings);
+        JumpPoints = new JumpPointDetector(transform, m_settings);
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateQuirino(this);
@@ -68,6 +73,8 @@ public class ControllerQuirino : MonoBehaviour
         TongueExtendState = new TongueExtendStateQuirino(this);
         TongueAttachedState = new TongueAttachedStateQuirino(this);
         TongueRetractState = new TongueRetractStateQuirino(this);
+        TargetJumpState = new TargetJumpStateQuirino(this);
+        PerchedState = new PerchedStateQuirino(this);
     }
 
     private void OnEnable()
@@ -112,6 +119,17 @@ public class ControllerQuirino : MonoBehaviour
         m_currentState.Enter();
     }
 
+    // Pulo direcionado se tiver um JumpPoint na direcao, senao pulo normal.
+    // current: JumpPoint onde o Quirino ja esta (ignorado na busca)
+    public State ResolveJumpState(Vector3 direction, JumpPoint current = null)
+    {
+        if (!JumpPoints.TryFind(direction, current, out JumpPoint _point))
+            return JumpState;
+
+        TargetJumpState.SetTarget(_point);
+        return TargetJumpState;
+    }
+
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
 
@@ -123,5 +141,33 @@ public class ControllerQuirino : MonoBehaviour
         bool _requested = m_fireTongueRequested;
         m_fireTongueRequested = false;
         return _requested;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (m_settings == null) return;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, m_settings.JumpPointDetectRadius);
+
+        // Ultimo pulo: direcao usada (amarelo), limites do cone (cinza) e alvo escolhido (verde)
+        if (JumpPoints == null || JumpPoints.LastDirection == Vector3.zero) return;
+
+        Vector3 _origin = JumpPoints.LastOrigin + Vector3.up * 0.1f;
+        Vector3 _direction = JumpPoints.LastDirection;
+        float _radius = m_settings.JumpPointDetectRadius;
+        float _angle = m_settings.JumpPointMaxAngle;
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(_origin, _origin + _direction * _radius);
+
+        Gizmos.color = Color.gray;
+        Gizmos.DrawLine(_origin, _origin + Quaternion.AngleAxis(_angle, Vector3.up) * _direction * _radius);
+        Gizmos.DrawLine(_origin, _origin + Quaternion.AngleAxis(-_angle, Vector3.up) * _direction * _radius);
+
+        if (JumpPoints.LastResult != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(_origin, JumpPoints.LastResult.LandPosition);
+        }
     }
 }
