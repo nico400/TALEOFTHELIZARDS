@@ -452,7 +452,7 @@ MonoBehaviour:
     WallProbeRadius: 0.2
     GroundProbeDistance: 2.35
     WallProbeDistance: 1.35
-    TongueMountDistance: 2
+    TongueMountDistance: 2.5
     TongueWalkSpeed: 3
     TongueEdgeMargin: 0.5
     TongueStandHeight: 0.05
