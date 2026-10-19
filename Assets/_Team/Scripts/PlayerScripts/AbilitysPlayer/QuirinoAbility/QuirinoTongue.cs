@@ -29,6 +29,9 @@ public class QuirinoTongue : ITongueBridge
 
     public bool IsAttachInRange => HasTarget && Vector3.Distance(OriginPosition, AttachPoint) <= m_settings.TongueRange;
 
+    // Fora da boca: de esticar ate terminar de recolher
+    public bool IsOut { get; private set; }
+
     // Ligado pelo TongueAttachedState: so conta como presa depois que a ponta chegou
     public bool IsAttached { get; set; }
 
@@ -71,6 +74,7 @@ public class QuirinoTongue : ITongueBridge
         }
 
         TipPosition = _origin;
+        IsOut = true;
         if (m_line != null) m_line.enabled = true;
         Draw();
     }
@@ -95,6 +99,7 @@ public class QuirinoTongue : ITongueBridge
     public void Hide()
     {
         Release();
+        IsOut = false;
         if (m_line != null) m_line.enabled = false;
     }
 

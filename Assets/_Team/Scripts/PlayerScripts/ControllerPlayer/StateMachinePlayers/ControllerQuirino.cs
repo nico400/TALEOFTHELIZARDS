@@ -24,6 +24,8 @@ public class ControllerQuirino : MonoBehaviour
     public TimedInputBuffer JumpBuffer => m_jumpBuffer;
     public bool JumpHeld { get; private set; }
 
+    [SerializeField] private TimedInputBuffer m_interactBuffer = new();
+
     [Header("Tongue")]
     [Tooltip("Ponto de onde a lingua sai (boca). Vazio = centro do Quirino")]
     [SerializeField] private Transform m_tongueOrigin;
@@ -33,6 +35,7 @@ public class ControllerQuirino : MonoBehaviour
 
     public QuirinoMotor Motor { get; private set; }
     public JumpPointDetector JumpPoints { get; private set; }
+    public PlayerInteractor Interactor { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
     public Vector3 MoveDirection => CameraRelative.ToWorld(PlayerInput.Move, m_camera);
@@ -64,6 +67,8 @@ public class ControllerQuirino : MonoBehaviour
         Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_cinemachineCamera, m_settings);
         Tongue = new QuirinoTongue(m_tongueOrigin != null ? m_tongueOrigin : transform, m_tongueLine, m_camera, m_settings);
         JumpPoints = new JumpPointDetector(transform, m_settings);
+        // Com a lingua esticada nao usa interagiveis
+        Interactor = new PlayerInteractor(InteractorCharacter.Quirino, transform, m_tongueOrigin, () => !Tongue.IsOut);
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateQuirino(this);
@@ -83,6 +88,7 @@ public class ControllerQuirino : MonoBehaviour
         m_inputReader.JumpStarted += OnJumpStarted;
         m_inputReader.JumpCanceled += OnJumpCanceled;
         m_inputReader.FireTongue += OnFireTongue;
+        m_inputReader.Interact += OnInteract;
     }
 
     private void OnDisable()
@@ -91,6 +97,9 @@ public class ControllerQuirino : MonoBehaviour
         m_inputReader.JumpStarted -= OnJumpStarted;
         m_inputReader.JumpCanceled -= OnJumpCanceled;
         m_inputReader.FireTongue -= OnFireTongue;
+        m_inputReader.Interact -= OnInteract;
+
+        Interactor?.StopInteracting();
     }
 
     private void Start()
@@ -101,6 +110,12 @@ public class ControllerQuirino : MonoBehaviour
     private void Update()
     {
         Motor.UpdateCameraOffset(Time.deltaTime);
+
+        // Interagir nao troca de estado do Quirino, entao fica aqui e nao em cada estado
+        Interactor.Update();
+        if (m_interactBuffer.HasBufferedInput && Interactor.TryInteract())
+            m_interactBuffer.Consume();
+
         m_currentState?.Update();
     }
 
@@ -132,6 +147,7 @@ public class ControllerQuirino : MonoBehaviour
 
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
+    private void OnInteract() => m_interactBuffer.Set();
 
     // Guarda o aperto ate o AimState usar (o botao pode ser apertado entre dois Updates)
     private void OnFireTongue(bool pressed) { if (pressed) m_fireTongueRequested = true; }

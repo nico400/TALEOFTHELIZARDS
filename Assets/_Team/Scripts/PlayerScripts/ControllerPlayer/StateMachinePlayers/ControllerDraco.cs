@@ -33,6 +33,7 @@ public class ControllerDraco : MonoBehaviour
 
     public DracoMotor Motor { get; private set; }
     public DracoGrabber Grabber { get; private set; }
+    public PlayerInteractor Interactor { get; private set; }
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
@@ -62,6 +63,8 @@ public class ControllerDraco : MonoBehaviour
             m_holdPoint = transform;
         }
         Grabber = new DracoGrabber(m_holdPoint, m_settingsClimb);
+        // Com objeto na boca nao usa outros interagiveis
+        Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding);
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
@@ -87,6 +90,7 @@ public class ControllerDraco : MonoBehaviour
 
         // Nao deixa o objeto preso na boca de um Draco desativado
         Grabber?.Release(Vector3.zero);
+        Interactor?.StopInteracting();
     }
 
     private void Start()
@@ -96,6 +100,7 @@ public class ControllerDraco : MonoBehaviour
 
     private void Update()
     {
+        Interactor.Update();
         m_currentState?.Update();
     }
 
@@ -119,8 +124,10 @@ public class ControllerDraco : MonoBehaviour
 
     // Chamado pelos estados de locomocao. Prioridade do Interagir:
     // 1. segurando algo: solta
-    // 2. objeto pegavel perto: pega
-    // 3. lingua perto: sobe nela
+    // 2. interagindo com algo: para
+    // 3. objeto pegavel perto: pega
+    // 4. interagivel perto: comeca a interagir
+    // 5. lingua perto: sobe nela
     // Retorna true so quando trocou de estado (subiu na lingua)
     public bool TryInteract()
     {
@@ -133,7 +140,14 @@ public class ControllerDraco : MonoBehaviour
             return false;
         }
 
-        if (Grabber.TryGrabNearest())
+        if (Interactor.IsInteracting)
+        {
+            m_interactBuffer.Consume();
+            Interactor.StopInteracting();
+            return false;
+        }
+
+        if (Grabber.TryGrabNearest() || Interactor.TryStartInteraction())
         {
             m_interactBuffer.Consume();
             return false;
