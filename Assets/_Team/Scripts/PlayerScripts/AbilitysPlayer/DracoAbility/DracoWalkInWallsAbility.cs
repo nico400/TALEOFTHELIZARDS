@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+// Versao antiga da escalada (usada pelo HandlerAbilitys, hoje comentado).
+// O Draco atual usa o DracoMotor + ClimbStateDraco.
 public class DracoWalkInWallsAbility : IAbilityPlayer
 {
     private readonly Func<Vector2> m_getRawInput;
@@ -19,8 +21,8 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
         m_cam = cam;
         m_rb = rb;
         m_settings = settings ?? new DracoSettings();
-        m_surfaceProbe = new WallAndGroundSurfaceProbe(m_settings);
-        m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);    
+        m_surfaceProbe = new WallAndGroundSurfaceProbe(m_settings, rb != null ? rb.GetComponent<CapsuleCollider>() : null);
+        m_normalTracker = new SurfaceNormalTracker(m_settings.NormalGraceTime);
     }
 
     public void ExecuteAbilityUpdate(Transform playerTransform)
@@ -33,14 +35,13 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
         Vector3 _normalToUse = m_normalTracker.HasNormal ? m_normalTracker.CurrentNormal : playerTransform.up;
         Vector3 _dirMoviment = ComputeMoveDirection(playerTransform, _normalToUse);
 
-        SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(playerTransform, _dirMoviment, _normalToUse);
+        SurfaceProbeResult _probeResult = m_surfaceProbe.Probe(playerTransform);
 
         m_normalTracker.Update(_probeResult, Time.deltaTime);
 
         RotateDraco(playerTransform, m_normalTracker.CurrentNormal);
 
-        Vector3 _snapCorrection = ComputeSnapCorrection(playerTransform, _probeResult);
-        m_rb.linearVelocity = _dirMoviment * m_settings.MoveSpeed + _snapCorrection;
+        m_rb.linearVelocity = _dirMoviment * m_settings.MoveSpeed;
     }
 
     private Vector3 ComputeMoveDirection(Transform playerTransform, Vector3 normalToUse)
@@ -66,20 +67,5 @@ public class DracoWalkInWallsAbility : IAbilityPlayer
             m_rb.MoveRotation(_smoothRotation);
         else
             playerTransform.rotation = _smoothRotation;
-    }
-
-    private Vector3 ComputeSnapCorrection(Transform playerTransform, SurfaceProbeResult data)
-    {
-        if (!data.GroundHitFound) return Vector3.zero;
-
-        float _distanceToGround = Vector3.Dot(
-            playerTransform.position - data.GroundHit.point,
-            data.GroundHit.normal
-        );
-
-        if (_distanceToGround > m_settings.SnapDistanceMin)
-            return -data.GroundHit.normal * m_settings.SnapForce;
-
-        return Vector3.zero;
     }
 }

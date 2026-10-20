@@ -10,6 +10,9 @@ public class ControllerDraco : MonoBehaviour
     [SerializeField] private Rigidbody m_rigidbody;
     public Rigidbody RB => m_rigidbody;
 
+    [Tooltip("Collider do corpo: os casts de parede/chao saem do centro dele")]
+    [SerializeField] private CapsuleCollider m_collider;
+
     [SerializeField] private Transform m_camera;
     public Transform Camera => m_camera;
 
@@ -37,11 +40,19 @@ public class ControllerDraco : MonoBehaviour
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
-    // Estado para voltar quando sai da lingua
-    public State LocomotionState => HasMoveInput ? MoveState : IdleState;
+    // Estado para voltar quando sai da lingua, pousa do pulo ou solta da parede
+    public State LocomotionState
+    {
+        get
+        {
+            if (Motor.IsOnClimbSurface) return ClimbState;
+            return HasMoveInput ? MoveState : IdleState;
+        }
+    }
 
     public IdleStateDraco IdleState { get; private set; }
     public MovimentStateDraco MoveState { get; private set; }
+    public ClimbStateDraco ClimbState { get; private set; }
     public JumpStateDraco JumpState { get; private set; }
     public TongueWalkStateDraco TongueWalkState { get; private set; }
 
@@ -52,10 +63,13 @@ public class ControllerDraco : MonoBehaviour
         if (m_rigidbody == null)
             m_rigidbody = GetComponent<Rigidbody>();
 
+        if (m_collider == null)
+            m_collider = GetComponent<CapsuleCollider>();
+
         if (m_settingsClimb == null)
             m_settingsClimb = new DracoSettings();
 
-        Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
+        Motor = new DracoMotor(transform, m_rigidbody, m_collider, m_camera, m_settingsClimb);
 
         if (m_holdPoint == null)
         {
@@ -69,6 +83,7 @@ public class ControllerDraco : MonoBehaviour
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
         MoveState = new MovimentStateDraco(this);
+        ClimbState = new ClimbStateDraco(this);
         JumpState = new JumpStateDraco(this);
         TongueWalkState = new TongueWalkStateDraco(this);
     }
@@ -163,5 +178,19 @@ public class ControllerDraco : MonoBehaviour
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
     private void OnInteract() => m_interactBuffer.Set();
+
+    // Debug do alcance dos SphereCasts de parede (ciano) e chao (amarelo)
+    private void OnDrawGizmosSelected()
+    {
+        if (Motor != null)
+        {
+            Motor.DrawProbeGizmos();
+            return;
+        }
+
+        // Fora do play: previa com os valores atuais do settings
+        if (m_settingsClimb != null)
+            new WallAndGroundSurfaceProbe(m_settingsClimb, m_collider != null ? m_collider : GetComponent<CapsuleCollider>()).DrawGizmos(transform);
+    }
 
 }

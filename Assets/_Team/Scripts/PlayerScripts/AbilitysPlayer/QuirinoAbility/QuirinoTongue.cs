@@ -6,12 +6,15 @@ public class QuirinoTongue : ITongueBridge
 {
     private const float k_cameraAimDistance = 100f;
     private const float k_reachedDistance = 0.05f;
+    private const float k_lineOfSightPadding = 0.05f;
+    private const int k_maxAssistHits = 16;
 
     private readonly Transform m_origin;
     private readonly LineRenderer m_line;
     private readonly Transform m_camera;
     private readonly QuirinoSettings m_settings;
     private readonly LayerMask m_layerMask;
+    private readonly RaycastHit[] m_assistHits = new RaycastHit[k_maxAssistHits];
 
     // Guarda o ponto no espaco local do objeto para a lingua seguir alvos que se mexem
     private Transform m_hitTransform;
@@ -66,12 +69,18 @@ public class QuirinoTongue : ITongueBridge
         m_hitTransform = null;
         m_missPoint = _origin + _direction * m_settings.TongueRange;
 
-        if (Physics.Raycast(_origin, _direction, out RaycastHit _hit, m_settings.TongueRange, m_layerMask))
-        {
-            m_hitTransform = _hit.transform;
-            m_localHitPoint = _hit.transform.InverseTransformPoint(_hit.point);
-            Target = _hit.collider.GetComponentInParent<ITongueTarget>();
-        }
+        // 1) Raio exato: se ja acerta um alvo, usa ele
+        bool _hasExactHit = Physics.Raycast(_origin, _direction, out RaycastHit _exactHit, m_settings.TongueRange, m_layerMask);
+        ITongueTarget _exactTarget = _hasExactHit ? _exactHit.collider.GetComponentInParent<ITongueTarget>() : null;
+
+        if (_exactTarget != null)
+            SetHit(_exactHit.transform, _exactHit.point, _exactTarget);
+        // 2) Ajuda de mira: SphereCast procura o alvo mais alinhado com a mira
+        else if (TryPredictTarget(_origin, _direction, out Transform _assistTransform, out Vector3 _assistPoint, out ITongueTarget _assistTarget))
+            SetHit(_assistTransform, _assistPoint, _assistTarget);
+        // 3) Nenhum alvo: gruda na superficie que o raio exato acertou (ou erra)
+        else if (_hasExactHit)
+            SetHit(_exactHit.transform, _exactHit.point, null);
 
         TipPosition = _origin;
         IsOut = true;
@@ -109,6 +118,61 @@ public class QuirinoTongue : ITongueBridge
         if (m_line == null) return;
         m_line.SetPosition(0, OriginPosition);
         m_line.SetPosition(1, TipPosition);
+    }
+
+    private void SetHit(Transform hitTransform, Vector3 point, ITongueTarget target)
+    {
+        m_hitTransform = hitTransform;
+        m_localHitPoint = hitTransform.InverseTransformPoint(point);
+        Target = target;
+    }
+
+    // Varre um "tubo" em volta da mira e escolhe o alvo com menor angulo ate ela,
+    // desde que nada esteja entre a boca e o alvo
+    private bool TryPredictTarget(Vector3 origin, Vector3 direction, out Transform hitTransform, out Vector3 point, out ITongueTarget target)
+    {
+        hitTransform = null;
+        point = default;
+        target = null;
+
+        if (m_settings.TongueAimAssistRadius <= 0f) return false;
+
+        int _count = Physics.SphereCastNonAlloc(origin, m_settings.TongueAimAssistRadius, direction,
+            m_assistHits, m_settings.TongueRange, m_layerMask);
+
+        float _bestAngle = m_settings.TongueAimAssistMaxAngle;
+        for (int i = 0; i < _count; i++)
+        {
+            RaycastHit _hit = m_assistHits[i];
+            ITongueTarget _target = _hit.collider.GetComponentInParent<ITongueTarget>();
+            if (_target == null) continue;
+
+            // Collider que ja comeca dentro da esfera vem com point zerado
+            Vector3 _point = _hit.distance <= 0f ? _hit.collider.ClosestPoint(origin) : _hit.point;
+            Vector3 _toPoint = _point - origin;
+            float _distance = _toPoint.magnitude;
+            if (_distance <= Mathf.Epsilon || _distance > m_settings.TongueRange) continue;
+
+            float _angle = Vector3.Angle(direction, _toPoint);
+            if (_angle > _bestAngle) continue;
+            if (!HasLineOfSight(origin, _toPoint / _distance, _distance, _target)) continue;
+
+            _bestAngle = _angle;
+            hitTransform = _hit.transform;
+            point = _point;
+            target = _target;
+        }
+
+        return target != null;
+    }
+
+    // O raio da boca ate o ponto so pode bater no proprio alvo
+    private bool HasLineOfSight(Vector3 origin, Vector3 direction, float distance, ITongueTarget target)
+    {
+        if (!Physics.Raycast(origin, direction, out RaycastHit _hit, distance + k_lineOfSightPadding, m_layerMask))
+            return true;
+
+        return _hit.collider.GetComponentInParent<ITongueTarget>() == target;
     }
 
     // Comeca o raio na altura do Quirino para nao acertar nada entre a camera e ele

@@ -30,6 +30,10 @@ public class ControllerQuirino : MonoBehaviour
     [Tooltip("Ponto de onde a lingua sai (boca). Vazio = centro do Quirino")]
     [SerializeField] private Transform m_tongueOrigin;
     [SerializeField] private LineRenderer m_tongueLine;
+
+    [SerializeField] private GameObject m_AimHUD;
+    public GameObject AimHUD => m_AimHUD;
+
     public QuirinoTongue Tongue { get; private set; }
     private bool m_fireTongueRequested;
 

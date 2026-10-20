@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Draco andando em superficie normal (sem escalar). Achou parede escalavel: vai para o ClimbState.
 public class MovimentStateDraco : State<ControllerDraco>
 {
     public MovimentStateDraco(ControllerDraco controller) : base(controller) { }
@@ -8,8 +9,14 @@ public class MovimentStateDraco : State<ControllerDraco>
     {
         if (Controller.TryInteract()) return;
 
+        if (Controller.Motor.IsOnClimbSurface)
+        {
+            Controller.SwitchState(Controller.ClimbState);
+            return;
+        }
+
         // Pulo tem prioridade sobre parar
-        if (Controller.JumpBuffer.HasBufferedInput && (Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface))
+        if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
             Controller.SwitchState(Controller.JumpState);
             return;
@@ -21,10 +28,6 @@ public class MovimentStateDraco : State<ControllerDraco>
 
     public override void FixedUpdate()
     {
-        if (Controller.Motor.IsOnClimbSurface)
-            Controller.Motor.MoveOnSurface(true);
-        else
-            Controller.Motor.MoveOnGround(Controller.PlayerInput.Move);
-
+        Controller.Motor.MoveOnGround(Controller.PlayerInput.Move);
     }
 }
