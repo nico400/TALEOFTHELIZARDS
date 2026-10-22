@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// Abre um furo circular nas paredes (materiais com o shader TaleOfTheLizards/SeeThroughLit, Built-in)
+// Abre um furo circular nas paredes (materiais com o shader TaleOfTheLizards/SeeThroughLit)
 // quando algo fica entre esta câmera e o player. Cada câmera tem o seu alvo, então funciona em split-screen.
 [RequireComponent(typeof(Camera))]
 public class SeeThroughWall : MonoBehaviour
