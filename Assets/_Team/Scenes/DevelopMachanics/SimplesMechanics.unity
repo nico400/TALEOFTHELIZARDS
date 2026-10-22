@@ -39391,6 +39391,11 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!136 &1298585077 stripped
+CapsuleCollider:
+  m_CorrespondingSourceObject: {fileID: 4250698204077109315, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
+  m_PrefabInstance: {fileID: 5401075833415015658}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1350921101
 Mesh:
   m_ObjectHideFlags: 0
@@ -45803,6 +45808,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ControllerDraco
   m_inputReader: {fileID: 11400000, guid: a18b5b6abf69a5348aa617cbb85d3b87, type: 2}
   m_rigidbody: {fileID: 2878798145570016440}
+  m_collider: {fileID: 0}
   m_camera: {fileID: 2878798145570016439}
   m_settingsClimb:
     MoveSpeed: 5
@@ -45814,13 +45820,12 @@ MonoBehaviour:
     GroundedDistance: 0.2
     NormalSlerpSpeed: 15
     NormalGraceTime: 0.35
-    SnapDistanceMin: 0.095
-    SnapForce: 4
-    GroundProbeRadius: 0.75
-    WallProbeRadius: 0.2
-    GroundProbeDistance: 2.35
-    WallProbeDistance: 1.35
-    WallAttachDistanceAir: 0.75
+    SurfaceGravity: 25
+    GravityOffDistance: 0.05
+    ForwardProbeRadius: 0.5
+    ForwardProbeLength: 0.8
+    DownProbeRadius: 0.5
+    DownProbeLength: 0.6
     TongueMountDistance: 1.5
     TongueWalkSpeed: 3
     TongueEdgeMargin: 0.5
@@ -45954,6 +45959,10 @@ PrefabInstance:
       propertyPath: m_quirino
       value: 
       objectReference: {fileID: 1614898139}
+    - target: {fileID: 8795126762311187678, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
+      propertyPath: m_collider
+      value: 
+      objectReference: {fileID: 1298585077}
     - target: {fileID: 8795126762311187678, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
       propertyPath: m_settingsClimb.NormalGraceTime
       value: 0.2

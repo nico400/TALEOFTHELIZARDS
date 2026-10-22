@@ -19,8 +19,8 @@ public class PerchedStateQuirino : State<ControllerQuirino>
 
     public override void Update()
     {
-        // O objeto sumiu: volta a andar/cair normalmente
-        if (Point == null)
+        // O objeto sumiu ou foi pego: volta a andar/cair normalmente
+        if (Point == null || !Point.IsAvailable)
         {
             Controller.SwitchState(Controller.LocomotionState);
             return;
@@ -36,7 +36,7 @@ public class PerchedStateQuirino : State<ControllerQuirino>
 
     public override void FixedUpdate()
     {
-        if (Point == null) return;
+        if (Point == null || !Point.IsAvailable) return;
 
         // Fica preso no Target (e acompanha se o objeto se mexer)
         Controller.RB.linearVelocity = (Point.LandPosition - Controller.RB.position) / Time.fixedDeltaTime;

@@ -5,6 +5,9 @@ public interface ITongueTarget
     // Lingua presa aqui vira ponte para o Draco andar por cima
     bool IsWalkable { get; }
 
+    // Depois do OnTongueHeld a lingua solta sozinha
+    bool ReleaseAfterHeld { get; }
+
     void OnTongueAttached(ControllerQuirino quirino);
 
     // Lingua presa por TongueHeldEventTime segundos (dispara uma vez)

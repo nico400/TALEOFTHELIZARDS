@@ -10,6 +10,10 @@ public class TongueTarget : MonoBehaviour, ITongueTarget
     [SerializeField] private bool m_isWalkable;
     public bool IsWalkable => m_isWalkable;
 
+    [Tooltip("Depois do On Held disparar, a lingua solta sozinha (so se o On Held tiver alguma acao)")]
+    [SerializeField] private bool m_releaseAfterHeld = true;
+    public bool ReleaseAfterHeld => m_releaseAfterHeld && m_onHeld.GetPersistentEventCount() > 0;
+
     [SerializeField] private UnityEvent m_onAttached;
     [SerializeField] private UnityEvent m_onHeld;
     [SerializeField] private UnityEvent m_onReleased;
