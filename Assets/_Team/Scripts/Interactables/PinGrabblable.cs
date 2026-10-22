@@ -62,6 +62,9 @@ public class PinGrabblable : Grabbable
 
     protected override void OnRelease() => TryFixedPin();
 
+    // Nao fica fincado no ar depois de voltar para o inicio
+    protected override void OnResetToStart() => Unpin();
+
     // Volta a fisica de antes de fincar; o Grab salva esse estado logo depois
     private void Unpin()
     {

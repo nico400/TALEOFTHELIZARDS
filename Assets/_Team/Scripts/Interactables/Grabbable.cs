@@ -24,12 +24,39 @@ public class Grabbable : MonoBehaviour
     private Transform m_originalParent;
     private bool m_wasKinematic;
     private RigidbodyInterpolation m_interpolation;
+    private Vector3 m_startPosition;
+    private Quaternion m_startRotation;
 
     private void Awake()
     {
         m_rigidbody = GetComponent<Rigidbody>();
         m_colliders = GetComponentsInChildren<Collider>();
         m_collidersEnabled = new bool[m_colliders.Length];
+
+        // Onde volta quando cai numa KillZone
+        m_startPosition = transform.position;
+        m_startRotation = transform.rotation;
+    }
+
+    // Volta para onde comecou no jogo, parado. So vale solto (segurado nem tem colisao)
+    public void ResetToStart()
+    {
+        if (IsHeld) return;
+        OnResetToStart();
+
+        transform.SetPositionAndRotation(m_startPosition, m_startRotation);
+
+        if (m_rigidbody != null)
+        {
+            m_rigidbody.position = m_startPosition;
+            m_rigidbody.rotation = m_startRotation;
+
+            if (!m_rigidbody.isKinematic)
+            {
+                m_rigidbody.linearVelocity = Vector3.zero;
+                m_rigidbody.angularVelocity = Vector3.zero;
+            }
+        }
     }
 
     public void Grab(Transform holdPoint)
@@ -101,4 +128,7 @@ public class Grabbable : MonoBehaviour
 
     // Depois de voltar a fisica e colisao, antes dos eventos de soltar
     protected virtual void OnRelease() { }
+
+    // Antes de teleportar para o inicio
+    protected virtual void OnResetToStart() { }
 }
