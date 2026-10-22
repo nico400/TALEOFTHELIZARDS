@@ -37,6 +37,7 @@ public class ControllerDraco : MonoBehaviour
     public DracoMotor Motor { get; private set; }
     public DracoGrabber Grabber { get; private set; }
     public PlayerInteractor Interactor { get; private set; }
+    private PlayerRespawn m_respawn;
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
@@ -79,6 +80,7 @@ public class ControllerDraco : MonoBehaviour
         Grabber = new DracoGrabber(m_holdPoint, m_settingsClimb);
         // Com objeto na boca nao usa outros interagiveis
         Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding);
+        m_respawn = GetComponent<PlayerRespawn>();
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
@@ -94,6 +96,11 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.JumpStarted += OnJumpStarted;
         m_inputReader.JumpCanceled += OnJumpCanceled;
         m_inputReader.Interact += OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died += ResetForRespawn;
+            m_respawn.Respawned += ResetForRespawn;
+        }
     }
 
     private void OnDisable()
@@ -102,6 +109,11 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.JumpStarted -= OnJumpStarted;
         m_inputReader.JumpCanceled -= OnJumpCanceled;
         m_inputReader.Interact -= OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died -= ResetForRespawn;
+            m_respawn.Respawned -= ResetForRespawn;
+        }
 
         // Nao deixa o objeto preso na boca de um Draco desativado
         Grabber?.Release(Vector3.zero);
@@ -113,14 +125,20 @@ public class ControllerDraco : MonoBehaviour
         SwitchState(IdleState); // começa no Idle
     }
 
+    private bool IsDead => m_respawn != null && m_respawn.IsDead;
+
     private void Update()
     {
+        if (IsDead) return;
+
         Interactor.Update();
         m_currentState?.Update();
     }
 
     private void FixedUpdate()
     {
+        if (IsDead) return;
+
         // Na lingua quem move e o proprio estado; o probe grudaria em parede/chao
         if (m_currentState != TongueWalkState)
             Motor.UpdateSurface(PlayerInput.Move);
@@ -173,6 +191,17 @@ public class ControllerDraco : MonoBehaviour
         m_interactBuffer.Consume();
         SwitchState(TongueWalkState);
         return true;
+    }
+
+    // Morreu ou renasceu: solta o que tinha na boca, desgruda da parede e volta para o Idle
+    private void ResetForRespawn()
+    {
+        SwitchState(IdleState);
+        Grabber.Release(Vector3.zero);
+        Interactor.StopInteracting();
+        Motor.ClearSurface();
+        RB.useGravity = true;
+        m_jumpBuffer.Consume();
     }
 
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }

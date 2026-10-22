@@ -40,6 +40,7 @@ public class ControllerQuirino : MonoBehaviour
     public QuirinoMotor Motor { get; private set; }
     public JumpPointDetector JumpPoints { get; private set; }
     public PlayerInteractor Interactor { get; private set; }
+    private PlayerRespawn m_respawn;
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
     public Vector3 MoveDirection => CameraRelative.ToWorld(PlayerInput.Move, m_camera);
@@ -73,6 +74,7 @@ public class ControllerQuirino : MonoBehaviour
         JumpPoints = new JumpPointDetector(transform, m_settings);
         // Com a lingua esticada nao usa interagiveis
         Interactor = new PlayerInteractor(InteractorCharacter.Quirino, transform, m_tongueOrigin, () => !Tongue.IsOut);
+        m_respawn = GetComponent<PlayerRespawn>();
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateQuirino(this);
@@ -93,6 +95,11 @@ public class ControllerQuirino : MonoBehaviour
         m_inputReader.JumpCanceled += OnJumpCanceled;
         m_inputReader.FireTongue += OnFireTongue;
         m_inputReader.Interact += OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died += ResetForRespawn;
+            m_respawn.Respawned += ResetForRespawn;
+        }
     }
 
     private void OnDisable()
@@ -102,6 +109,11 @@ public class ControllerQuirino : MonoBehaviour
         m_inputReader.JumpCanceled -= OnJumpCanceled;
         m_inputReader.FireTongue -= OnFireTongue;
         m_inputReader.Interact -= OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died -= ResetForRespawn;
+            m_respawn.Respawned -= ResetForRespawn;
+        }
 
         Interactor?.StopInteracting();
     }
@@ -111,8 +123,12 @@ public class ControllerQuirino : MonoBehaviour
         SwitchState(IdleState); // começa no Idle
     }
 
+    private bool IsDead => m_respawn != null && m_respawn.IsDead;
+
     private void Update()
     {
+        if (IsDead) return;
+
         Motor.UpdateCameraOffset(Time.deltaTime);
 
         // Interagir nao troca de estado do Quirino, entao fica aqui e nao em cada estado
@@ -125,6 +141,8 @@ public class ControllerQuirino : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (IsDead) return;
+
         Motor.UpdateGround();
         m_currentState?.FixedUpdate();
     }
@@ -147,6 +165,17 @@ public class ControllerQuirino : MonoBehaviour
 
         TargetJumpState.SetTarget(_point);
         return TargetJumpState;
+    }
+
+    // Morreu ou renasceu: recolhe a lingua, solta interagivel e volta para o Idle
+    private void ResetForRespawn()
+    {
+        SwitchState(IdleState);
+        Tongue.Hide();
+        Interactor.StopInteracting();
+        Motor.ResetGroundVelocity();
+        m_jumpBuffer.Consume();
+        m_fireTongueRequested = false;
     }
 
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
