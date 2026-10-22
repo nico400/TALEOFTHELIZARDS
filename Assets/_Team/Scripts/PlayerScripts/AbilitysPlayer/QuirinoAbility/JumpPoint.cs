@@ -8,7 +8,13 @@ public class JumpPoint : MonoBehaviour
     [Tooltip("Filho que marca onde o Quirino pousa. Vazio = posicao deste objeto")]
     [SerializeField] private Transform m_target;
 
+    // Se o objeto tambem for pegavel (ex: pino), enquanto estiver na mao nao da para pular nele
+    private Grabbable m_grabbable;
+
     public Vector3 LandPosition => m_target != null ? m_target.position : transform.position;
+    public bool IsAvailable => isActiveAndEnabled && (m_grabbable == null || !m_grabbable.IsHeld);
+
+    private void Awake() => m_grabbable = GetComponent<Grabbable>();
 
     private void OnDrawGizmos()
     {

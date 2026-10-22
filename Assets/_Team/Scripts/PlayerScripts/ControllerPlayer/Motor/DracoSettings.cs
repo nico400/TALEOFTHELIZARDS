@@ -23,17 +23,21 @@ public class DracoSettings
     public float NormalSlerpSpeed = 55f;
     public float NormalGraceTime = 0.35f;
 
-    [Header("Ground Snap")]
-    public float SnapDistanceMin = 0.095f;
-    public float SnapForce = 4f;
+    [Header("Surface Gravity")]
+    [Tooltip("Aceleracao que puxa o Draco contra a superficie escalavel (gravidade falsa ao longo da normal)")]
+    public float SurfaceGravity = 25f;
+    [Tooltip("Abaixo desta distancia (casca do collider ate a superficie) a gravidade falsa desliga")]
+    public float GravityOffDistance = 0.05f;
 
     [Header("Surface Probe")]
-    public float GroundProbeRadius = 0.75f;
-    public float WallProbeRadius = 0.2f;
-    public float GroundProbeDistance = 2.35f;
-    public float WallProbeDistance = 1.35f;
-    [Tooltip("No ar, distancia maxima do centro do Draco ate a parede para grudar nela (raio do collider + folga)")]
-    public float WallAttachDistanceAir = 0.75f;
+    [Tooltip("Raio do SphereCast que sai do centro do collider para o forward do corpo")]
+    public float ForwardProbeRadius = 0.5f;
+    [Tooltip("Comprimento do cast para frente, medido do centro do collider")]
+    public float ForwardProbeLength = 0.8f;
+    [Tooltip("Raio do SphereCast que sai do centro do collider para o -up do corpo. Menor que o raio do collider")]
+    public float DownProbeRadius = 0.5f;
+    [Tooltip("Comprimento do cast para baixo, medido do centro do collider")]
+    public float DownProbeLength = 0.6f;
 
     [Header("Tongue Walk")]
     [Tooltip("Distancia maxima do Draco ate a lingua para conseguir subir")]

@@ -42,7 +42,12 @@ public class QuirinoSettings
     public float TongueRange = 8f;
     public float TongueExtendSpeed = 30f;
     public float TongueRetractSpeed = 40f;
-    
+
+    [Tooltip("Raio do SphereCast que procura alvos perto da mira quando o raio exato nao acerta um")]
+    public float TongueAimAssistRadius = 0.6f;
+    [Tooltip("Angulo maximo entre a mira e o alvo para a ajuda de mira puxar a lingua para ele")]
+    public float TongueAimAssistMaxAngle = 12f;
+
     [Tooltip("Tempo com a lingua presa ate disparar o evento do alvo")]
     public float TongueHeldEventTime = 1f;
 

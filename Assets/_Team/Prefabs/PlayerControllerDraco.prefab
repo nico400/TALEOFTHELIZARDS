@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 370047644379538886}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.208, z: 0.808}
+  m_LocalPosition: {x: 0, y: 1.208, z: 1.6917243}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,10 +449,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.77
   m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Direction: 2
+  m_Center: {x: 0, y: 0.77, z: 0}
 --- !u!114 &8795126762311187678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -481,9 +481,10 @@ MonoBehaviour:
     SnapDistanceMin: 0.095
     SnapForce: 4
     GroundProbeRadius: 0.75
-    WallProbeRadius: 0.2
-    GroundProbeDistance: 2.35
-    WallProbeDistance: 1.35
+    WallProbeRadius: 0.5
+    GroundProbeDistance: 1
+    WallProbeDistance: 1
+    WallAttachDistanceAir: 1.25
     TongueMountDistance: 2.5
     TongueWalkSpeed: 3
     TongueEdgeMargin: 0.5
@@ -526,14 +527,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4658528588890939758}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7490091234710532253}
   m_Father: {fileID: 3876936424817933884}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!33 &616378346280833913
 MeshFilter:
   m_ObjectHideFlags: 0

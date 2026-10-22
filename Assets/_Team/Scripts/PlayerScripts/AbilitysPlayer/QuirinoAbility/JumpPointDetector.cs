@@ -48,7 +48,7 @@ public class JumpPointDetector
         for (int i = 0; i < _count; i++)
         {
             JumpPoint _point = m_hits[i].GetComponentInParent<JumpPoint>();
-            if (_point == null || _point == ignore) continue;
+            if (_point == null || _point == ignore || !_point.IsAvailable) continue;
 
             // O Target tem que estar dentro da area, nao so o collider do objeto
             Vector3 _toTarget = _point.LandPosition - _origin;

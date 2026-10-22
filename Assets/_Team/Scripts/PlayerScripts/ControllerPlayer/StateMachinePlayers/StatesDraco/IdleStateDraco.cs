@@ -8,8 +8,15 @@ public class IdleStateDraco : State<ControllerDraco>
     {
         if (Controller.TryInteract()) return;
 
+        // Parado na parede quem cuida e o ClimbState
+        if (Controller.Motor.IsOnClimbSurface)
+        {
+            Controller.SwitchState(Controller.ClimbState);
+            return;
+        }
+
         // Pulo tem prioridade sobre andar
-        if (Controller.JumpBuffer.HasBufferedInput && (Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface))
+        if (Controller.JumpBuffer.HasBufferedInput && Controller.Motor.IsGrounded)
         {
             Controller.SwitchState(Controller.JumpState);
             return;
@@ -21,9 +28,6 @@ public class IdleStateDraco : State<ControllerDraco>
 
     public override void FixedUpdate()
     {
-        if (Controller.Motor.IsOnClimbSurface)
-            Controller.Motor.MoveOnSurface(false);   // fica grudado na parede
-        else
-            Controller.Motor.MoveOnGround(Vector2.zero); // desacelera ate parar
+        Controller.Motor.MoveOnGround(Vector2.zero); // desacelera ate parar
     }
 }

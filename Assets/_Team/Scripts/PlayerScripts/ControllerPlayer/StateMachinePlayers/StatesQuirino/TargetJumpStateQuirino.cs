@@ -29,8 +29,8 @@ public class TargetJumpStateQuirino : State<ControllerQuirino>
 
     public override void FixedUpdate()
     {
-        // O objeto sumiu no meio do pulo: cai normalmente
-        if (m_point == null)
+        // O objeto sumiu ou foi pego no meio do pulo: cai normalmente
+        if (m_point == null || !m_point.IsAvailable)
         {
             Controller.SwitchState(Controller.LocomotionState);
             return;

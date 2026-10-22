@@ -18,13 +18,15 @@ public class JumpStateDraco : State<ControllerDraco>
         // Da para pegar/soltar objeto ou agarrar a lingua no meio do pulo
         if (Controller.TryInteract()) return;
 
-        // So pousa depois de parar de subir (evita sair no mesmo frame do pulo)
+        // Chao: so pousa depois de parar de subir (evita sair no mesmo frame do pulo).
+        // Parede escalavel: gruda na hora. Se esperasse cair, o Draco ficaria sem
+        // gravidade (o motor desliga na parede) subindo com a velocidade do pulo.
         bool _falling = Controller.RB.linearVelocity.y <= 0f;
-        bool _landed = Controller.Motor.IsGrounded || Controller.Motor.IsOnClimbSurface;
+        bool _landed = (_falling && Controller.Motor.IsGrounded) || Controller.Motor.IsOnClimbSurface;
 
         // TODO: trocar por FallState quando ele existir
-        if (_falling && _landed)
-            Controller.SwitchState(Controller.HasMoveInput ? Controller.MoveState : Controller.IdleState);
+        if (_landed)
+            Controller.SwitchState(Controller.LocomotionState);
     }
 
     public override void FixedUpdate()

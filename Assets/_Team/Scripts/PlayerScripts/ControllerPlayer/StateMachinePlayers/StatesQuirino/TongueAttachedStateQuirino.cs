@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // Lingua presa no alvo enquanto o botao de atirar estiver segurado.
-// Depois de TongueHeldEventTime segundos avisa o alvo uma vez.
+// Depois de TongueHeldEventTime segundos avisa o alvo uma vez e, se o alvo pedir, solta.
 public class TongueAttachedStateQuirino : State<ControllerQuirino>
 {
     private float m_attachedTime;
@@ -44,6 +44,9 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
         {
             m_heldEventFired = true;
             _tongue.Target.OnTongueHeld(Controller);
+
+            if (_tongue.HasTarget && _tongue.Target.ReleaseAfterHeld)
+                Controller.SwitchState(Controller.TongueRetractState);
         }
     }
 

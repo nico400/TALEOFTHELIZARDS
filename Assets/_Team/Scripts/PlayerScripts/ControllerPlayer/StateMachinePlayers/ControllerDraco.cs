@@ -10,6 +10,9 @@ public class ControllerDraco : MonoBehaviour
     [SerializeField] private Rigidbody m_rigidbody;
     public Rigidbody RB => m_rigidbody;
 
+    [Tooltip("Collider do corpo: os casts de parede/chao saem do centro dele")]
+    [SerializeField] private CapsuleCollider m_collider;
+
     [SerializeField] private Transform m_camera;
     public Transform Camera => m_camera;
 
@@ -34,14 +37,23 @@ public class ControllerDraco : MonoBehaviour
     public DracoMotor Motor { get; private set; }
     public DracoGrabber Grabber { get; private set; }
     public PlayerInteractor Interactor { get; private set; }
+    private PlayerRespawn m_respawn;
 
     public bool HasMoveInput => PlayerInput.Move.sqrMagnitude >= k_inputDeadZone;
 
-    // Estado para voltar quando sai da lingua
-    public State LocomotionState => HasMoveInput ? MoveState : IdleState;
+    // Estado para voltar quando sai da lingua, pousa do pulo ou solta da parede
+    public State LocomotionState
+    {
+        get
+        {
+            if (Motor.IsOnClimbSurface) return ClimbState;
+            return HasMoveInput ? MoveState : IdleState;
+        }
+    }
 
     public IdleStateDraco IdleState { get; private set; }
     public MovimentStateDraco MoveState { get; private set; }
+    public ClimbStateDraco ClimbState { get; private set; }
     public JumpStateDraco JumpState { get; private set; }
     public TongueWalkStateDraco TongueWalkState { get; private set; }
 
@@ -52,10 +64,13 @@ public class ControllerDraco : MonoBehaviour
         if (m_rigidbody == null)
             m_rigidbody = GetComponent<Rigidbody>();
 
+        if (m_collider == null)
+            m_collider = GetComponent<CapsuleCollider>();
+
         if (m_settingsClimb == null)
             m_settingsClimb = new DracoSettings();
 
-        Motor = new DracoMotor(transform, m_rigidbody, m_camera, m_settingsClimb);
+        Motor = new DracoMotor(transform, m_rigidbody, m_collider, m_camera, m_settingsClimb);
 
         if (m_holdPoint == null)
         {
@@ -65,10 +80,12 @@ public class ControllerDraco : MonoBehaviour
         Grabber = new DracoGrabber(m_holdPoint, m_settingsClimb);
         // Com objeto na boca nao usa outros interagiveis
         Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding);
+        m_respawn = GetComponent<PlayerRespawn>();
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
         MoveState = new MovimentStateDraco(this);
+        ClimbState = new ClimbStateDraco(this);
         JumpState = new JumpStateDraco(this);
         TongueWalkState = new TongueWalkStateDraco(this);
     }
@@ -79,6 +96,11 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.JumpStarted += OnJumpStarted;
         m_inputReader.JumpCanceled += OnJumpCanceled;
         m_inputReader.Interact += OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died += ResetForRespawn;
+            m_respawn.Respawned += ResetForRespawn;
+        }
     }
 
     private void OnDisable()
@@ -87,6 +109,11 @@ public class ControllerDraco : MonoBehaviour
         m_inputReader.JumpStarted -= OnJumpStarted;
         m_inputReader.JumpCanceled -= OnJumpCanceled;
         m_inputReader.Interact -= OnInteract;
+        if (m_respawn != null)
+        {
+            m_respawn.Died -= ResetForRespawn;
+            m_respawn.Respawned -= ResetForRespawn;
+        }
 
         // Nao deixa o objeto preso na boca de um Draco desativado
         Grabber?.Release(Vector3.zero);
@@ -98,14 +125,20 @@ public class ControllerDraco : MonoBehaviour
         SwitchState(IdleState); // começa no Idle
     }
 
+    private bool IsDead => m_respawn != null && m_respawn.IsDead;
+
     private void Update()
     {
+        if (IsDead) return;
+
         Interactor.Update();
         m_currentState?.Update();
     }
 
     private void FixedUpdate()
     {
+        if (IsDead) return;
+
         // Na lingua quem move e o proprio estado; o probe grudaria em parede/chao
         if (m_currentState != TongueWalkState)
             Motor.UpdateSurface(PlayerInput.Move);
@@ -160,8 +193,33 @@ public class ControllerDraco : MonoBehaviour
         return true;
     }
 
+    // Morreu ou renasceu: solta o que tinha na boca, desgruda da parede e volta para o Idle
+    private void ResetForRespawn()
+    {
+        SwitchState(IdleState);
+        Grabber.Release(Vector3.zero);
+        Interactor.StopInteracting();
+        Motor.ClearSurface();
+        RB.useGravity = true;
+        m_jumpBuffer.Consume();
+    }
+
     private void OnJumpStarted() { m_jumpBuffer.Set(); JumpHeld = true; }
     private void OnJumpCanceled() { JumpHeld = false; }
     private void OnInteract() => m_interactBuffer.Set();
+
+    // Debug do alcance dos SphereCasts de parede (ciano) e chao (amarelo)
+    private void OnDrawGizmosSelected()
+    {
+        if (Motor != null)
+        {
+            Motor.DrawProbeGizmos();
+            return;
+        }
+
+        // Fora do play: previa com os valores atuais do settings
+        if (m_settingsClimb != null)
+            new WallAndGroundSurfaceProbe(m_settingsClimb, m_collider != null ? m_collider : GetComponent<CapsuleCollider>()).DrawGizmos(transform);
+    }
 
 }
