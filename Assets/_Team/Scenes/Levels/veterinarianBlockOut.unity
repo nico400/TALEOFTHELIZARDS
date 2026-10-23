@@ -64152,7 +64152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KillZone
   m_killableCharacters: 2
-  m_resetGrabbables: 1
+  m_resetGrabbables: 0
 --- !u!64 &598193736
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -110548,7 +110548,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2783356473536524222, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -70.3
+      value: -59.2
       objectReference: {fileID: 0}
     - target: {fileID: 2783356473536524222, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -110556,7 +110556,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2783356473536524222, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -27.5
+      value: -71.200005
       objectReference: {fileID: 0}
     - target: {fileID: 2783356473536524222, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -125676,7 +125676,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3876936424817933884, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -74.6
+      value: -32.5
       objectReference: {fileID: 0}
     - target: {fileID: 3876936424817933884, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
       propertyPath: m_LocalPosition.y
@@ -125684,7 +125684,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3876936424817933884, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -26.9
+      value: -74.6
       objectReference: {fileID: 0}
     - target: {fileID: 3876936424817933884, guid: f3721396ea2812a4699fe4e96065cc18, type: 3}
       propertyPath: m_LocalRotation.w
