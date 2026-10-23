@@ -10,8 +10,21 @@ public class KillZone : MonoBehaviour
 
     private void Reset() => GetComponent<Collider>().isTrigger = true;
 
+    [Tooltip("Objetos pegaveis soltos que encostarem voltam para onde comecaram")]
+    [SerializeField] private bool m_resetGrabbables = true;
+
     private void OnTriggerEnter(Collider other)
     {
+        if (m_resetGrabbables)
+        {
+            Grabbable _grabbable = other.GetComponentInParent<Grabbable>();
+            if (_grabbable != null && !_grabbable.IsHeld)
+            {
+                _grabbable.ResetToStart();
+                return;
+            }
+        }
+
         if (other.attachedRigidbody == null) return;
         if (!other.attachedRigidbody.TryGetComponent(out PlayerRespawn _player)) return;
 
