@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 5208091726091109235}
   - component: {fileID: 3485835799930623419}
   - component: {fileID: 455612410107242224}
-  - component: {fileID: 147233520505847916}
   m_Layer: 0
   m_Name: Caule
   m_TagString: Untagged
@@ -654,26 +653,4 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6118780463416921890}
-  m_Mesh: {fileID: 0}
---- !u!64 &147233520505847916
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6118780463416921890}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
   m_Mesh: {fileID: 0}
