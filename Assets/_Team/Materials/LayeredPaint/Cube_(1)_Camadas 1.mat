@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass_camada_01
+  m_Name: Cube_(1)_Camadas 1
   m_Shader: {fileID: 4800000, guid: 3dcd8a9b798c43441a07920e7c9ff783, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -25,27 +25,27 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Layer0Map:
-        m_Texture: {fileID: 2800000, guid: d01f0f7f94996fd47ad30c6e6fa6c1db, type: 3}
+        m_Texture: {fileID: 2800000, guid: d87a4a61f85ef3049980ae1c92d3016b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer0Normal:
-        m_Texture: {fileID: 2800000, guid: f79426f964978504b8f663186d52ffad, type: 3}
+        m_Texture: {fileID: 2800000, guid: e11620d3cc3795d4f8979538d157e134, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1Map:
-        m_Texture: {fileID: 2800000, guid: b44c86e574f82dd4f98f8294128e44be, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Layer1Normal:
-        m_Texture: {fileID: 2800000, guid: fdb7b95daaedbef40821262e4c7bacad, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Layer2Map:
         m_Texture: {fileID: 2800000, guid: 19b672e5919f357418e6bf6e5269be30, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Layer2Normal:
+    - _Layer1Normal:
         m_Texture: {fileID: 2800000, guid: c8d72ed9acb25ec4d8d310e7360dbc48, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer2Map:
+        m_Texture: {fileID: 2800000, guid: 12e1524395b43e64f895890581bff50e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Layer2Normal:
+        m_Texture: {fileID: 2800000, guid: fc822e0ea6d3bf144a6252f00778d013, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer3Map:

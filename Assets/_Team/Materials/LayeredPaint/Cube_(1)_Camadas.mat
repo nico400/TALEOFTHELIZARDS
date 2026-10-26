@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cube_(5)_Camadas
+  m_Name: Cube_(1)_Camadas
   m_Shader: {fileID: 4800000, guid: 3dcd8a9b798c43441a07920e7c9ff783, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -25,27 +25,27 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Layer0Map:
-        m_Texture: {fileID: 2800000, guid: 356a10f6c7162874a965b9e21d7584d7, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8c528a6725c913d4991bd49a6e85a8e2, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer0Normal:
-        m_Texture: {fileID: 2800000, guid: 09812cea3993dda4c8020df665f23548, type: 3}
+        m_Texture: {fileID: 2800000, guid: df8018ab0de4b8f4b88db78bb53cbff7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1Map:
-        m_Texture: {fileID: 2800000, guid: d87a4a61f85ef3049980ae1c92d3016b, type: 3}
+        m_Texture: {fileID: 2800000, guid: b44c86e574f82dd4f98f8294128e44be, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer1Normal:
-        m_Texture: {fileID: 2800000, guid: e11620d3cc3795d4f8979538d157e134, type: 3}
+        m_Texture: {fileID: 2800000, guid: fdb7b95daaedbef40821262e4c7bacad, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer2Map:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 5a414c3848781664f9f912f668d0d192, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer2Normal:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f98728486527d684fa54455c42d0b01a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Layer3Map:
@@ -64,9 +64,9 @@ Material:
     m_Floats:
     - _BlendSharpness: 0.5
     - _Layer0NoTile: 1
-    - _Layer0NormalStrength: 0.1
-    - _Layer0Size: 2.11
-    - _Layer0Smoothness: 0.25
+    - _Layer0NormalStrength: 1
+    - _Layer0Size: 2
+    - _Layer0Smoothness: 0.1
     - _Layer1NoTile: 1
     - _Layer1NormalStrength: 1
     - _Layer1Size: 2

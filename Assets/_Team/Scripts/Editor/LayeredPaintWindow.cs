@@ -22,6 +22,7 @@ public class LayeredPaintWindow : EditorWindow
     private const float k_dabSpacing = 0.25f;   // distância entre carimbos, em raios do pincel
     private const float k_dabAmount = 0.5f;     // quanto cada carimbo soma com força 1
     private const long k_undoMemoryBudget = 128L * 1024 * 1024;
+    private const double k_autoSaveDelay = 1.5;  // segundos parado depois de pintar até salvar o PNG
 
     private static readonly string[] s_layerNames = { "Base", "Camada 1", "Camada 2", "Camada 3" };
     private static readonly Color[] s_layerColors = { Color.white, new(1f, 0.45f, 0.4f), new(0.5f, 1f, 0.5f), new(0.45f, 0.65f, 1f) };
@@ -50,6 +51,8 @@ public class LayeredPaintWindow : EditorWindow
     private Color32[] m_pixels;
     private Texture2D m_workingTexture;
     private bool m_unsaved;
+    private double m_autoSaveTime;
+    private string m_maskPath;
     private bool m_hasDirty;
     private int m_dirtyMinX, m_dirtyMinY, m_dirtyMaxX, m_dirtyMaxY;
 
@@ -91,6 +94,8 @@ public class LayeredPaintWindow : EditorWindow
         Selection.selectionChanged += OnSelectionChanged;
         Undo.undoRedoPerformed += OnUndoRedo;
         EditorSceneManager.sceneSaving += OnSceneSaving;
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        EditorApplication.update += OnEditorUpdate;
         RefreshTarget();
     }
 
@@ -102,6 +107,30 @@ public class LayeredPaintWindow : EditorWindow
         Selection.selectionChanged -= OnSelectionChanged;
         Undo.undoRedoPerformed -= OnUndoRedo;
         EditorSceneManager.sceneSaving -= OnSceneSaving;
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        EditorApplication.update -= OnEditorUpdate;
+    }
+
+    // O projeto entra no Play sem recarregar domínio/cena, então a janela não é desligada:
+    // sem isso a pintura ficava só na textura temporária e o Play mostrava a máscara antiga do disco
+    // Ao sair do Play o Unity recria os objetos da cena, então as referências guardadas morrem: busca de novo
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingEditMode || state == PlayModeStateChange.ExitingPlayMode)
+            StopPainting();
+        else
+            RefreshTarget();
+        Repaint();
+    }
+
+    // Salva sozinho um pouco depois da última pincelada
+    private void OnEditorUpdate()
+    {
+        if (m_painting && m_unsaved && !m_stroking && m_autoSaveTime > 0 && EditorApplication.timeSinceStartup >= m_autoSaveTime)
+        {
+            m_autoSaveTime = 0;
+            SaveMask();
+        }
     }
 
     private void OnSelectionChanged()
@@ -129,7 +158,19 @@ public class LayeredPaintWindow : EditorWindow
 
     private void OnGUI()
     {
+        if (!m_painting && Selection.activeGameObject != null && m_target != Selection.activeGameObject)
+            RefreshTarget();
+        else if (!m_painting && m_target != null && m_surface == null)
+            m_surface = m_target.GetComponent<LayeredPaintSurface>();
+
         m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
+
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            EditorGUILayout.HelpBox("Saia do Play para pintar.", MessageType.Info);
+            EditorGUILayout.EndScrollView();
+            return;
+        }
 
         if (m_target == null || m_filter == null || m_renderer == null || m_filter.sharedMesh == null)
         {
@@ -209,6 +250,16 @@ public class LayeredPaintWindow : EditorWindow
             return false;
         }
 
+        // Ctrl+D copia o componente com a mesma máscara: pintar um objeto estragaria o outro
+        if (!m_painting && IsMaskShared())
+        {
+            EditorGUILayout.HelpBox("Outro objeto da cena usa a mesma máscara (provavelmente foi duplicado). " +
+                                    "Pintar aqui muda os dois. Crie uma máscara própria para este objeto.", MessageType.Warning);
+            if (GUILayout.Button("Criar máscara própria (copia a pintura atual)", GUILayout.Height(28)))
+                DuplicateMask();
+            return false;
+        }
+
         if (m_target.GetComponent<ProBuilderMesh>() != null)
             EditorGUILayout.HelpBox("Pinte depois de terminar a modelagem: se mudar a geometria, o UV2 é refeito e a pintura sai do lugar.", MessageType.None);
 
@@ -244,7 +295,11 @@ public class LayeredPaintWindow : EditorWindow
 
             Texture _texture = _material != null ? _material.GetTexture($"_Layer{i}Map") : null;
             if (_texture != null) GUI.DrawTexture(_thumb, _texture, ScaleMode.ScaleAndCrop);
-            else EditorGUI.DrawRect(_thumb, new Color(0.25f, 0.25f, 0.25f));
+            else
+            {
+                EditorGUI.DrawRect(_thumb, new Color(0.25f, 0.25f, 0.25f));
+                GUI.Label(_thumb, "vazia", EditorStyles.centeredGreyMiniLabel);
+            }
 
             GUI.Label(new Rect(_rect.x, _rect.yMax - 18, _rect.width, 18), $"{i + 1}. {s_layerNames[i]}",
                 i == m_layer ? EditorStyles.boldLabel : EditorStyles.label);
@@ -256,6 +311,15 @@ public class LayeredPaintWindow : EditorWindow
 
         if (m_layer == 0)
             EditorGUILayout.HelpBox("Pintar a Base apaga todas as camadas por cima dela.", MessageType.None);
+        else if (IsLayerEmpty(m_layer))
+            EditorGUILayout.HelpBox($"A {s_layerNames[m_layer]} está sem textura no material \"{_material.name}\": ela aparece BRANCA. " +
+                                    "Coloque a textura dela no material antes de pintar.", MessageType.Error);
+    }
+
+    private bool IsLayerEmpty(int layer)
+    {
+        Material _material = m_renderer != null ? m_renderer.sharedMaterial : null;
+        return _material != null && _material.HasProperty($"_Layer{layer}Map") && _material.GetTexture($"_Layer{layer}Map") == null;
     }
 
     private void DrawBrushSettings()
@@ -394,9 +458,35 @@ public class LayeredPaintWindow : EditorWindow
         _importer.SaveAndReimport();
 
         if (m_surface == null)
+            m_surface = m_target.GetComponent<LayeredPaintSurface>();
+        if (m_surface == null)
             m_surface = Undo.AddComponent<LayeredPaintSurface>(m_target);
 
         Undo.RecordObject(m_surface, "Criar máscara de pintura");
+        m_surface.PaintMask = AssetDatabase.LoadAssetAtPath<Texture2D>(_path);
+        EditorUtility.SetDirty(m_surface);
+    }
+
+    private bool IsMaskShared()
+    {
+        foreach (LayeredPaintSurface _other in FindObjectsByType<LayeredPaintSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (_other != m_surface && _other.PaintMask == m_surface.PaintMask)
+                return true;
+        return false;
+    }
+
+    private void DuplicateMask()
+    {
+        string _source = AssetDatabase.GetAssetPath(m_surface.PaintMask);
+        string _scene = string.IsNullOrEmpty(m_target.scene.name) ? "Cena" : m_target.scene.name;
+        string _path = AssetDatabase.GenerateUniqueAssetPath($"{k_maskFolder}/{SafeName(_scene)}_{SafeName(m_target.name)}_Pintura.png");
+        if (!AssetDatabase.CopyAsset(_source, _path))
+        {
+            Debug.LogError($"Não consegui copiar a máscara {_source}.", m_surface);
+            return;
+        }
+
+        Undo.RecordObject(m_surface, "Criar máscara própria");
         m_surface.PaintMask = AssetDatabase.LoadAssetAtPath<Texture2D>(_path);
         EditorUtility.SetDirty(m_surface);
     }
@@ -414,9 +504,10 @@ public class LayeredPaintWindow : EditorWindow
 
     private void StartPainting()
     {
-        if (m_surface == null || m_surface.PaintMask == null) return;
+        if (m_surface == null || m_surface.PaintMask == null || EditorApplication.isPlayingOrWillChangePlaymode) return;
 
         string _path = AssetDatabase.GetAssetPath(m_surface.PaintMask);
+        m_maskPath = _path;
         Texture2D _loaded = new(2, 2, TextureFormat.RGBA32, false, true);
         if (string.IsNullOrEmpty(_path) || !_loaded.LoadImage(File.ReadAllBytes(_path)))
         {
@@ -488,12 +579,13 @@ public class LayeredPaintWindow : EditorWindow
 
     private void SaveMask()
     {
-        if (!m_painting || !m_unsaved || m_surface == null || m_surface.PaintMask == null) return;
+        // Usa o caminho guardado no início: o objeto pode ter sido recriado (Play, reload da cena) e não dá
+        // para perder as pinceladas por causa disso
+        if (!m_painting || !m_unsaved || string.IsNullOrEmpty(m_maskPath) || m_workingTexture == null) return;
 
         UploadDirty();
-        string _path = AssetDatabase.GetAssetPath(m_surface.PaintMask);
-        File.WriteAllBytes(_path, m_workingTexture.EncodeToPNG());
-        AssetDatabase.ImportAsset(_path);
+        File.WriteAllBytes(m_maskPath, m_workingTexture.EncodeToPNG());
+        AssetDatabase.ImportAsset(m_maskPath);
         m_unsaved = false;
         Repaint();
     }
@@ -825,7 +917,8 @@ public class LayeredPaintWindow : EditorWindow
     private void DrawSceneInfo()
     {
         Handles.BeginGUI();
-        string _text = $"Pintando: {s_layerNames[m_layer]}   Raio {m_radius:0.##} m{(m_unsaved ? "   (não salvo)" : "")}\n" +
+        string _empty = m_layer > 0 && IsLayerEmpty(m_layer) ? " (SEM TEXTURA!)" : "";
+        string _text = $"Pintando: {s_layerNames[m_layer]}{_empty}   Raio {m_radius:0.##} m{(m_unsaved ? "   (não salvo)" : "")}\n" +
                        "Shift apaga  |  1-4 camada  |  [ ] tamanho  |  Esc sai";
         GUI.Box(new Rect(10, 10, 360, 40), _text, EditorStyles.helpBox);
         Handles.EndGUI();
@@ -1004,6 +1097,7 @@ public class LayeredPaintWindow : EditorWindow
         m_undoState.version = m_version;
         m_history[m_version] = (Color32[])m_pixels.Clone();
         m_unsaved = true;
+        m_autoSaveTime = EditorApplication.timeSinceStartup + k_autoSaveDelay;
 
         // Descarta as versões mais antigas quando passar do limite de memória
         long _snapshotBytes = (long)m_pixels.Length * 4;
