@@ -1,16 +1,27 @@
 using UnityEngine;
 
-public static class UtilsToAbilityDraco 
+public static class UtilsToAbilityDraco
 {
-    public static Vector3 NewOrientationPlayer(Transform playerTransform, Vector3 normal, Transform cam, Vector2 input) 
+    // Converte o input em direcao sobre a superficie, relativa a camera.
+    // Os eixos sao misturados de forma continua (sem normalizar vetores quase nulos
+    // e sem troca brusca de referencia), senao a direcao flica quando a camera
+    // olha ao longo da parede (cam.right quase paralelo a normal).
+    public static Vector3 NewOrientationPlayer(Transform playerTransform, Vector3 normal, Transform cam, Vector2 input)
     {
-        Vector3 refDir = cam.right;
+        // Frente: cam.forward projetado; quanto mais a camera encara a superficie,
+        // mais o cam.up assume (olhando de frente pra parede, frente = subir)
+        float _facing = Mathf.Abs(Vector3.Dot(cam.forward, normal));
+        Vector3 _forwardPlayer = Vector3.ProjectOnPlane(cam.forward, normal)
+                               + Vector3.ProjectOnPlane(cam.up, normal) * _facing;
 
-        if (Mathf.Abs(Vector3.Dot(refDir, normal)) > 0.99f)
-            refDir = cam.up;
+        // Direita: cam.right projetado; quando cam.right aponta pra dentro/fora da
+        // superficie, o perpendicular a frente assume (empurrar contra a parede = subir)
+        float _side = Mathf.Abs(Vector3.Dot(cam.right, normal));
+        Vector3 _rightPlayer = Vector3.ProjectOnPlane(cam.right, normal)
+                             + Vector3.Cross(normal, _forwardPlayer.normalized) * _side;
 
-        Vector3 _rightPlayer = Vector3.ProjectOnPlane(refDir, normal).normalized;
-        Vector3 _forwardPlayer = Vector3.Cross(_rightPlayer, normal).normalized; // ordem corrigida
+        _forwardPlayer.Normalize();
+        _rightPlayer.Normalize();
 
         Vector2 inputClamped = Vector2.ClampMagnitude(input, 1f); // evita diagonal mais rápida
 
