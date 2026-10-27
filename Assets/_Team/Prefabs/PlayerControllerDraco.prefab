@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 370047644379538886}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.208, z: 1.6917243}
+  m_LocalPosition: {x: 0, y: 0.608, z: 1.289}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 8782583565167946110}
   - component: {fileID: 8281045557407826997}
   - component: {fileID: 3106611348593223051}
+  - component: {fileID: 7936855192121477879}
   m_Layer: 6
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -59,8 +60,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795063186358842403}
   serializedVersion: 2
-  m_LocalRotation: {x: 3.7986236e-10, y: 0.99519026, z: -0.09796124, w: 0.0000000038590335}
-  m_LocalPosition: {x: 0, y: 2.353176, z: 4.291726}
+  m_LocalRotation: {x: 0.097991705, y: 0, z: 0, w: 0.9951872}
+  m_LocalPosition: {x: 0, y: 2.353176, z: -4.291727}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -249,6 +250,45 @@ MonoBehaviour:
         AccelTime: 0
         DecelTime: 0
   m_inputReader: {fileID: 11400000, guid: f5384a381fd34fdbad002a33d8978ea0, type: 2}
+--- !u!114 &7936855192121477879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795063186358842403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbe43d662878a7c43bcd44d43c9e2094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineDeoccluder
+  CollideAgainst:
+    serializedVersion: 2
+    m_Bits: 1
+  IgnoreTag: Player
+  TransparentLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  MinimumDistanceFromTarget: 0.3
+  AvoidObstacles:
+    Enabled: 1
+    DistanceLimit: 0
+    MinimumOcclusionTime: 0
+    CameraRadius: 0.4
+    UseFollowTarget:
+      Enabled: 0
+      YOffset: 0
+    Strategy: 0
+    MaximumEffort: 4
+    SmoothingTime: 0
+    Damping: 0.4
+    DampingWhenOccluded: 0.2
+  ShotQualityEvaluation:
+    Enabled: 0
+    OptimalDistance: 10
+    NearLimit: 5
+    FarLimit: 30
+    MaxQualityBoost: 0.2
 --- !u!1 &2559657620997012835
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,8 +317,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2559657620997012835}
   serializedVersion: 2
-  m_LocalRotation: {x: 3.7986286e-10, y: 0.99519026, z: -0.09796126, w: 0.000000003859035}
-  m_LocalPosition: {x: 0, y: 2.353176, z: 4.291726}
+  m_LocalRotation: {x: 0.097991705, y: 0, z: 0, w: 0.9951872}
+  m_LocalPosition: {x: 0, y: 2.1162338, z: -3.0988445}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -412,10 +452,10 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
-  m_StopNaN: 0
+  m_StopNaN: 1
   m_Dithering: 0
   m_ClearDepth: 1
   m_AllowXRRendering: 1
@@ -448,7 +488,7 @@ GameObject:
   - component: {fileID: 7752686051743838586}
   m_Layer: 6
   m_Name: PlayerControllerDraco
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -480,7 +520,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3254422583602195907}
   serializedVersion: 5
-  m_Mass: 2.5
+  m_Mass: 25
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -518,10 +558,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.46779442
-  m_Height: 2.1542206
+  m_Radius: 0.5037079
+  m_Height: 2
   m_Direction: 2
-  m_Center: {x: 0, y: 0.46779442, z: 0.091049194}
+  m_Center: {x: -0, y: 0.5037079, z: -0}
 --- !u!114 &8795126762311187678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -545,7 +585,7 @@ MonoBehaviour:
     JumpForce: 7.5
     JumpCutMultiplier: 0.5
     WallJumpDetachTime: 0.2
-    GroundedDistance: 0.2
+    GroundedDistance: 0.1
     NormalSlerpSpeed: 5
     NormalGraceTime: 0.35
     SurfaceGravity: 25
@@ -561,7 +601,7 @@ MonoBehaviour:
     GrabRadius: 1
     GrabLayers:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 768
   m_jumpBuffer:
     m_bufferValue: 0
     m_holdTime: 0.25
@@ -600,7 +640,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51195b776c5ee8649990821f81838072, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.03
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51195b776c5ee8649990821f81838072, type: 3}
       propertyPath: m_LocalPosition.z
