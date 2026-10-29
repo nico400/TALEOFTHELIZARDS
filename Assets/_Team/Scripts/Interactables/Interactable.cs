@@ -40,6 +40,10 @@ public class Interactable : MonoBehaviour
     [SerializeField] private Transform m_interactionPoint;
     [Tooltip("So Toggle: para a interacao quando o personagem se afasta")]
     [SerializeField] private bool m_stopWhenOutOfRange = true;
+    [Tooltip("Mostra o ponto flutuante (InteractionIndicator) em cima do objeto")]
+    [SerializeField] private bool m_showIndicator = true;
+    [Tooltip("Distancia do personagem ate o ponto de interacao para o indicador aparecer")]
+    [SerializeField, Min(0f)] private float m_indicatorDistance = 4f;
 
     [SerializeField] private UnityEvent m_onInteractStarted;
     [SerializeField] private UnityEvent m_onInteractStopped;
@@ -48,8 +52,12 @@ public class Interactable : MonoBehaviour
     public event Action<Interactable, PlayerInteractor> InteractStarted = delegate { };
     public event Action<Interactable, PlayerInteractor> InteractStopped = delegate { };
 
-    public InteractionMode Mode => m_mode;
-    public bool StopWhenOutOfRange => m_stopWhenOutOfRange;
+    public virtual InteractionMode Mode => m_mode;
+    public virtual bool StopWhenOutOfRange => m_stopWhenOutOfRange;
+
+    // Prende o personagem parado enquanto interage (so faz sentido com Toggle).
+    // So comeca com o personagem livre de verdade: no chao e sem fazer nenhuma acao
+    public virtual bool LocksInteractor => false;
     public Vector3 InteractionPosition => m_interactionPoint != null ? m_interactionPoint.position : transform.position;
 
     // Quem esta interagindo agora (so um por vez)
@@ -62,11 +70,25 @@ public class Interactable : MonoBehaviour
     // Sobrescreva para regras proprias (ex: porta trancada). Chame a base.
     public virtual bool CanInteract(PlayerInteractor interactor)
     {
-        return isActiveAndEnabled && !IsInteracting && (m_allowedCharacters & interactor.Character) != 0;
+        return isActiveAndEnabled && !IsInteracting && (m_allowedCharacters & interactor.Character) != 0
+            && (!LocksInteractor || interactor.CanBeLocked);
     }
 
     // O proprio objeto pode encerrar a interacao (ex: animacao terminou)
     public void StopInteraction() => CurrentInteractor?.StopInteracting();
+
+    // Quando o ponto flutuante aparece. Sobrescreva para esconder em casos proprios
+    protected virtual bool ShowIndicator => isActiveAndEnabled && !IsInteracting;
+
+    protected virtual void Awake()
+    {
+        if (!m_showIndicator) return;
+
+        InteractionIndicator indicator = InteractionIndicator.Ensure(gameObject);
+        indicator.ShouldShow = () => ShowIndicator;
+        indicator.ShowDistance = m_indicatorDistance;
+        indicator.AreaCenter = m_interactionPoint;
+    }
 
     protected virtual void OnEnable() => s_active.Add(this);
 
@@ -104,5 +126,11 @@ public class Interactable : MonoBehaviour
     {
         Gizmos.color = IsInteracting ? Color.green : Color.magenta;
         Gizmos.DrawWireSphere(InteractionPosition, m_interactDistance);
+
+        if (m_showIndicator)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(InteractionPosition, m_indicatorDistance);
+        }
     }
 }
