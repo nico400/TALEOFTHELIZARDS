@@ -2,6 +2,11 @@ public class MovimentationStateQuirino : State<ControllerQuirino>
 {
     public MovimentationStateQuirino(ControllerQuirino controller) : base(controller) { }
 
+    public override void Enter()
+    {
+        Controller.Animations.PlayWalk();
+    }
+
     public override void Update()
     {
         // Pulo tem prioridade sobre parar

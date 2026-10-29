@@ -59,6 +59,11 @@ public class ControllerQuirino : MonoBehaviour
     public TargetJumpStateQuirino TargetJumpState { get; private set; }
     public PerchedStateQuirino PerchedState { get; private set; }
 
+    [Header("Animations")]
+    [Tooltip("Vazio = procura no proprio objeto e nos filhos")]
+    [SerializeField] private QuirinoAnimations m_animations;
+    public QuirinoAnimations Animations => m_animations;
+
     private State m_currentState;
 
     private void Awake()
@@ -75,6 +80,14 @@ public class ControllerQuirino : MonoBehaviour
         // Com a lingua esticada nao usa interagiveis
         Interactor = new PlayerInteractor(InteractorCharacter.Quirino, transform, m_tongueOrigin, () => !Tongue.IsOut);
         m_respawn = GetComponent<PlayerRespawn>();
+
+        if (m_animations == null)
+            m_animations = GetComponentInChildren<QuirinoAnimations>();
+        if (m_animations == null)
+        {
+            Debug.LogWarning($"{name}: QuirinoAnimations nao configurado, as animacoes nao vao tocar.", this);
+            m_animations = gameObject.AddComponent<QuirinoAnimations>();
+        }
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateQuirino(this);

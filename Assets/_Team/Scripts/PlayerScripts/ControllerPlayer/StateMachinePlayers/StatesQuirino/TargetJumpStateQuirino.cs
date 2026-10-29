@@ -22,6 +22,7 @@ public class TargetJumpStateQuirino : State<ControllerQuirino>
 
         m_start = Controller.RB.position;
         m_progress = 0f;
+        Controller.Animations.PlayStartJump();
 
         float _flatDistance = Vector3.ProjectOnPlane(m_point.LandPosition - m_start, Vector3.up).magnitude;
         m_duration = Mathf.Max(Controller.Settings.TargetJumpMinDuration, _flatDistance / Controller.Settings.TargetJumpSpeed);
@@ -54,6 +55,10 @@ public class TargetJumpStateQuirino : State<ControllerQuirino>
 
         // Linha reta ate o alvo + arco (4t(1-t) vale 1 no meio do pulo)
         float _arc = Controller.Settings.TargetJumpArcHeight * 4f * m_progress * (1f - m_progress);
+
+        // Passou do topo do arco: descendo
+        if (m_progress >= 0.5f)
+            Controller.Animations.PlayFall();
         Vector3 _next = Vector3.Lerp(m_start, _end, m_progress) + Vector3.up * _arc;
 
         // Por velocidade (e nao MovePosition) para continuar colidindo com o cenario

@@ -57,6 +57,11 @@ public class ControllerDraco : MonoBehaviour
     public JumpStateDraco JumpState { get; private set; }
     public TongueWalkStateDraco TongueWalkState { get; private set; }
 
+    [Header("Animations")]
+    [Tooltip("Vazio = procura no proprio objeto e nos filhos")]
+    [SerializeField] private DracoAnimations m_animations;
+    public DracoAnimations Animations => m_animations;
+
     private State m_currentState;
 
     private void Awake()
@@ -81,6 +86,14 @@ public class ControllerDraco : MonoBehaviour
         // Com objeto na boca nao usa outros interagiveis
         Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding);
         m_respawn = GetComponent<PlayerRespawn>();
+
+        if (m_animations == null)
+            m_animations = GetComponentInChildren<DracoAnimations>();
+        if (m_animations == null)
+        {
+            Debug.LogWarning($"{name}: DracoAnimations nao configurado, as animacoes nao vao tocar.", this);
+            m_animations = gameObject.AddComponent<DracoAnimations>();
+        }
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);

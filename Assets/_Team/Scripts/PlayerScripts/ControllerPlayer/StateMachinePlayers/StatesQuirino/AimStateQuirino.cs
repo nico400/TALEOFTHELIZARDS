@@ -8,6 +8,7 @@ public class AimStateQuirino : State<ControllerQuirino>
         Controller.ConsumeFireTongue(); // descarta tiro apertado antes de mirar
         Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
         Controller.AimHUD.SetActive(true);
+        Controller.Animations.PlayAim();
     }
 
     public override void Update()
