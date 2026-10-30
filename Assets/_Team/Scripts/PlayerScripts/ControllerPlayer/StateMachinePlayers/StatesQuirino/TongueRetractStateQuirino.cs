@@ -8,6 +8,7 @@ public class TongueRetractStateQuirino : State<ControllerQuirino>
     public override void Enter()
     {
         Controller.Tongue.Release();
+        Controller.Animations.PlayOpenMouth(); // boca fica aberta ate a lingua voltar
         Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
     }
 

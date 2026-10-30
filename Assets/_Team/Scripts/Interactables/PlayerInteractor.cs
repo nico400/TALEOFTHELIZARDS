@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlayerInteractor
 {
     private readonly Func<bool> m_isAvailable;
+    private readonly Func<bool> m_canBeLocked;
 
     public InteractorCharacter Character { get; }
 
@@ -22,15 +23,22 @@ public class PlayerInteractor
     // Ocupado (lingua esticada, objeto na boca...) nao comeca interacao nova; parar sempre pode
     public bool IsAvailable => m_isAvailable == null || m_isAvailable();
 
+    // Pode ficar preso num Interactable que trava (no chao, sem pular/escalar/mirar...)
+    public bool CanBeLocked => m_canBeLocked == null || m_canBeLocked();
+
+    // Preso parado ate apertar Interagir de novo ou o objeto soltar
+    public bool IsLocked => IsInteracting && Current.LocksInteractor;
+
     public event Action<Interactable> Started = delegate { };
     public event Action<Interactable> Stopped = delegate { };
 
-    public PlayerInteractor(InteractorCharacter character, Transform owner, Transform origin, Func<bool> isAvailable)
+    public PlayerInteractor(InteractorCharacter character, Transform owner, Transform origin, Func<bool> isAvailable, Func<bool> canBeLocked = null)
     {
         Character = character;
         Owner = owner;
         Origin = origin != null ? origin : owner;
         m_isAvailable = isAvailable;
+        m_canBeLocked = canBeLocked;
     }
 
     // Interactable mais perto que este personagem pode usar agora

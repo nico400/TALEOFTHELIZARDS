@@ -9,12 +9,16 @@ public class JumpStateQuirino : State<ControllerQuirino>
         Controller.JumpBuffer.Consume();
         Controller.Motor.Jump(Controller.Settings.JumpForce);
         m_jumpCut = false;
+        Controller.Animations.PlayStartJump();
     }
 
     public override void Update()
     {
         // So pousa depois de parar de subir (evita sair no mesmo frame do pulo)
         bool _falling = Controller.RB.linearVelocity.y <= 0f;
+
+        if (_falling)
+            Controller.Animations.PlayFall();
 
         // TODO: trocar por FallState quando ele existir
         if (_falling && Controller.Motor.IsGrounded)

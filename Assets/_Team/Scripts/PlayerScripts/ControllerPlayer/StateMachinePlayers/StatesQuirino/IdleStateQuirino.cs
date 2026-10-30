@@ -4,6 +4,11 @@ public class IdleStateQuirino : State<ControllerQuirino>
 {
     public IdleStateQuirino(ControllerQuirino controller) : base(controller) { }
 
+    public override void Enter()
+    {
+        Controller.Animations.PlayIdle();
+    }
+
     public override void Update()
     {
         // Pulo tem prioridade sobre andar

@@ -47,7 +47,12 @@ public class TongueWalkStateDraco : State<ControllerDraco>
         }
 
         if (Controller.JumpBuffer.HasBufferedInput)
+        {
             Controller.SwitchState(Controller.JumpState);
+            return;
+        }
+
+        Controller.Animations.PlayLocomotion(Controller.HasMoveInput);
     }
 
     public override void FixedUpdate()
