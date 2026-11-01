@@ -13,6 +13,8 @@ public class CreditsPanel : MonoBehaviour
     [Header("Navigation")]
     [SerializeField] private Button m_buttonBack;
 
+    public Button ButtonBack => m_buttonBack;
+
     /// <summary>Raised when the player clicks "Voltar" (Back).</summary>
     public event System.Action OnBackRequested;
 
@@ -28,8 +30,11 @@ public class CreditsPanel : MonoBehaviour
             m_buttonBack.onClick.RemoveAllListeners();
     }
 
-    public void SetButtonBackInEventSystem() {
-        EventSystem.current.firstSelectedGameObject = m_buttonBack.gameObject;
+    public void SetButtonBackInEventSystem()
+    {
+        if (EventSystem.current != null && m_buttonBack != null)
+        {
+            EventSystem.current.SetSelectedGameObject(m_buttonBack.gameObject);
+        }
     }
 }
-

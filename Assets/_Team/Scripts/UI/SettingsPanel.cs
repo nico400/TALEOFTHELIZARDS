@@ -1,7 +1,6 @@
 using LFramework.Utility;
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -22,6 +21,9 @@ public class SettingsPanel : MonoBehaviour
 
     [Header("Navigation")]
     [SerializeField] private Button m_buttonBack;
+
+    public Button ButtonBack => m_buttonBack;
+    public GameObject FirstSelectable => m_sliderSensMouse != null ? m_sliderSensMouse.gameObject : (m_buttonBack != null ? m_buttonBack.gameObject : null);
 
     /// <summary>Raised when the player clicks "Voltar" (Back).</summary>
     public event Action OnBackRequested;
@@ -56,7 +58,6 @@ public class SettingsPanel : MonoBehaviour
     public void Open()
     {
         SyncSlidersFromSettings();
-        EventSystem.current.firstSelectedGameObject = m_buttonBack.gameObject;
         gameObject.SetActive(true);
     }
 
@@ -115,4 +116,3 @@ public class SettingsPanel : MonoBehaviour
         OnBackRequested?.Invoke();
     }
 }
-

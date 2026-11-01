@@ -1,21 +1,22 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
 /// Main Menu orchestrator.
 /// Manages panel visibility, button wiring, gamepad validation pop-up,
-/// exit confirmation, and scene transitions with fade.
+/// exit confirmation, dynamic controller focus navigation, and scene transitions with fade.
 /// 
 /// Architecture notes (SOLID):
-///   - SRP: Each panel/feature has its own script (SettingsPanel, CreditsScroller,
+///   - SRP: Each panel/feature has its own script (SettingsPanel, CreditsPanel,
 ///          GamepadDetector, ScreenFader). MenuManager only orchestrates.
 ///   - OCP: New panels can be added without modifying existing panel scripts.
 ///   - DIP: Depends on abstractions (events) rather than concrete implementations
 ///          for audio (hook your AudioManager via events/GameSettings).
 /// </summary>
-/// 
 public class MenuManager : MonoBehaviour
 {
     // ──────────────────────────── Inspector Fields ────────────────────────────
@@ -59,12 +60,13 @@ public class MenuManager : MonoBehaviour
     private SettingsPanel m_settingsPanelScript;
     private CreditsPanel m_creditsScrollerScript;
     private bool m_isTransitioning;
+    private Coroutine m_selectRoutine;
 
     // ──────────────────────────── Unity Lifecycle ────────────────────────────
 
     private void Awake()
     {
-        // Cache panel scripts (added by you on the same GameObjects in the scene).
+        // Cache panel scripts.
         if (m_panelSettings != null)
             m_settingsPanelScript = m_panelSettings.GetComponentInChildren<SettingsPanel>(true);
 
@@ -88,6 +90,33 @@ public class MenuManager : MonoBehaviour
         {
             m_screenFader.SetOpaque();
             m_screenFader.FadeIn();
+        }
+
+        // Focus first button if gamepad is already present
+        if (m_gamepadDetector != null && m_gamepadDetector.IsGamepadConnected)
+        {
+            SelectUIElement(GetActivePanelDefaultSelectable());
+        }
+    }
+
+    private void Update()
+    {
+        // If gamepad is connected and selection is lost (e.g. mouse clicked background or pop-up just closed/opened),
+        // recover focus whenever the user touches navigation input on gamepad or keyboard.
+        if (m_isTransitioning) return;
+
+        bool hasGamepad = m_gamepadDetector != null && m_gamepadDetector.IsGamepadConnected;
+        if (!hasGamepad) return;
+
+        // Don't auto-select if warning panel is currently showing (gamepad blocked)
+        if (m_panelWarning != null && m_panelWarning.activeSelf) return;
+
+        if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject == null)
+        {
+            if (HasNavigationInput())
+            {
+                SelectUIElement(GetActivePanelDefaultSelectable());
+            }
         }
     }
 
@@ -180,6 +209,20 @@ public class MenuManager : MonoBehaviour
 
         // Block or release menu navigation.
         SetMainButtonsInteractable(!showWarning);
+
+        if (connected)
+        {
+            // Reconnected! Immediately re-focus the active panel's button.
+            SelectUIElement(GetActivePanelDefaultSelectable());
+        }
+        else
+        {
+            // Disconnected: clear selection so broken navigation states don't linger.
+            if (EventSystem.current != null)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
+        }
     }
 
     private void SetMainButtonsInteractable(bool interactable)
@@ -226,12 +269,21 @@ public class MenuManager : MonoBehaviour
             m_settingsPanelScript.Open();
         else if (m_panelSettings != null)
             m_panelSettings.SetActive(true);
+
+        GameObject target = m_settingsPanelScript != null ? m_settingsPanelScript.FirstSelectable : null;
+        if (target == null && m_settingsPanelScript != null && m_settingsPanelScript.ButtonBack != null)
+            target = m_settingsPanelScript.ButtonBack.gameObject;
+
+        SelectUIElement(target);
     }
 
     private void OnSettingsBack()
     {
         if (m_panelSettings != null)
             m_panelSettings.SetActive(false);
+
+        // Return focus to the Settings button in the main menu
+        SelectUIElement(m_buttonSettings != null ? m_buttonSettings.gameObject : m_buttonPlay.gameObject);
     }
 
     private void OnControllerMappingClicked()
@@ -240,12 +292,17 @@ public class MenuManager : MonoBehaviour
 
         if (m_panelControllerMapping != null)
             m_panelControllerMapping.SetActive(true);
+
+        SelectUIElement(m_buttonBackMapping != null ? m_buttonBackMapping.gameObject : null);
     }
 
     private void OnControllerMappingBack()
     {
         if (m_panelControllerMapping != null)
             m_panelControllerMapping.SetActive(false);
+
+        // Return focus to the Controller Mapping button in the main menu
+        SelectUIElement(m_buttonControllerMapping != null ? m_buttonControllerMapping.gameObject : m_buttonPlay.gameObject);
     }
 
     private void OnCreditsClicked()
@@ -254,12 +311,21 @@ public class MenuManager : MonoBehaviour
 
         if (m_panelCredits != null)
             m_panelCredits.SetActive(true);
+
+        GameObject target = null;
+        if (m_creditsScrollerScript != null && m_creditsScrollerScript.ButtonBack != null)
+            target = m_creditsScrollerScript.ButtonBack.gameObject;
+
+        SelectUIElement(target);
     }
 
     private void OnCreditsBack()
     {
         if (m_panelCredits != null)
             m_panelCredits.SetActive(false);
+
+        // Return focus to Credits button in the main menu
+        SelectUIElement(m_buttonCredits != null ? m_buttonCredits.gameObject : m_buttonPlay.gameObject);
     }
 
     private void OnExitClicked()
@@ -268,6 +334,10 @@ public class MenuManager : MonoBehaviour
 
         if (m_panelExit != null)
             m_panelExit.SetActive(true);
+
+        // Standard UX practice: default selection on exit confirmation is 'NO'
+        GameObject target = m_buttonNo != null ? m_buttonNo.gameObject : (m_buttonYes != null ? m_buttonYes.gameObject : null);
+        SelectUIElement(target);
     }
 
     private void OnExitConfirmed()
@@ -283,14 +353,110 @@ public class MenuManager : MonoBehaviour
     {
         if (m_panelExit != null)
             m_panelExit.SetActive(false);
+
+        // Return focus to Exit button in the main menu
+        SelectUIElement(m_buttonExit != null ? m_buttonExit.gameObject : m_buttonPlay.gameObject);
+    }
+
+    // ──────────────────────────── Dynamic Selection Management ────────────────────────────
+
+    /// <summary>
+    /// Safely selects a UI GameObject on the next frame so uGUI has time to activate and enable components.
+    /// </summary>
+    public void SelectUIElement(GameObject target)
+    {
+        if (target == null) return;
+        if (!gameObject.activeInHierarchy) return;
+
+        if (m_selectRoutine != null)
+            StopCoroutine(m_selectRoutine);
+
+        m_selectRoutine = StartCoroutine(SelectUIRoutine(target));
+    }
+
+    private IEnumerator SelectUIRoutine(GameObject target)
+    {
+        // Clear selection first so uGUI forces a fresh highlight transition
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+
+        yield return null; // Wait 1 frame for hierarchy and active states to settle
+
+        if (EventSystem.current != null && target != null && target.activeInHierarchy)
+        {
+            EventSystem.current.SetSelectedGameObject(target);
+        }
+
+        m_selectRoutine = null;
+    }
+
+    /// <summary>
+    /// Evaluates which pop-up or screen is currently active and returns its default selectable element.
+    /// </summary>
+    public GameObject GetActivePanelDefaultSelectable()
+    {
+        if (m_panelWarning != null && m_panelWarning.activeSelf)
+            return null;
+
+        if (m_panelExit != null && m_panelExit.activeSelf)
+            return m_buttonNo != null ? m_buttonNo.gameObject : (m_buttonYes != null ? m_buttonYes.gameObject : null);
+
+        if (m_panelSettings != null && m_panelSettings.activeSelf)
+        {
+            if (m_settingsPanelScript != null && m_settingsPanelScript.FirstSelectable != null)
+                return m_settingsPanelScript.FirstSelectable;
+            if (m_settingsPanelScript != null && m_settingsPanelScript.ButtonBack != null)
+                return m_settingsPanelScript.ButtonBack.gameObject;
+        }
+
+        if (m_panelControllerMapping != null && m_panelControllerMapping.activeSelf)
+            return m_buttonBackMapping != null ? m_buttonBackMapping.gameObject : null;
+
+        if (m_panelCredits != null && m_panelCredits.activeSelf)
+            return m_creditsScrollerScript != null && m_creditsScrollerScript.ButtonBack != null
+                ? m_creditsScrollerScript.ButtonBack.gameObject
+                : null;
+
+        // Default to main menu
+        return m_buttonPlay != null ? m_buttonPlay.gameObject : null;
+    }
+
+    /// <summary>
+    /// Checks whether user pressed directional inputs on Gamepad or Keyboard.
+    /// </summary>
+    private bool HasNavigationInput()
+    {
+        if (Gamepad.current != null)
+        {
+            Vector2 stick = Gamepad.current.leftStick.ReadValue();
+            Vector2 dpad = Gamepad.current.dpad.ReadValue();
+            if (stick.sqrMagnitude > 0.2f || dpad.sqrMagnitude > 0.2f)
+                return true;
+
+            if (Gamepad.current.buttonSouth.wasPressedThisFrame ||
+                Gamepad.current.buttonEast.wasPressedThisFrame)
+                return true;
+        }
+
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.wasPressedThisFrame || Keyboard.current.sKey.wasPressedThisFrame ||
+                Keyboard.current.aKey.wasPressedThisFrame || Keyboard.current.dKey.wasPressedThisFrame ||
+                Keyboard.current.upArrowKey.wasPressedThisFrame || Keyboard.current.downArrowKey.wasPressedThisFrame ||
+                Keyboard.current.leftArrowKey.wasPressedThisFrame || Keyboard.current.rightArrowKey.wasPressedThisFrame ||
+                Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame)
+                return true;
+        }
+
+        return false;
     }
 
     // ──────────────────────────── Utilities ────────────────────────────
 
     private void CloseAllPopups()
     {
-        // Use the scripts' Close() when available (so they can save state),
-        // otherwise just deactivate.
         if (m_settingsPanelScript != null)
             m_settingsPanelScript.Close();
         else if (m_panelSettings != null)

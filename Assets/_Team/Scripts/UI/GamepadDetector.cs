@@ -54,16 +54,31 @@ public class GamepadDetector : MonoBehaviour
 
     private void HandleDeviceChange(InputDevice _device, InputDeviceChange _change)
     {
-        if (_device is not Gamepad) return;
-
         switch (_change)
         {
             case InputDeviceChange.Added:
             case InputDeviceChange.Removed:
             case InputDeviceChange.Reconnected:
             case InputDeviceChange.Disconnected:
+            case InputDeviceChange.Enabled:
+            case InputDeviceChange.Disabled:
+            case InputDeviceChange.ConfigurationChanged:
+            case InputDeviceChange.HardReset:
+            case InputDeviceChange.SoftReset:
                 Refresh();
                 break;
+        }
+    }
+
+    private void Update()
+    {
+#if UNITY_EDITOR
+        if (m_ignoreTheDetection) return;
+#endif
+        bool hasGamepad = Gamepad.all.Count > 0;
+        if (hasGamepad != IsGamepadConnected)
+        {
+            Refresh();
         }
     }
 
