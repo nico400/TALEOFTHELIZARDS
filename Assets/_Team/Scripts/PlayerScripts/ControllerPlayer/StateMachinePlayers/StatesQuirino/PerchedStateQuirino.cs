@@ -15,6 +15,7 @@ public class PerchedStateQuirino : State<ControllerQuirino>
         Controller.Motor.ResetGroundVelocity();
         Controller.RB.useGravity = false;
         Controller.RB.linearVelocity = Vector3.zero;
+        Controller.Animations.PlayPerched();
     }
 
     public override void Update()

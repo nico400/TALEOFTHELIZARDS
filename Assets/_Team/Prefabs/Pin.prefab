@@ -103,6 +103,8 @@ MonoBehaviour:
   m_onReleased:
     m_PersistentCalls:
       m_Calls: []
+  m_showIndicator: 1
+  m_indicatorDistance: 4
   m_pinLayers:
     serializedVersion: 2
     m_Bits: 256
@@ -2066,7 +2068,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 3586
+  m_VersionIndex: 3595
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

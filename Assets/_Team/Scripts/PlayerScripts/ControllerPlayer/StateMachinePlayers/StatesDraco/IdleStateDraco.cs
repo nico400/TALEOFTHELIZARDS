@@ -4,6 +4,11 @@ public class IdleStateDraco : State<ControllerDraco>
 {
     public IdleStateDraco(ControllerDraco controller) : base(controller) { }
 
+    public override void Enter()
+    {
+        Controller.Animations.PlayIdle();
+    }
+
     public override void Update()
     {
         if (Controller.TryInteract()) return;

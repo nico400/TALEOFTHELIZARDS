@@ -56,6 +56,12 @@ public class ControllerDraco : MonoBehaviour
     public ClimbStateDraco ClimbState { get; private set; }
     public JumpStateDraco JumpState { get; private set; }
     public TongueWalkStateDraco TongueWalkState { get; private set; }
+    public InteractStateDraco InteractState { get; private set; }
+
+    [Header("Animations")]
+    [Tooltip("Vazio = procura no proprio objeto e nos filhos")]
+    [SerializeField] private DracoAnimations m_animations;
+    public DracoAnimations Animations => m_animations;
 
     private State m_currentState;
 
@@ -78,9 +84,19 @@ public class ControllerDraco : MonoBehaviour
             m_holdPoint = transform;
         }
         Grabber = new DracoGrabber(m_holdPoint, m_settingsClimb);
-        // Com objeto na boca nao usa outros interagiveis
-        Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding);
+        // Com objeto na boca nao usa outros interagiveis.
+        // So fica preso (CoopInteractable) parado ou andando no chao: nao no pulo, parede ou lingua
+        Interactor = new PlayerInteractor(InteractorCharacter.Draco, transform, m_holdPoint, () => !Grabber.IsHolding,
+            () => Motor.IsGrounded && (m_currentState == IdleState || m_currentState == MoveState));
         m_respawn = GetComponent<PlayerRespawn>();
+
+        if (m_animations == null)
+            m_animations = GetComponentInChildren<DracoAnimations>();
+        if (m_animations == null)
+        {
+            Debug.LogWarning($"{name}: DracoAnimations nao configurado, as animacoes nao vao tocar.", this);
+            m_animations = gameObject.AddComponent<DracoAnimations>();
+        }
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateDraco(this);
@@ -88,6 +104,7 @@ public class ControllerDraco : MonoBehaviour
         ClimbState = new ClimbStateDraco(this);
         JumpState = new JumpStateDraco(this);
         TongueWalkState = new TongueWalkStateDraco(this);
+        InteractState = new InteractStateDraco(this);
     }
 
     private void OnEnable()
@@ -139,9 +156,10 @@ public class ControllerDraco : MonoBehaviour
     {
         if (IsDead) return;
 
-        // Na lingua quem move e o proprio estado; o probe grudaria em parede/chao
+        // Na lingua quem move e o proprio estado; o probe grudaria em parede/chao.
+        // Preso interagindo nao gira com o input
         if (m_currentState != TongueWalkState)
-            Motor.UpdateSurface(PlayerInput.Move);
+            Motor.UpdateSurface(m_currentState == InteractState ? Vector2.zero : PlayerInput.Move);
 
         m_currentState?.FixedUpdate();
     }
@@ -159,9 +177,9 @@ public class ControllerDraco : MonoBehaviour
     // 1. segurando algo: solta
     // 2. interagindo com algo: para
     // 3. objeto pegavel perto: pega
-    // 4. interagivel perto: comeca a interagir
+    // 4. interagivel perto: comeca a interagir (se ele trava, vai para o InteractState)
     // 5. lingua perto: sobe nela
-    // Retorna true so quando trocou de estado (subiu na lingua)
+    // Retorna true so quando trocou de estado (subiu na lingua ou ficou preso)
     public bool TryInteract()
     {
         if (!m_interactBuffer.HasBufferedInput) return false;
@@ -180,10 +198,19 @@ public class ControllerDraco : MonoBehaviour
             return false;
         }
 
-        if (Grabber.TryGrabNearest() || Interactor.TryStartInteraction())
+        if (Grabber.TryGrabNearest())
         {
             m_interactBuffer.Consume();
             return false;
+        }
+
+        if (Interactor.TryStartInteraction())
+        {
+            m_interactBuffer.Consume();
+            if (!Interactor.IsLocked) return false;
+
+            SwitchState(InteractState);
+            return true;
         }
 
         if (!TongueWalkState.CanMount()) return false;

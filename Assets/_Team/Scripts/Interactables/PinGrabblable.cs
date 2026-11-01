@@ -100,8 +100,9 @@ public class PinGrabblable : Grabbable
         return _closestDistance < float.PositiveInfinity;
     }
 
-    private void OnDrawGizmosSelected()
+    protected override void OnDrawGizmosSelected()
     {
+        base.OnDrawGizmosSelected();
         Gizmos.color = IsPinned ? Color.green : Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position - transform.up * m_pinDistance);
     }

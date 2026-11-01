@@ -58,6 +58,12 @@ public class ControllerQuirino : MonoBehaviour
     public TongueRetractStateQuirino TongueRetractState { get; private set; }
     public TargetJumpStateQuirino TargetJumpState { get; private set; }
     public PerchedStateQuirino PerchedState { get; private set; }
+    public InteractStateQuirino InteractState { get; private set; }
+
+    [Header("Animations")]
+    [Tooltip("Vazio = procura no proprio objeto e nos filhos")]
+    [SerializeField] private QuirinoAnimations m_animations;
+    public QuirinoAnimations Animations => m_animations;
 
     private State m_currentState;
 
@@ -72,9 +78,19 @@ public class ControllerQuirino : MonoBehaviour
         Motor = new QuirinoMotor(transform, m_rigidbody, m_camera, m_cinemachineCamera, m_settings);
         Tongue = new QuirinoTongue(m_tongueOrigin != null ? m_tongueOrigin : transform, m_tongueLine, m_camera, m_settings);
         JumpPoints = new JumpPointDetector(transform, m_settings);
-        // Com a lingua esticada nao usa interagiveis
-        Interactor = new PlayerInteractor(InteractorCharacter.Quirino, transform, m_tongueOrigin, () => !Tongue.IsOut);
+        // Com a lingua esticada nao usa interagiveis.
+        // So fica preso (CoopInteractable) parado ou andando no chao: nao mirando, pulando ou empoleirado
+        Interactor = new PlayerInteractor(InteractorCharacter.Quirino, transform, m_tongueOrigin, () => !Tongue.IsOut,
+            () => Motor.IsGrounded && (m_currentState == IdleState || m_currentState == MoveState));
         m_respawn = GetComponent<PlayerRespawn>();
+
+        if (m_animations == null)
+            m_animations = GetComponentInChildren<QuirinoAnimations>();
+        if (m_animations == null)
+        {
+            Debug.LogWarning($"{name}: QuirinoAnimations nao configurado, as animacoes nao vao tocar.", this);
+            m_animations = gameObject.AddComponent<QuirinoAnimations>();
+        }
 
         // cria os estados uma vez aqui para nao perder os paremetros
         IdleState = new IdleStateQuirino(this);
@@ -86,6 +102,7 @@ public class ControllerQuirino : MonoBehaviour
         TongueRetractState = new TongueRetractStateQuirino(this);
         TargetJumpState = new TargetJumpStateQuirino(this);
         PerchedState = new PerchedStateQuirino(this);
+        InteractState = new InteractStateQuirino(this);
     }
 
     private void OnEnable()
@@ -134,7 +151,12 @@ public class ControllerQuirino : MonoBehaviour
         // Interagir nao troca de estado do Quirino, entao fica aqui e nao em cada estado
         Interactor.Update();
         if (m_interactBuffer.HasBufferedInput && Interactor.TryInteract())
+        {
             m_interactBuffer.Consume();
+            // Interagivel que trava: fica parado esperando ate apertar de novo
+            if (Interactor.IsLocked)
+                SwitchState(InteractState);
+        }
 
         m_currentState?.Update();
     }

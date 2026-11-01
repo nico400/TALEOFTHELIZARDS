@@ -11,6 +11,7 @@ public class JumpStateDraco : State<ControllerDraco>
         Controller.JumpBuffer.Consume();
         Controller.Motor.Jump(Controller.Settings.JumpForce);
         m_jumpCut = false;
+        Controller.Animations.PlayStartJump();
     }
 
     public override void Update()
@@ -23,6 +24,9 @@ public class JumpStateDraco : State<ControllerDraco>
         // gravidade (o motor desliga na parede) subindo com a velocidade do pulo.
         bool _falling = Controller.RB.linearVelocity.y <= 0f;
         bool _landed = (_falling && Controller.Motor.IsGrounded) || Controller.Motor.IsOnClimbSurface;
+
+        if (_falling)
+            Controller.Animations.PlayFall();
 
         // TODO: trocar por FallState quando ele existir
         if (_landed)

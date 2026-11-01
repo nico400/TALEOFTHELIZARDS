@@ -10,6 +10,11 @@ public class Grabbable : MonoBehaviour
     [SerializeField] private UnityEvent m_onGrabbed;
     [SerializeField] private UnityEvent m_onReleased;
 
+    [Tooltip("Mostra o ponto flutuante (InteractionIndicator) em cima do objeto")]
+    [SerializeField] private bool m_showIndicator = true;
+    [Tooltip("Distancia do personagem ate o objeto para o indicador aparecer")]
+    [SerializeField, Min(0f)] private float m_indicatorDistance = 4f;
+
     // Para scripts que precisam saber qual objeto foi pego/solto
     public event Action<Grabbable> Grabbed = delegate { };
     public event Action<Grabbable> Released = delegate { };
@@ -36,6 +41,21 @@ public class Grabbable : MonoBehaviour
         // Onde volta quando cai numa KillZone
         m_startPosition = transform.position;
         m_startRotation = transform.rotation;
+
+        // Ponto flutuante so aparece com o objeto solto
+        if (m_showIndicator)
+        {
+            InteractionIndicator indicator = InteractionIndicator.Ensure(gameObject);
+            indicator.ShouldShow = () => CanBeGrabbed;
+            indicator.ShowDistance = m_indicatorDistance;
+        }
+    }
+
+    protected virtual void OnDrawGizmosSelected()
+    {
+        if (!m_showIndicator) return;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, m_indicatorDistance);
     }
 
     // Volta para onde comecou no jogo, parado. So vale solto (segurado nem tem colisao)

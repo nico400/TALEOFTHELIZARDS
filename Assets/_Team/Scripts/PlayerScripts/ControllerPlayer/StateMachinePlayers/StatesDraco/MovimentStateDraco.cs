@@ -5,6 +5,11 @@ public class MovimentStateDraco : State<ControllerDraco>
 {
     public MovimentStateDraco(ControllerDraco controller) : base(controller) { }
 
+    public override void Enter()
+    {
+        Controller.Animations.PlayWalk();
+    }
+
     public override void Update()
     {
         if (Controller.TryInteract()) return;

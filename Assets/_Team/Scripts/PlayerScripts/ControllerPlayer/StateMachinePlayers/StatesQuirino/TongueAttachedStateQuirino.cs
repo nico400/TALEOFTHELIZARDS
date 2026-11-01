@@ -15,6 +15,7 @@ public class TongueAttachedStateQuirino : State<ControllerQuirino>
         m_heldEventFired = false;
         Controller.Motor.SetCameraOffset(Controller.Settings.AimCameraOffset);
         Controller.Tongue.IsAttached = true;
+        Controller.Animations.PlayOpenMouth();
         Controller.Tongue.Target.OnTongueAttached(Controller);
     }
 

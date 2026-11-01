@@ -18,7 +18,12 @@ public class ClimbStateDraco : State<ControllerDraco>
 
         // Saiu da parede (passou o NormalGraceTime sem achar superficie escalavel)
         if (!Controller.Motor.IsOnClimbSurface)
+        {
             Controller.SwitchState(Controller.LocomotionState);
+            return;
+        }
+
+        Controller.Animations.PlayLocomotion(Controller.HasMoveInput);
     }
 
     public override void FixedUpdate()
