@@ -279,7 +279,9 @@ public class MenuManager : MonoBehaviour
 
     private void OnSettingsBack()
     {
-        if (m_panelSettings != null)
+        if (m_settingsPanelScript != null)
+            m_settingsPanelScript.Close();
+        else if (m_panelSettings != null)
             m_panelSettings.SetActive(false);
 
         // Return focus to the Settings button in the main menu
@@ -457,10 +459,7 @@ public class MenuManager : MonoBehaviour
 
     private void CloseAllPopups()
     {
-        if (m_settingsPanelScript != null)
-            m_settingsPanelScript.Close();
-        else if (m_panelSettings != null)
-            m_panelSettings.SetActive(false);
+        if (m_panelSettings != null) m_panelSettings.SetActive(false);
 
         if (m_panelControllerMapping != null) m_panelControllerMapping.SetActive(false);
 

@@ -28,22 +28,11 @@ public class SettingsPanel : MonoBehaviour
     /// <summary>Raised when the player clicks "Voltar" (Back).</summary>
     public event Action OnBackRequested;
 
+    private bool m_isInitialized;
+
     private void Awake()
     {
-        if (m_settings == null)
-        {
-            EditorLogger.LogError($"[{nameof(SettingsPanel)}] GameSettings asset not assigned!");
-            return;
-        }
-
-        EditorLogger.Log("Ele entrou no Awake");
-
-        m_settings.Load();
-        SyncSlidersFromSettings();
-        BindSliders();
-
-        if (m_buttonBack != null)
-            m_buttonBack.onClick.AddListener(HandleBack);
+        EnsureInitialized();
     }
 
     private void OnDestroy()
@@ -54,24 +43,95 @@ public class SettingsPanel : MonoBehaviour
             m_buttonBack.onClick.RemoveListener(HandleBack);
     }
 
+    /// <summary>
+    /// Guarantees that sliders are bounded, listeners are attached, and settings are loaded.
+    /// Can be safely called before or after Awake.
+    /// </summary>
+    public void EnsureInitialized()
+    {
+        if (m_isInitialized) return;
+
+        if (m_settings == null)
+        {
+            EditorLogger.LogError($"[{nameof(SettingsPanel)}] GameSettings asset not assigned!");
+            return;
+        }
+
+        m_settings.EnsureLoaded();
+
+        // Enforce slider min/max bounds so values don't clamp to 0 or 1 incorrectly
+        ConfigureSliderBounds();
+
+        SyncSlidersFromSettings();
+        BindSliders();
+
+        if (m_buttonBack != null)
+        {
+            m_buttonBack.onClick.RemoveListener(HandleBack);
+            m_buttonBack.onClick.AddListener(HandleBack);
+        }
+
+        m_isInitialized = true;
+    }
+
     /// <summary>Call when opening the panel to refresh slider positions.</summary>
     public void Open()
     {
-        SyncSlidersFromSettings();
         gameObject.SetActive(true);
+        EnsureInitialized();
+        SyncSlidersFromSettings();
     }
 
     /// <summary>Hide the panel and save settings.</summary>
     public void Close()
     {
-        m_settings.Save();
+        if (m_settings != null && m_isInitialized)
+        {
+            m_settings.Save();
+        }
         gameObject.SetActive(false);
     }
 
     // -------- Internals --------
 
+    private void ConfigureSliderBounds()
+    {
+        if (m_sliderSensMouse != null)
+        {
+            m_sliderSensMouse.minValue = 2f;
+            m_sliderSensMouse.maxValue = 20f;
+        }
+
+        if (m_sliderSensGamepad != null)
+        {
+            m_sliderSensGamepad.minValue = 50f;
+            m_sliderSensGamepad.maxValue = 400f;
+        }
+
+        if (m_sliderAudioGeneral != null)
+        {
+            m_sliderAudioGeneral.minValue = 0f;
+            m_sliderAudioGeneral.maxValue = 1f;
+        }
+
+        if (m_sliderSFX != null)
+        {
+            m_sliderSFX.minValue = 0f;
+            m_sliderSFX.maxValue = 1f;
+        }
+
+        if (m_sliderMusic != null)
+        {
+            m_sliderMusic.minValue = 0f;
+            m_sliderMusic.maxValue = 1f;
+        }
+    }
+
     private void SyncSlidersFromSettings()
     {
+        if (m_settings == null) return;
+        m_settings.EnsureLoaded();
+
         if (m_sliderSensMouse    != null) m_sliderSensMouse.SetValueWithoutNotify(m_settings.SensMouse);
         if (m_sliderSensGamepad  != null) m_sliderSensGamepad.SetValueWithoutNotify(m_settings.SensGamepad);
         if (m_sliderAudioGeneral != null) m_sliderAudioGeneral.SetValueWithoutNotify(m_settings.AudioGeneral);
@@ -81,6 +141,8 @@ public class SettingsPanel : MonoBehaviour
 
     private void BindSliders()
     {
+        UnbindSliders();
+
         if (m_sliderSensMouse    != null) m_sliderSensMouse.onValueChanged.AddListener(v    => m_settings.SensMouse    = v);
         if (m_sliderSensGamepad  != null) m_sliderSensGamepad.onValueChanged.AddListener(v  => m_settings.SensGamepad  = v);
         if (m_sliderAudioGeneral != null) m_sliderAudioGeneral.onValueChanged.AddListener(v => { m_settings.AudioGeneral = v; ApplyAudio(); });
@@ -100,13 +162,9 @@ public class SettingsPanel : MonoBehaviour
     /// <summary>
     /// Applies audio volume changes in real-time.
     /// Hook your AudioMixer or AudioManager here when ready.
-    /// Currently sets AudioListener.volume as a simple global fallback.
     /// </summary>
     private void ApplyAudio()
     {
-        // General volume controls the global listener as a fallback.
-        // When you add an AudioMixer, expose parameters and set them here:
-        //   m_mixer.SetFloat("MasterVolume", Mathf.Log10(Mathf.Max(v, 0.0001f)) * 20);
         AudioListener.volume = m_settings.AudioGeneral;
     }
 
