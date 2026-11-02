@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10ccbd3dca743f4882072170a6745c6, type: 3}
+  m_Name: Audio_ButtonPressedCue
+  m_EditorClassIdentifier: Assembly-CSharp::AudioCue
+  m_clips:
+  - {fileID: 8300000, guid: 26b0e50108d60ac4586f6d4871ed109b, type: 3}
+  - {fileID: 8300000, guid: 7505b4a1091ab134c8e9014b723cdb8b, type: 3}
+  - {fileID: 8300000, guid: 494064e785e33a9479520ed463574459, type: 3}
+  - {fileID: 8300000, guid: 15afa28bb3c66fc418b2dc46ad395861, type: 3}
+  - {fileID: 8300000, guid: b3b9270b9cbb9ee4d9b11cf271103e94, type: 3}
+  m_volume: 1
+  m_pitchVariance: 0.05

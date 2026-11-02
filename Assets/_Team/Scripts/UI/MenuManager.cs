@@ -50,8 +50,10 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private ScreenFader m_screenFader;
     [SerializeField] private string m_gameplaySceneName = "VeterinarianLevel";
 
-    [Header("Audio (modular — assign later)")]
-    [Tooltip("Optional: AudioSource playing the menu music. Used for fade-out on Play.")]
+    [Header("Audio")]
+    [Tooltip("Optional: Menu music clip to trigger through AudioManager on start.")]
+    [SerializeField] private AudioClip m_menuMusicClip;
+    [Tooltip("Optional fallback: Direct AudioSource playing the menu music. Used for fade-out on Play.")]
     [SerializeField] private AudioSource m_menuMusic;
     [SerializeField, Min(0.1f)] private float m_musicFadeDuration = 1.5f;
 
@@ -90,6 +92,12 @@ public class MenuManager : MonoBehaviour
         {
             m_screenFader.SetOpaque();
             m_screenFader.FadeIn();
+        }
+
+        // Start menu music via AudioManager if assigned
+        if (m_menuMusicClip != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMusic(m_menuMusicClip, m_musicFadeDuration);
         }
 
         // Focus first button if gamepad is already present
@@ -241,9 +249,15 @@ public class MenuManager : MonoBehaviour
         if (m_isTransitioning) return;
         m_isTransitioning = true;
 
-        // Fade out music (if assigned).
-        if (m_menuMusic != null)
+        // Fade out music through AudioManager (or fallback AudioSource)
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.FadeOutMusic(m_musicFadeDuration);
+        }
+        else if (m_menuMusic != null)
+        {
             StartCoroutine(FadeMusicOut(m_menuMusic, m_musicFadeDuration));
+        }
 
         // Fade screen to black, then load gameplay scene.
         if (m_screenFader != null)
