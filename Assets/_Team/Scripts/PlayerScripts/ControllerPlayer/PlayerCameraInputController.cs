@@ -12,6 +12,11 @@ public class PlayerCameraInputController : InputAxisControllerBase<PlayerCameraI
     [SerializeField] private InputReader m_inputReader;
     public IPlayerInput Input => m_inputReader;
 
+    [Header("Settings Data")]
+    [Tooltip("Asset de configurações contendo a sensibilidade do mouse e do gamepad. Se não for atribuído, usa GameSettings.Instance.")]
+    [SerializeField] private GameSettings m_settings;
+    public GameSettings Settings => m_settings != null ? m_settings : GameSettings.Instance;
+
     private void Update()
     {
         if (Application.isPlaying)
@@ -41,10 +46,14 @@ public class PlayerCameraInputController : InputAxisControllerBase<PlayerCameraI
             if (context is not PlayerCameraInputController controller || controller.Input == null)
                 return 0f;
 
+            // Se o jogo estiver pausado (Time.timeScale == 0), a câmera não gira (nem com mouse nem gamepad)
+            if (Time.timeScale == 0f)
+                return 0f;
+
             IPlayerInput input = controller.Input;
             bool _usingMouse = input.CurrentControlScheme == "KeyboardMouse";
 
-            // Mouse solto (para clicar em menus/editor): a camera nao gira
+            // Mouse solto (para clicar em menus/pause): a camera nao gira
             if (_usingMouse && !input.IsCursorLocked)
                 return 0f;
 
@@ -55,7 +64,18 @@ public class PlayerCameraInputController : InputAxisControllerBase<PlayerCameraI
                 _ => 0f
             };
 
-            float gain = _usingMouse ? KeyboardMouseGain : GamepadGain;
+            float gain;
+            if (_usingMouse)
+            {
+                float sens = controller.Settings != null ? controller.Settings.SensMouse : KeyboardMouseGain;
+                gain = Mathf.Sign(KeyboardMouseGain) * Mathf.Abs(sens);
+            }
+            else
+            {
+                float sens = controller.Settings != null ? controller.Settings.SensGamepad : GamepadGain;
+                gain = Mathf.Sign(GamepadGain) * Mathf.Abs(sens);
+            }
+
             return value * gain;
         }
     }
