@@ -5,9 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/_Team/Scenes/Menu.unity
+    guid: 9381d359e6b774d4abc9cebbdbf5cc0e
   - enabled: 1
     path: Assets/_Team/Scenes/Levels/VeterinarianLevel.unity
     guid: 74e095e2e2e01124d8a5303b470a8952
