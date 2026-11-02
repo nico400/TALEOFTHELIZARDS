@@ -38,38 +38,72 @@ public class GameSettings : ScriptableObject
     private float m_audioMusic;
     private bool m_isLoaded;
 
+    public static GameSettings Instance { get; private set; }
+    public static event System.Action OnSettingsChanged;
+
     public float SensMouse
     {
         get { EnsureLoaded(); return m_sensMouse; }
-        set { EnsureLoaded(); m_sensMouse = value; }
+        set
+        {
+            EnsureLoaded();
+            if (Mathf.Approximately(m_sensMouse, value)) return;
+            m_sensMouse = value;
+            OnSettingsChanged?.Invoke();
+        }
     }
 
     public float SensGamepad
     {
         get { EnsureLoaded(); return m_sensGamepad; }
-        set { EnsureLoaded(); m_sensGamepad = value; }
+        set
+        {
+            EnsureLoaded();
+            if (Mathf.Approximately(m_sensGamepad, value)) return;
+            m_sensGamepad = value;
+            OnSettingsChanged?.Invoke();
+        }
     }
 
     public float AudioGeneral
     {
         get { EnsureLoaded(); return m_audioGeneral; }
-        set { EnsureLoaded(); m_audioGeneral = value; }
+        set
+        {
+            EnsureLoaded();
+            if (Mathf.Approximately(m_audioGeneral, value)) return;
+            m_audioGeneral = value;
+            OnSettingsChanged?.Invoke();
+        }
     }
 
     public float AudioSFX
     {
         get { EnsureLoaded(); return m_audioSFX; }
-        set { EnsureLoaded(); m_audioSFX = value; }
+        set
+        {
+            EnsureLoaded();
+            if (Mathf.Approximately(m_audioSFX, value)) return;
+            m_audioSFX = value;
+            OnSettingsChanged?.Invoke();
+        }
     }
 
     public float AudioMusic
     {
         get { EnsureLoaded(); return m_audioMusic; }
-        set { EnsureLoaded(); m_audioMusic = value; }
+        set
+        {
+            EnsureLoaded();
+            if (Mathf.Approximately(m_audioMusic, value)) return;
+            m_audioMusic = value;
+            OnSettingsChanged?.Invoke();
+        }
     }
 
     private void OnEnable()
     {
+        Instance = this;
         m_isLoaded = false;
         Load();
     }
