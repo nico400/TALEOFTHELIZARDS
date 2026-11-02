@@ -35,6 +35,14 @@ public class SettingsPanel : MonoBehaviour
         EnsureInitialized();
     }
 
+    private void OnDisable()
+    {
+        if (m_settings != null && m_isInitialized)
+        {
+            m_settings.Save();
+        }
+    }
+
     private void OnDestroy()
     {
         UnbindSliders();
@@ -143,8 +151,8 @@ public class SettingsPanel : MonoBehaviour
     {
         UnbindSliders();
 
-        if (m_sliderSensMouse    != null) m_sliderSensMouse.onValueChanged.AddListener(v    => m_settings.SensMouse    = v);
-        if (m_sliderSensGamepad  != null) m_sliderSensGamepad.onValueChanged.AddListener(v  => m_settings.SensGamepad  = v);
+        if (m_sliderSensMouse    != null) m_sliderSensMouse.onValueChanged.AddListener(v    => { m_settings.SensMouse    = v; m_settings.Save(); });
+        if (m_sliderSensGamepad  != null) m_sliderSensGamepad.onValueChanged.AddListener(v  => { m_settings.SensGamepad  = v; m_settings.Save(); });
         if (m_sliderAudioGeneral != null) m_sliderAudioGeneral.onValueChanged.AddListener(v => { m_settings.AudioGeneral = v; ApplyAudio(); });
         if (m_sliderSFX          != null) m_sliderSFX.onValueChanged.AddListener(v          => { m_settings.AudioSFX     = v; ApplyAudio(); });
         if (m_sliderMusic        != null) m_sliderMusic.onValueChanged.AddListener(v        => { m_settings.AudioMusic   = v; ApplyAudio(); });
@@ -161,11 +169,18 @@ public class SettingsPanel : MonoBehaviour
 
     /// <summary>
     /// Applies audio volume changes in real-time.
-    /// Hook your AudioMixer or AudioManager here when ready.
+    /// Synchronizes global listener, modular AudioManager, and immediately saves to PlayerPrefs.
     /// </summary>
     private void ApplyAudio()
     {
         AudioListener.volume = m_settings.AudioGeneral;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.UpdateVolumes(m_settings.AudioGeneral, m_settings.AudioSFX, m_settings.AudioMusic);
+        }
+
+        m_settings.Save();
     }
 
     private void HandleBack()
