@@ -55,6 +55,7 @@ public class SplineMultiTargetLookAt : MonoBehaviour
     private Transform m_lookAtProxy;
     private Vector3 m_currentFocusPosition;
     private Vector3 m_velocity;
+    private bool m_isInitialized;
 
     private void Awake()
     {
@@ -62,35 +63,81 @@ public class SplineMultiTargetLookAt : MonoBehaviour
         EnsureProxyTarget();
     }
 
+    private void OnEnable()
+    {
+        EnsureReferences();
+        EnsureProxyTarget();
+        SnapToCurrentTarget();
+    }
+
+    private void Start()
+    {
+        SnapToCurrentTarget();
+    }
+
     private void OnValidate()
     {
         EnsureReferences();
     }
 
-    private void Update()
+    /// <summary>
+    /// Snaps the focus proxy immediately to the current target point without damping lag.
+    /// Prevents the camera from starting at (0,0,0) or lagging on scene start.
+    /// </summary>
+    public void SnapToCurrentTarget()
+    {
+        if (m_targets == null || m_targets.Count == 0) return;
+
+        float progress = GetCurrentSplineProgress();
+        m_currentFocusPosition = CalculateTargetPosition(progress);
+        m_velocity = Vector3.zero;
+
+        if (m_lookAtProxy != null)
+        {
+            m_lookAtProxy.position = m_currentFocusPosition;
+        }
+
+        m_isInitialized = true;
+    }
+
+    private void LateUpdate()
     {
         if (m_targets == null || m_targets.Count == 0) return;
 
         EnsureReferences();
         EnsureProxyTarget();
 
+        if (!m_isInitialized)
+        {
+            SnapToCurrentTarget();
+        }
+
         float progress = GetCurrentSplineProgress();
         Vector3 desiredPosition = CalculateTargetPosition(progress);
 
         if (Application.isPlaying)
         {
-            m_currentFocusPosition = Vector3.SmoothDamp(
-                m_currentFocusPosition,
-                desiredPosition,
-                ref m_velocity,
-                m_smoothTime,
-                Mathf.Infinity,
-                Time.deltaTime
-            );
+            float dt = Time.unscaledDeltaTime;
+            if (m_smoothTime > 0.005f && dt > 0f)
+            {
+                m_currentFocusPosition = Vector3.SmoothDamp(
+                    m_currentFocusPosition,
+                    desiredPosition,
+                    ref m_velocity,
+                    m_smoothTime,
+                    Mathf.Infinity,
+                    dt
+                );
+            }
+            else
+            {
+                m_currentFocusPosition = desiredPosition;
+            }
         }
         else
         {
             m_currentFocusPosition = desiredPosition;
+            m_velocity = Vector3.zero;
         }
 
         if (m_lookAtProxy != null)
@@ -104,32 +151,29 @@ public class SplineMultiTargetLookAt : MonoBehaviour
     /// </summary>
     private float GetCurrentSplineProgress()
     {
+        float pos = 0f;
+
         if (m_splineDolly != null)
         {
-            float pos = m_splineDolly.CameraPosition;
+            pos = m_splineDolly.CameraPosition;
 
             // Handle different position unit modes in Cinemachine 3
-            if (m_splineDolly.PositionUnits == PathIndexUnit.Normalized)
+            if (m_splineDolly.PositionUnits != PathIndexUnit.Normalized)
             {
-                return Mathf.Repeat(pos, 1f);
+                if (m_splineDolly.Spline != null && m_splineDolly.Spline.Spline != null)
+                {
+                    float totalLength = m_splineDolly.Spline.Spline.GetLength();
+                    if (totalLength > 0.001f)
+                        pos /= totalLength;
+                }
             }
-
-            if (m_splineDolly.Spline != null && m_splineDolly.Spline.Spline != null)
-            {
-                float totalLength = m_splineDolly.Spline.Spline.GetLength();
-                if (totalLength > 0.001f)
-                    return Mathf.Repeat(pos / totalLength, 1f);
-            }
-
-            return Mathf.Repeat(pos, 1f);
         }
-
-        if (m_splineAnimate != null)
+        else if (m_splineAnimate != null)
         {
-            return Mathf.Repeat(m_splineAnimate.NormalizedTime, 1f);
+            pos = m_splineAnimate.NormalizedTime;
         }
 
-        return 0f;
+        return m_isLoop ? Mathf.Repeat(pos, 1f) : Mathf.Clamp01(pos);
     }
 
     /// <summary>
