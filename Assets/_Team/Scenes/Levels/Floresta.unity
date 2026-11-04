@@ -218,8 +218,24 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9033930245271159660, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 54785727}
   m_SourcePrefab: {fileID: 100100000, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
+--- !u!1 &54785726 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9033930245271159660, guid: e1c1a79df8dbac346a047624672df15f, type: 3}
+  m_PrefabInstance: {fileID: 54785725}
+  m_PrefabAsset: {fileID: 0}
+--- !u!81 &54785727
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54785726}
+  m_Enabled: 1
 --- !u!43 &66325536
 Mesh:
   m_ObjectHideFlags: 0
@@ -901,6 +917,51 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -134075157121105171, guid: 7dc2128346e75f24b92f3a67b9821e57, type: 3}
+--- !u!1 &519813809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 519813810}
+  - component: {fileID: 519813811}
+  m_Layer: 0
+  m_Name: PhaseManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &519813810
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519813809}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 20.18636, y: 59.61155, z: -5.73884}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519813811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519813809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a46d1b5f11aa3b4cb8ef7930462b640, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseManager
+  m_musicClip: {fileID: 8300000, guid: 3148bdfa613035446b77f992ef171b4c, type: 3}
 --- !u!64 &529926297
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2002,3 +2063,4 @@ SceneRoots:
   - {fileID: 54785725}
   - {fileID: 99252691}
   - {fileID: 1923810005}
+  - {fileID: 519813810}
