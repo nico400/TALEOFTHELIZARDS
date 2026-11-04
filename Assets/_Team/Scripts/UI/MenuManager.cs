@@ -44,7 +44,9 @@ public class MenuManager : MonoBehaviour
 
     [Header("Gamepad Detection")]
     [SerializeField] private GamepadDetector m_gamepadDetector;
-    [SerializeField] private GameObject m_iconControllerActive;    // Icon shown when gamepad is connected
+    [SerializeField] private Image m_iconControllerObj;    // Icon shown when gamepad is connected
+    [SerializeField] private Sprite m_iconControllerActive;
+    [SerializeField] private Sprite m_iconControllerInactive;
 
     [Header("Transition")]
     [SerializeField] private ScreenFader m_screenFader;
@@ -212,8 +214,13 @@ public class MenuManager : MonoBehaviour
             m_panelWarning.SetActive(showWarning);
 
         // Update icon.
-        if (m_iconControllerActive != null)
-            m_iconControllerActive.SetActive(connected);
+        if (m_iconControllerObj != null)
+            if (connected) { 
+                m_iconControllerObj.sprite = m_iconControllerActive;
+            }
+            else {
+                m_iconControllerObj.sprite = m_iconControllerInactive;
+            }
 
         // Block or release menu navigation.
         SetMainButtonsInteractable(!showWarning);
