@@ -47,6 +47,15 @@ public class InteractionIndicator : MonoBehaviour
     private float m_heightAbovePivot;
     private float m_bobOffset;
 
+    // Com Reload Domain desligado os static sobrevivem ao Play, mas Time.unscaledTime volta a 0:
+    // sem isto a busca por personagens fica bloqueada pelo tempo da sessao anterior
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetPlayerSearch()
+    {
+        s_players.Clear();
+        s_nextPlayerSearch = 0f;
+    }
+
     // Pega o indicador do objeto ou cria um com os valores padrao
     public static InteractionIndicator Ensure(GameObject target)
     {

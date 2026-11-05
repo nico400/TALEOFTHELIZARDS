@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Team/Scenes/Levels/Floresta.unity
     guid: e5ea6d9252434bb4799a5a2c1cb0404c
+  - enabled: 1
+    path: Assets/_Team/Scenes/Levels/CutsceneHLata.unity
+    guid: 4f6b68325bacc894b87d7aaced2bdbea
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: c4368f357fc85634480113e4a9662dfe, type: 3}
   m_UseUCBPForAssetBundles: 0
